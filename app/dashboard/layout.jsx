@@ -4,6 +4,7 @@
 import React, {useState} from 'react'
 import { MdSpaceDashboard } from "react-icons/md";
 import { Container, Row, Col, Button, Navbar, Offcanvas, ListGroup, Accordion, Nav} from 'react-bootstrap'
+import Link from 'next/link';
 
 const DashboardLayout = ({children, sidebar, modal, content}) => {
 
@@ -15,23 +16,23 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
       {
         title:"Dashboard",
         icon: <MdSpaceDashboard/>,
-        links:[]
+        links:[{name:"Overview", href:"/dashboard"}]
       },
       {
         title:"Enquiry",
         icon: <MdSpaceDashboard/>,
         links:[ 
-          {name:"Enquiries", href:"" },
-          {name:"Enquiries List", href:"" }
+          {name:"Enquiries", href:"/dashboard/Enquiry/Enquiries" },
+          {name:"Enquiries List", href:"/dashboard/Enquiry/EnquiriesList" }
       ]
       },
       {
         title:"Quotations",
         icon: <MdSpaceDashboard/>,
         links:[
-          { name:"Quotations", href:""}, 
-          { name:"Quotations From Enqury", href: ""},
-          { name:"Quotations List", href: ""}
+          { name:"Quotations", href:"/dashboard/Quotation/EnquiryQuotations"}, 
+          { name:"Quotations From Enqury", href: "/dashboard/Quotations"},
+          { name:"Quotations List", href: "/dashboard/Quotations/List"}
         ]
       },
       {
@@ -46,10 +47,10 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
         title:"Cheque",
         icon: <MdSpaceDashboard/>,
         links:[
-          { name:"Add Check Banks", href:""},
-          { name:"Banks List", href:""},
-          { name:"Invoice Cheque List", href:""},
-          { name:"Purchase Cheque List", href:""},
+          { name:"Add Check Banks", href:"/dashboard/Cheque/AddChequeBanks"},
+          { name:"Banks List", href:"/dashboard/Cheque/BanksList"},
+          { name:"Invoice Cheque List", href:"/dashboard/Cheque/InvoiceChequeList"},
+          { name:"Purchase Cheque List", href:"/dashboard/Cheque/PurchaseChequeList"},
   
         ]
       },
@@ -57,131 +58,131 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
         title:"Purchase",
         icon: <MdSpaceDashboard/>,
         links:[
-          {name:"purchase", href:""},
-          {name:"purchase List", href:""},
+          {name:"purchase", href:"/dashboard/Purchase/Purchase"},
+          {name:"purchase List", href:"/dashboard/Purchase/PurchaseList"},
         ]
       },
       {
         title:"Employee",
         icon: <MdSpaceDashboard/>,
         links:[ 
-          {name:"Add Employee", href:""},
-          {name:"Employee List", href:""},
+          {name:"Add Employee", href:"/dashboard/Employee/AddEmployee"},
+          {name:"Employee List", href:"/dashboard/Employee/EmployeeList"},
         ]
       },
       {
         title:"Employee Attendance",
         icon: <MdSpaceDashboard/>,
         links:[
-          {name:"Record Daily Attendance", href:""},
-          {name:"Attendance Report", href:""},
-          {name:"Record Employee Leave", href:""},
-          {name:"Leave Report", href:""},
+          {name:"Record Daily Attendance", href:"/dashboard/EmployeeAttendance/RecordDaliyAttendance"},
+          {name:"Attendance Report", href:"/dashboard/EmployeeAttendance/AttendanceReport"},
+          {name:"Record Employee Leave", href:"/dashboard/EmployeeAttendance/EmployeeLeave"},
+          {name:"Leave Report", href:"/dashboard/EmployeeAttendance/LeaveReport"},
         ]
       },
       {
         title:"Customer",
         icon: <MdSpaceDashboard/>,
         links:[ 
-          {name:"Add Customer", href:""},
-          {name:"Customer List", href:""},
-          {name:"Leads List", href:""},
-          {name:"Customer Advance", href:""},
-          {name:"Customer Ledger", href:""},
+          {name:"Add Customer", href:"/dashboard/Customer/AddCustomer"},
+          {name:"Customer List", href:"/dashboard/Customer/CustomerList"},
+          {name:"Leads List", href:"/dashboard/Customer/LeadsList"},
+          {name:"Customer Advance", href:"/dashboard/Customer/CustomerAdvance"},
+          {name:"Customer Ledger", href:"/dashboard/Customer/CustomerLedger"},
         ]
       },
       {
         title:"Supplier",
         icon: <MdSpaceDashboard/>,
         links:[
-          { name:"Add Supplier", href:""},
-          { name:"Supplier List", href:""},
-          { name:"Supplier Advance", href:""},
-          { name:"Supplier Ledger", href:""},
+          { name:"Add Supplier", href:"/dashboard/Supplier/AddSupplier"},
+          { name:"Supplier List", href:"/dashboard/Supplier/SupplierList"},
+          { name:"Supplier Advance", href:"/dashboard/Supplier/SupplierAdvance"},
+          { name:"Supplier Ledger", href:"/dashboard/Supplier/SupplierLedger"},
         ]
       },
       {
         title:"Returns",
         icon: <MdSpaceDashboard/>,
         links:[ 
-          {name:"Returns", href:""},
-          {name:"Customer Return List", href:""},
-          {name:"Supplier Return List", href:""},
+          {name:"Returns", href:"/dashboard/Returns/Returns"},
+          {name:"Customer Return List", href:"/dashboard/Returns/CustomerReturnList"},
+          {name:"Supplier Return List", href:"/dashboard/Returns/SupplierReturnList"},
         ]
       },
       {
         title:"Master",
         icon: <MdSpaceDashboard/>,
         links:[
-          {name:"Item List", href:""},
-          {name:"Unit List", href:""},
-          {name:"Category List", href:""},
-          {name:"Ledger", href:""},
+          {name:"Item List", href:"/dashboard/Master/ItemsList"},
+          {name:"Unit List", href:"/dashboard/Master/UnitsList"},
+          {name:"Category List", href:"/dashboard/Master/CategoryList"},
+          {name:"Ledger", href:"/dashboard/Master/Ledger"},
         ]
       },
       {
-        title:"Accounts",
+        title:"Account",
         icon: <MdSpaceDashboard/>,
         links:[ 
-          {name:"Profit and Loss", href:""},
-          {name:"Trading And Profit And Loss", href:""},
-          {name:"Balance Sheet", href:""},
-          {name:"Trial Balance Sheet", href:""},
-          {name:"Customer Service", href:""},
-          {name:"Supplier Payment", href:""},
-          {name:"Bank Transactions", href:""},
-          {name:"Add Expenses", href:""},
+          {name:"Profit and Loss", href:"/dashboard/Account/ProfitAndLoss"},
+          {name:"Trading And Profit And Loss", href:"/dashboard/Account/TradingProfitAndLoss"},
+          {name:"Balance Sheet", href:"/dashboard/Account/BalanceSheet"},
+          {name:"Trial Balance Sheet", href:"/dashboard/Account/TrialBalanceReport"},
+          {name:"Customer Recive", href:"/dashboard/Account/CustomerRecieve"},
+          {name:"Supplier Payment", href:"/dashboard/Account/SupplierPayment"},
+          {name:"Bank Transactions", href:"/dashboard/Account/BankTransactions"},
+          {name:"Add Expenses", href:"/dashboard/Account/AddExpenses"},
         ]
       },
       {
         title:"Stock Rport",
         icon: <MdSpaceDashboard/>,
         links:[
-          {name:"Report", href:""},
+          {name:"Report", href:"/dashboard/StockReport/Report"},
         ]
       },
       {
         title:"Purchase Report",
         icon: <MdSpaceDashboard/>,
         links:[
-          { name:"Item Purchase Report", href:""},
+          { name:"Item Purchase Report", href:"/dashboard/PurchaseReport/ItemPurchaseReport"},
         ]
       },
       {
         title:"Reports",
         icon: <MdSpaceDashboard/>,
         links:[
-          {name:"Customer Ledger", href:""},
-          {name:"Customer Advance Ledger", href:""},
-          {name:"Supplier Ledger", href:""},
-          {name:"Supplier Advance Ledger", href:""},
-          {name:"Cash Ledger", href:""},
-          {name:"Bank Ledger", href:""},
-          {name:"Card Ledger", href:""},
-          {name:"Vat Ledger", href:""},
-          {name:"Sales Vat Ledger", href:""},
-          {name:"Purchase Vat Ledger", href:""},
-          {name:"Expense Vat Ledger", href:""},
-          {name:"Customer Recieve Ledger", href:""},
-          {name:"Supplier Payment List", href:""},
-          {name:"Company Expenses List", href:""},
-          {name:"Daily Report", href:""},
-          {name:"Sales & Purchase Report", href:""},
-          {name:"User Wise Sales Report", href:""},
-          {name:"Product Sale Report", href:""},
-          {name:"Product Purchase Report", href:""},
-          {name:"Product Sale Return Report", href:""},
-          {name:"Product purchase Return Report", href:""},
-          {name:"Docs Expiry List", href:""},
+          {name:"Customer Ledger", href:"/dashboard/Reports/CustomerLedger"},
+          {name:"Customer Advance Ledger", href:"/dashboard/Reports/CustomerAdvanceLedger"},
+          {name:"Supplier Ledger", href:"/dashboard/Reports/SupplierLedger"},
+          {name:"Supplier Advance Ledger", href:"/dashboard/Reports/SupplierAdvanceLedger"},
+          {name:"Cash Ledger", href:"/dashboard/Reports/CashLedger"},
+          {name:"Bank Ledger", href:"/dashboard/Reports/BankLedger"},
+          {name:"Card Ledger", href:"/dashboard/Reports/CardLedger"},
+          {name:"Vat Ledger", href:"/dashboard/Reports/VatLedger"},
+          {name:"Sales Vat Ledger", href:"/dashboard/Reports/SalesVatLedger"},
+          {name:"Purchase Vat Ledger", href:"/dashboard/Reports/PurchaseVatLedger"},
+          {name:"Expense Vat Ledger", href:"/dashboard/Reports/ExpenseVatLedger"},
+          {name:"Customer Recieve List", href:"/dashboard/Reports/CustomerRecieveList"},
+          {name:"Supplier Payment List", href:"/dashboard/Reports/SupplierPaymentList"},
+          {name:"Company Expenses List", href:"/dashboard/Reports/CompanyExpenseList"},
+          {name:"Daily Report", href:"/dashboard/Reports/DailyReport"},
+          {name:"Sales & Purchase Report", href:"/dashboard/Reports/SalesAndPurchaseReport"},
+          {name:"User Wise Sales Report", href:"/dashboard/Reports/UserSalesReport"},
+          {name:"Product Sale Report", href:"/dashboard/Reports/SaleReportProductWise"},
+          {name:"Product Purchase Report", href:"/dashboard/Reports/PurchaseReportProductWise"},
+          {name:"Product Sale Return Report", href:"/dashboard/Reports/SaleReturnReportProduct"},
+          {name:"Product purchase Return Report", href:"/dashboard/Reports/PurchaseReturnReportProduct"},
+          {name:"Docs Expiry List", href:"/dashboard/Reports/DocsExpiryList"},
         ]
       },
       {
         title:"Admin",
         icon: <MdSpaceDashboard/>,
         links:[
-          {name:"Manage Users", href:""},
-          {name:"Add Bank Accounts", href:""},
-          {name:"Manage Company", href:""},
+          {name:"Manage Users", href:"/dashboard/Admin/ManageUsers"},
+          {name:"Add Bank Accounts", href:"/dashboard/Admin/AddBankAccount"},
+          {name:"Manage Company", href:"/dashboard/Admin/ManageCompany"},
         ]
       },
       
@@ -220,15 +221,17 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
                     <Accordion.Body>
                       {item.links?.map((link, linkIndex) => (
                         <ListGroup.Item className="my-2" key={linkIndex}>
+                          <Link href={link.href} passHref>
                           <Nav.Item 
                             onClick={() => {
-                              console.log(link.name);
+                              //console.log(link.name);
                               toggle();
                             }}
                             style={{ cursor: 'pointer' }}
                           >
                             {link.name}
                           </Nav.Item>
+                          </Link>
                         </ListGroup.Item>
                       ))}
                     </Accordion.Body>
