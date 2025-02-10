@@ -1,7 +1,7 @@
 //"use client"
 
 import { Geist, Geist_Mono } from "next/font/google";
-
+import 'react-calendar/dist/Calendar.css';
 
 
 import "./globals.css";

@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 const DashboardLayout = ({children, sidebar, modal, content}) => {
 
-  const [show, setShow] = useState(true)
+  const [show, setShow] = useState(false)
 
   const toggle =()=> setShow(!show)
 

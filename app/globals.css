@@ -2,6 +2,7 @@
 
 
 
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -39,6 +40,9 @@ a {
   text-decoration: none;
 }
 
+.btn:{
+  margin: 1rem
+}
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;

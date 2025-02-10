@@ -1,7 +1,4 @@
 "use client"
-
-
-import styles from "./page.module.css";
 import { Button, Container, Form } from 'react-bootstrap'
 import { useRouter } from "next/navigation";
 
@@ -16,7 +13,7 @@ const handleSubmit = ()=>{
 }
 
   return (
-     <Container fluid='md' className="w-25">
+     <Container fluid='md' className="col-md-4">
       <Form className="w-100">
         <Form.Group>
           <Form.Text>LOG-IN</Form.Text>
