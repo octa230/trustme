@@ -13,16 +13,16 @@ const Calender = ({setterFunc, type, title}) => {
         setterFunc(date)
     }
   return (
-    <div>
+    <div className='justify'>
         <InputGroup className='my-2'>
         <FormControl aria-describedby='addon1' placeholder={date.toLocaleDateString()}/>
         <Button id='addon1'
-                onClick={()=> setShow(true)} 
-                variant='outline-secondary'>
-                    {title}
-                </Button>
+            onClick={()=> setShow(true)} 
+            variant='outline-secondary'>
+                {title}
+            </Button>
         </InputGroup>
-      <Modal show={show} onHide={()=> setShow(false)}>
+      <Modal show={show} onHide={()=> setShow(false)} className='justify-items-center'>
         <Modal.Header closeButton>
             {date.toLocaleDateString()}
         </Modal.Header>

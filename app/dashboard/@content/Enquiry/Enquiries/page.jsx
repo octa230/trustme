@@ -1,6 +1,7 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
+import DataTable from '@/app/components/DataTable'
 import React from 'react'
 import { InputGroup, Form, Col, Row, Card, Button, Accordion } from 'react-bootstrap'
 
@@ -20,8 +21,8 @@ export default function page() {
       </Card>
 
       <Card className='col-md-3 mx-1'>
-        <Accordion defaultActiveKey='1' className='m-1'>
-          <Accordion.Item eventKey='1'>
+        <Accordion className='m-1'>
+          <Accordion.Item eventKey='0'>
             <Accordion.Header>
                 New Customer
             </Accordion.Header>
@@ -71,7 +72,7 @@ export default function page() {
         </Accordion>
       </Card>
       <Card className='col-md-3 mx-1'>
-        <Accordion defaultActiveKey='1' className='m-1'>
+        <Accordion className='m-1'>
           <Accordion.Item eventKey='1'>
             <Accordion.Header>
                 Enquiry Details
@@ -99,6 +100,8 @@ export default function page() {
           </Accordion.Item>
         </Accordion>
       </Card>
+
+      <DataTable/>
       </Row>
     </div>
   )

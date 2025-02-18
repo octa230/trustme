@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Col } from 'react-bootstrap'
+import { Button, Col, Row } from 'react-bootstrap'
 
 export default function page() {
   return (
@@ -7,7 +7,7 @@ export default function page() {
       <h1>Manage Users</h1>
       <Row>
         <Col>
-          <Button></Button>
+          <Button>Create USER</Button>
         </Col>
       </Row>
     </div>

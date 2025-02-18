@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
-import Address from "./address.js";
-import User from "./user.js";
 
 
 const employeeSchema = new mongoose.Schema({
     controlId: {type: String},
-    details: User,
-    address: Address,
+    userDetails: {
+        id: {type: mongoose.Types.ObjectId, ref: "User"},
+        username: {type: String}
+    },
+    address: {type: mongoose.Types.ObjectId, ref: "Address"},
     joiningDate: {type: Date},
     leaveDate: {type: Date},
     employeeId: {type: String},
@@ -14,7 +15,8 @@ const employeeSchema = new mongoose.Schema({
     department: {type: String},
     shift: {type: String},
     weeklyHoliday: {type: String},
-    bloodGroup: {type: String}
+    bloodGroup: {type: String},
+    salary: {type: Number}
 })
 
 const Employee = mongoose.model("Employee", employeeSchema)

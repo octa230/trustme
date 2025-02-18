@@ -32,4 +32,27 @@ authRouter.post('/', asyncHandler(async(req, res)=>{
 }))
 
 
+authRouter.post('/login', asyncHandler(async(req, res)=>{
+    const {username, password} = req.body
+
+    const user = await User.findOne({username: username})
+
+    if( user ){
+
+        const verifyPassword = bcrypt.compareSync(password, user.password)
+        if(verifyPassword){
+            res.send({
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                phone: user.phone,
+                token: generateToken(user)
+            })
+        }
+    }else{
+        res.status(405).send({message: 'check username or password'})
+    }
+
+}))
+
 export default authRouter

@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 const DashboardLayout = ({children, sidebar, modal, content}) => {
 
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(true)
 
   const toggle =()=> setShow(!show)
 
@@ -30,8 +30,8 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
         title:"Quotations",
         icon: <MdSpaceDashboard/>,
         links:[
-          { name:"Quotations", href:"/dashboard/Quotation/EnquiryQuotations"}, 
-          { name:"Quotations From Enqury", href: "/dashboard/Quotations"},
+          { name:"Quotations", href:"/dashboard/Quotation/Quotations"}, 
+          { name:"Quotations From Enqury", href: "/dashboard/EnquiryQuotations"},
           { name:"Quotations List", href: "/dashboard/Quotations/List"}
         ]
       },
@@ -39,8 +39,8 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
         title:"Sales",
         icon: <MdSpaceDashboard/>,
         links:[
-          { name:"Sales", href:""},
-          { name:"Sales List", href:""}
+          { name:"Sales", href:  "/dashboard/Sales/Sales"},
+          { name:"Sales List", href:  "/dashboard/Sales/SalesList"}
       ]
       },
       {
