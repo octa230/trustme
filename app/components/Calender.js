@@ -11,6 +11,7 @@ const Calender = ({setterFunc, type, title}) => {
     const handleDateChange =(date)=>{
         setDate(date)
         setterFunc(date)
+        console.log(date)
     }
   return (
     <div className='justify'>

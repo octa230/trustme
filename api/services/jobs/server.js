@@ -1,5 +1,6 @@
 import { Router } from "express";
 import Job from "../../models/job.js";
+import asyncHandler from "express-async-handler";
 
 const jobsRouter = Router()
 

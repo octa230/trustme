@@ -4,4 +4,4 @@ const addressRouter = Router()
 
 
 
-export default addressRouter()
+export default addressRouter

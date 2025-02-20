@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
-import Address from "./address";
+
 
 const supplierSchema = new mongoose.Schema({
     name: {type: String},
     mobile: {type: String},
     phone: {type: String},
     email: {type: String},
-    address: Address,
+    address: {type: String},
     trn: {type: String}
 })
 
