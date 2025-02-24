@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import { useState } from 'react';
 import { Button, FormControl, InputGroup, Modal } from 'react-bootstrap';
@@ -19,7 +21,7 @@ const Calender = ({setterFunc, type, title}) => {
         <FormControl aria-describedby='addon1' placeholder={date.toLocaleDateString()}/>
         <Button id='addon1'
             onClick={()=> setShow(true)} 
-            variant='outline-secondary'>
+            variant='outline-info text-dark text-weight-bold'>
                 {title}
             </Button>
         </InputGroup>

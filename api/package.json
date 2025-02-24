@@ -23,6 +23,7 @@
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",
     "puppeteer": "^21.7.0",
+    "to-words": "^4.3.0",
     "uuid": "^11.0.5"
   }
 }

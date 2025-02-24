@@ -1,8 +1,9 @@
 'use client'
 
 import React, {useState} from 'react'
-import { Button, Form, InputGroup,Card } from 'react-bootstrap'
+import { Button, Form, InputGroup,Card, Container } from 'react-bootstrap'
 import Calender from '@/app/components/Calender'
+
 
 const page = () => {
   const [selectedPaymentMthd, setSelectedPaymentMthd] = useState('')
@@ -19,23 +20,11 @@ const page = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
   return (
-    <div className='col-md-5'>
-      <h1>Add Expense</h1>
-      <Card className='p-2'>
+    <Container fluid className='col-md-5' style={{height: '100vh'}}>
+      <Card className='p-2 d-flex justify-content-center'>
         <Card.Header>
-          <Card.Title>Expense</Card.Title>
+          <Card.Title>New Expense</Card.Title>
         </Card.Header>
         <Form.Group>
           <Form.Group>
@@ -105,7 +94,7 @@ const page = () => {
         <Button variant='danger' className='m-3'>CANCEL</Button>
         </div>
       </Card>
-    </div>
+    </Container>
   )
 }
 

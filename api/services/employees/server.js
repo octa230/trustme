@@ -4,7 +4,7 @@ import { Router } from "express";
 import asyncHandler from "express-async-handler";
 import bcrypt from 'bcrypt'
 import { generateId } from "../../utils.js";
-import Job from "../../models/job.js";
+
 
 
 const employeeRouter = Router()

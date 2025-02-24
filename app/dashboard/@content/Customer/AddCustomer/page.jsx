@@ -1,17 +1,14 @@
 "use client"
 
 import React from 'react'
-import { Button, Card, Form } from 'react-bootstrap'
+import { Button, Card, Form, Container, Row, ButtonGroup } from 'react-bootstrap'
 
 export default function page() {
   return (
-    <div>
-      <h1>Add Customer</h1>
-      <Card className='col-md-5 p-2'>
-        <Card.Header>
-          <Card.Title>Customer</Card.Title>
-        </Card.Header>
-      <Form>
+    <Container className='col-md-5'>
+      <Form className='justify-content-center border p-2 rounded shadow-sm'>
+        <h1 className='text-muted'>Add Customer</h1>
+        <hr/>
         <Form.Group>
           <Form.Label>Name</Form.Label>
           <Form.Control type='text'
@@ -49,9 +46,11 @@ export default function page() {
             placeholder='Tax Registration Number'
           />
         </Form.Group>
-        <Button type='submit' className='mt-3'>SAVE</Button>
+        <ButtonGroup className='mt-3'>
+          <Button type='submit' variant='success'>SAVE</Button>
+          <Button type='submit' variant='danger'>CANCEL</Button>
+        </ButtonGroup>
       </Form>
-      </Card>
-    </div>
+    </Container>
   )
 }

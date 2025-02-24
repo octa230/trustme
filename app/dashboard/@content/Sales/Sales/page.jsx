@@ -3,7 +3,7 @@
 import Calender from '@/app/components/Calender'
 import DataTable from '@/app/components/DataTable'
 import React from 'react'
-import { InputGroup, Form, Col, Row, Card, Button, Accordion } from 'react-bootstrap'
+import { InputGroup, Form, Col, Row, Card, Button, Accordion, InputGroup } from 'react-bootstrap'
 
 
 export default function page() {

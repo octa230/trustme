@@ -3,7 +3,7 @@
 
 import React, {useState} from 'react'
 import { MdSpaceDashboard } from "react-icons/md";
-import { Container, Row, Col, Button, Navbar, Offcanvas, ListGroup, Accordion, Nav} from 'react-bootstrap'
+import { Container, Row, Col, Button, Navbar, Offcanvas, ListGroup, Accordion, Nav, ButtonGroup, Badge} from 'react-bootstrap'
 import Link from 'next/link';
 
 const DashboardLayout = ({children, sidebar, modal, content}) => {
@@ -31,8 +31,8 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
         icon: <MdSpaceDashboard/>,
         links:[
           { name:"Quotations", href:"/dashboard/Quotation/Quotations"}, 
-          { name:"Quotations From Enqury", href: "/dashboard/EnquiryQuotations"},
-          { name:"Quotations List", href: "/dashboard/Quotations/List"}
+          { name:"Quotations From Enqury", href: "/dashboard/Quotation/EnquiryQuotations"},
+          { name:"Quotations List", href: "/dashboard/Quotation/QuotationsList"}
         ]
       },
       {
@@ -197,6 +197,15 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
               ☰
             </Button>
           </Navbar.Brand>
+          <ButtonGroup className='border rounded shadow-sm'>
+            <Button variant='light border border-dark'>
+              ✉️ <Badge pill className='bg-info'>9</Badge>
+              <span className='visually-hidden'>Notifications</span>
+            </Button>
+          <Button variant='outline-danger'>
+              ⏏️ Logout
+          </Button>
+          </ButtonGroup>
         </Container>
       </Navbar>
 
@@ -220,7 +229,7 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
                     <Accordion.Header>{item.title}</Accordion.Header>
                     <Accordion.Body>
                       {item.links?.map((link, linkIndex) => (
-                        <ListGroup.Item className="my-2" key={linkIndex}>
+                        <ListGroup.Item className="py-3" key={linkIndex}>
                           <Link href={link.href} passHref>
                           <Nav.Item 
                             onClick={() => {

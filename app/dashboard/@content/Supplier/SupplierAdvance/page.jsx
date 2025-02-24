@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useState} from 'react'
-import { Button, Form, InputGroup,Card } from 'react-bootstrap'
+import { Button, Form, InputGroup, Container } from 'react-bootstrap'
 import Calender from '@/app/components/Calender'
 
 
@@ -14,12 +14,10 @@ export default function page() {
       setSelectedPaymentMthd(e.target.value)
     }
   return (
-    <div className='col-md-5'>
-      <h1>Supplier Advance</h1>
-      <Card className='p-2'>
-        <Card.Header>
-          <Card.Title>Advance</Card.Title>
-        </Card.Header>
+    <Container className='col-md-5'>
+      <Form className='p-2 border rounded shadow-sm'>
+          <h1>Supplier Advance</h1>
+          <hr/>
         <Form.Group>
           <Form.Group>
             <Calender title='Date'/>
@@ -80,7 +78,7 @@ export default function page() {
         <Button variant='success' type='submit' className='m-3'>SAVE & PRINT</Button>
         <Button variant='danger' className='m-3'>CANCEL</Button>
         </div>
-      </Card>
-    </div>
+      </Form>
+    </Container>
   )
 }

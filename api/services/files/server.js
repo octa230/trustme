@@ -14,14 +14,14 @@ const uploadRouter = Router()
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const apiKeys = JSON.parse(readFileSync(path.resolve(__dirname, '../../keys/saas-451307-ca3286816aeb.json')))
+//const apiKeys = JSON.parse(readFileSync(path.resolve(__dirname, '../')))
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 const authorize = async()=>{
     const auth = new google.auth.JWT(
-        apiKeys.client_email,
+        //apiKeys.client_email,
         null,
-        apiKeys.private_key,
+        //apiKeys.private_key,
         SCOPES
     )
 

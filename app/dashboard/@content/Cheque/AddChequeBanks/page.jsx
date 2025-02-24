@@ -1,18 +1,19 @@
 'use client'
 import React from 'react'
-import { Button, Form } from 'react-bootstrap'
+import { Button, Form, Container } from 'react-bootstrap'
 
 export default function page() {
   return (
-    <div className='col-md-4'>
-      <h1>Add Cheque Banks</h1>
-      <Form>
+    <Container className='col-md-4'>
+      <Form className='rounded shadow-sm border p-2'>
+        <h1>Add Cheque Banks</h1>
+        <hr/>
         <Form.Group>
           <Form.Label>Bank Name</Form.Label>
-          <Form.Control placeholder='bank name'/>
+          <Form.Control type='text'/>
         </Form.Group>
+        <Button type='submit' className='mt-2' variant='success'>SAVE</Button>
       </Form>
-      <Button type='submit' className='mt-2'>SAVE</Button>
-    </div>
+    </Container>
   )
 }

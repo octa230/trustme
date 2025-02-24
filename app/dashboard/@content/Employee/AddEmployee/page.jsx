@@ -2,7 +2,7 @@
 
 import Calender from '@/app/components/Calender'
 import React from 'react'
-import { Card, Row, Container, Form, Button, InputGroup, Col } from 'react-bootstrap'
+import { Card, Row, Container, Form, Button, InputGroup, Col, ButtonGroup } from 'react-bootstrap'
 
 export default function page() {
 
@@ -15,13 +15,11 @@ export default function page() {
 
   
   return (
-    <Container fluid className='w-100'>
-      <h1>Add Employee</h1>
-      <Row>
-      <Card className='col-xs-12 col-md-4 m-3'>
-        <Card.Header>
-          <Card.Title>USER INFO</Card.Title>
-          <Form>
+    <Container fluid>
+      <Form className='d-flex justify-content-center flex-wrap'>
+        <div className='col-md-5 p-2 border rounded shadow-sm m-2'>
+            <h1 className='text-muted'>USER INFO</h1>
+            <hr/>
             <Form.Group>
               <Form.Label>First Name</Form.Label>
               <Form.Control type='text'/>
@@ -46,14 +44,10 @@ export default function page() {
               <Form.Label>Phone</Form.Label>
               <Form.Control type='text'/>
             </Form.Group>
-            <Button type='Submit'>SAVE</Button>
-          </Form>
-        </Card.Header>
-      </Card>
-      <Card className='col-xs-12 col-md-4 m-3'>
-        <Card.Header>
-          <Card.Title>ADDRESS INFO</Card.Title>
-          <Form>
+        </div>
+        <div className='col-md-5 p-2 border rounded shadow-sm m-2'>
+            <h1 className='text-muted'>ADDRESS INFO</h1>
+            <hr/>
             <Form.Group>
               <Form.Label>Street</Form.Label>
               <Form.Control type='text'/>
@@ -74,14 +68,10 @@ export default function page() {
               <Form.Label>Country</Form.Label>
               <Form.Control type='text'/>
             </Form.Group>
-            <Button type='submit'>SAVE</Button>
-          </Form>
-        </Card.Header>
-      </Card>
-      <Card className='col-xs-12 col-md-4 m-3'>
-        <Card.Header>
-          <Card.Title>EMPLOYEE INFO</Card.Title>
-          <Form>
+          </div>
+          <div className='col-md-5 p-2 border rounded shadow-sm m-2'>
+            <h1 className='text-muted'>EMPLOYEE INFO</h1>
+            <hr/>
             <Form.Group>
               <Form.Label>Joining Date</Form.Label>
               <Calender title='Joining Date'/>
@@ -137,13 +127,10 @@ export default function page() {
                   ))}
                 </Form.Select>
               </Form.Group>
-          </Form>
-        </Card.Header>
-      </Card>
-      <Card className='col-xs-12 col-md-4 m-3'>
-        <Card.Header>
-          <Card.Title>DISIGNATION & SALARY</Card.Title>
-          <Form>
+        </div>
+        <div className='col-md-5 p-2 border rounded shadow-sm m-2'>
+            <h1 className='text-muted'>DISIGNATION & SALARY</h1>
+            <hr/>
             <Form.Group>
               <Form.Label>Designation</Form.Label>
               <Form.Select>
@@ -169,23 +156,22 @@ export default function page() {
               <Form.Label>Salary Comment</Form.Label>
               <Form.Control as="textarea" rows={5}/>
             </Form.Group>
-          </Form>
-        </Card.Header>
-      </Card>
-      <Row>
-      <Form.Label>Supporting Documents</Form.Label>
-      <Col className='my-2'>
-      <InputGroup>
+        </div>
+        <div className='my-2 col-md-8'>
+        <InputGroup>
           <Form.Control type='text' aria-describedby='addon1' placeholder='name'/>
           <Form.Control type='text' aria-describedby='addon1' placeholder='document number/Id'/>
           <Button id='addon1' variant='outline-secondary'>Document</Button>
-      </InputGroup>
-      </Col>
-      <Col>
+        </InputGroup>
         <Calender title='Expiry Date'/>
-      </Col>
-      </Row>
-      </Row>
+      </div>
+        <div className='col-md-5'>
+          <ButtonGroup>
+            <Button variant='success'>SAVE</Button>
+            <Button variant='danger'>CANCEL</Button>
+          </ButtonGroup>
+          </div>
+      </Form>
     </Container>
   )
 }

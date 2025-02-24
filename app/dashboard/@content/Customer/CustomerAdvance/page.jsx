@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useState} from 'react'
-import { Button, Form, InputGroup,Card } from 'react-bootstrap'
+import { Button, Form, InputGroup, Container } from 'react-bootstrap'
 import Calender from '@/app/components/Calender'
 
 
@@ -16,12 +16,10 @@ export default function page() {
     }
 
   return (
-    <div className='col-md-5'>
-      <h1>Customer Advance</h1>
-      <Card className='p-2'>
-        <Card.Header>
-          <Card.Title>Expense</Card.Title>
-        </Card.Header>
+    <Container fluid className='col-md-5'>
+      <Form className='p-2 justify-content-center border rounded shadow-sm'>
+        <h1 className='text-muted'>Customer Advance</h1>
+        <hr/>
         <Form.Group>
           <Form.Group>
             <Calender title='Date'/>
@@ -34,7 +32,7 @@ export default function page() {
             <Form.Label>Customer Name</Form.Label>
             <Form.Select>
               <option>---select---</option>
-              {['petrol', 'computer', 'services'].map((item, index)=>(
+              {['padasda', 'ccsds', 'customera'].map((item, index)=>(
                 <option key={index}>{item}</option>
               ))}
             </Form.Select>
@@ -82,7 +80,7 @@ export default function page() {
         <Button variant='success' type='submit' className='m-3'>SAVE & PRINT</Button>
         <Button variant='danger' className='m-3'>CANCEL</Button>
         </div>
-      </Card>
-    </div>
+      </Form>
+    </Container>
   )
 }
