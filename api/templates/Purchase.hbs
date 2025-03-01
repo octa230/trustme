@@ -181,65 +181,45 @@
             <thead>
                 <tr>
                     <th style="text-align: left">Description</th>
-                    <th>UNIT</th>
-                    <th>QTY</th>
+{{!--                     <th>UNIT</th>
+ --}}                    <th>QTY</th>
                     <th>UNIT PRICE</th>
                     <th>TOTAL</th>
                 </tr>
             </thead>
             <tbody>
 
-              {{#each data.items}}
+              {{#each items}}
               <tr>
-                <td>{{name}}</td>
+                <td style="text-align: left;">{{name}}</td>
                 <td>{{qty}}</td>
-                <td>{{price}}</td>
+                <td>{{salePrice}}</td>
                 <td>{{total}}</td>
               </tr>
               {{/each}}
-                {{!-- <tr>
-                    <td style="text-align: left">Item 1</td>
-                    <td>30</td>
-                    <td>300.00</td>
-                    <td>300.00</td>
-                    <td>300.00</td>
-                </tr>
-                <tr>
-                    <td style="text-align: left">Item 1</td>
-                    <td>30</td>
-                    <td>300.00</td>
-                    <td>300.00</td>
-                    <td>300.00</td>
-                </tr>
-                <tr>
-                    <td style="text-align: left">Item 1</td>
-                    <td>30</td>
-                    <td>300.00</td>
-                    <td>300.00</td>
-                    <td>300.00</td>
-                </tr> --}}
             </tbody>
+
         </table>
         <table class="totals-table">
             <tr>
                 <td style="text-align: left"><strong>SUBTOTAL</strong></td>
-                <td>{{data.itemsTotal}}</td>
+                <td>{{itemsWithVatTotal}}</td>
             </tr>
             <tr>
                 <td style="text-align: left"><strong>DISCOUNT</strong></td>
-                <td>{{data.discount}}</td>
+                <td>{{discountAmount}}</td>
             </tr>
             <tr>
                 <td style="text-align: left"><strong>TAX RATE</strong></td>
-                <td>{{data.taxRate}}</td>
+                <td>{{vatRate}}</td>
             </tr>
             <tr>
                 <td style="text-align: left"><strong>TOTAL TAX</strong></td>
-                <td>{{data.taxAmount}}</td>
+                <td>{{vatAmount}}</td>
             </tr>
             <tr>
                 <td style="text-align: left"><strong>TOTAL AMOUNT</strong></td>
-                <td>$179.00</td>
+                <td>{{totalAfterDiscount}}</td>
             </tr>
         </table>
         <h6 style="text-align: right;">AMOUNT IN WORDS: </h6>

@@ -41,15 +41,16 @@ class PdfGenerator{
 
   }
 
+  ///GENERATE QUOTATION PDF
   static async generateQuote(data){
-    const templateSource = fs.readFileSync('Reciept.hbs', 'utf-8')
+    const templateSource = fs.readFileSync('./templates/Quotation.hbs', 'utf-8')
     const template = Handlebars.compile(templateSource)
     const htmlContent = template(data)
 
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({path: 'quotation.pdf', format:"A4"})
     await browser.close()
     return PdfBuffer
   }
@@ -136,11 +137,11 @@ export const generatePDF = async (type, data) => {
         return await PdfGenerator.generateReciept(data);
       case 'PURCHASE ORDER':
         return await PdfGenerator.generatePurchaseOrder(data);
-      case 'PURCHASE':
+      case 'PURCHASE': ///  WORKING
         return await PdfGenerator.generatePurchase(data);
       case 'DELIVERY NOTE':
         return await PdfGenerator.generateDeliveryNote(data);
-      case 'QUOTE':
+      case 'QUOTE':  /// WORKING
         return await PdfGenerator.generateQuote(data);
       case 'ENQUIRY':
         return await PdfGenerator.generateEnquiry(data);
