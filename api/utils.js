@@ -21,9 +21,9 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
     await browser.close()
-    console.log('reciept generated successfully')
+    return PdfBuffer
 
   }
 
@@ -35,9 +35,9 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
     await browser.close()
-    console.log('reciept generated successfully')
+    return PdfBuffer
 
   }
 
@@ -49,9 +49,9 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
     await browser.close()
-    console.log('reciept generated successfully')
+    return PdfBuffer
   }
 
   static async generateEnquiry(data){
@@ -62,9 +62,9 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
     await browser.close()
-    console.log('reciept generated successfully')
+    return PdfBuffer
   }
 
   static async generateDeliveryNote(data){
@@ -75,9 +75,9 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
     await browser.close()
-    console.log('reciept generated successfully')
+    return PdfBuffer
   }
 
   static async generatePurchaseOrder(data){
@@ -88,9 +88,30 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
     await browser.close()
-    console.log('reciept generated successfully')
+    return PdfBuffer
+  }
+
+
+  static async generatePurchase(data){
+    try{
+      const templateSource = fs.readFileSync('./templates/Purchase.hbs', 'utf-8')
+      const template = Handlebars.compile(templateSource)
+      const htmlContent = template(data)
+
+      const browser = await puppeteer.launch()
+      const page = await browser.newPage()
+      await page.setContent(htmlContent)
+      const PdfBuffer = await page.pdf ({path: 'purchase.pdf', format:"A4"})
+      await browser.close()
+
+      console.log('success')
+      return PdfBuffer
+    }catch(error){
+      console.log('purchase error')
+      throw new Error(error)
+    }
   }
 
   static async generateTablePdf(data){
@@ -101,32 +122,87 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
     await browser.close()
-    console.log('reciept generated successfully')
+    return PdfBuffer
   }
 }
 
+// Function to generate the PDF based on type
+export const generatePDF = async (type, data) => {
+  try {
+    switch (type) {
+      case 'RECIEPT':
+        return await PdfGenerator.generateReciept(data);
+      case 'PURCHASE ORDER':
+        return await PdfGenerator.generatePurchaseOrder(data);
+      case 'PURCHASE':
+        return await PdfGenerator.generatePurchase(data);
+      case 'DELIVERY NOTE':
+        return await PdfGenerator.generateDeliveryNote(data);
+      case 'QUOTE':
+        return await PdfGenerator.generateQuote(data);
+      case 'ENQUIRY':
+        return await PdfGenerator.generateEnquiry(data);
+      case 'INVOICE':
+        return await PdfGenerator.generateInvoice(data);
+      case 'PRINTTABLE':
+        return await PdfGenerator.generateTablePdf(data);
+      default:
+        console.error(`Invalid PDF type: ${type}`);
+        throw new Error('Invalid PDF type');
+    }
+  } catch (error) {
+    console.error('Error in generatePDF function:', error);
+    return null;
+  }
+}
 
-export const generatePDF= async(type, data)=>{
+/* export const generatePDF= async(type, data)=>{
 
   switch(type){
     case 'RECIEPT':
       await PdfGenerator.generateReciept(data)
+      break;
     case 'PURCHASE ORDER':
       await PdfGenerator.generatePurchaseOrder(data)
+      break;
+    case 'PURCHASE':
+      await PdfGenerator.generatePurchase(data)
+      break;
     case 'DELIVERY NOTE':
       await PdfGenerator.generateDeliveryNote(data)
+      break;
     case 'QUTOE':
       await PdfGenerator.generateQuote(data)
+      break;
     case 'ENQUIRY':
       await PdfGenerator.generateEnquiry(data)
+      break;
     case 'INVOICE':
       await PdfGenerator.generateInvoice(data)
+      break;
     case 'PRINTTABLE':
       await PdfGenerator.generateTablePdf(data)
+    default:
+      return console.log('something went wrong')
   }
 }
+ */
+
+// Send the generated PDF as a response
+export const sendPDF = (pdfBuffer, filename = 'document.pdf') => {
+  return (req, res) => {
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="${filename}"`,
+      'Content-Length': pdfBuffer.length,
+    });
+
+    // Send the PDF buffer in the response
+    res.send(pdfBuffer);
+  };
+};
 
 
 

@@ -48,3 +48,7 @@ a {
     color-scheme: dark;
   }
 }
+
+.table-footer-group tr td, th{
+  border: 2px solid tomato
+}

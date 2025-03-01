@@ -1,22 +1,38 @@
 'use client'
 
 
-import React, {useState} from 'react'
+import React, {useContext, useState} from 'react'
 import { MdSpaceDashboard } from "react-icons/md";
 import { Container, Row, Col, Button, Navbar, Offcanvas, ListGroup, Accordion, Nav, ButtonGroup, Badge} from 'react-bootstrap'
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useStore } from '../Store';
 
-const DashboardLayout = ({children, sidebar, modal, content}) => {
+const DashboardLayout = ({children}) => {
 
   const [show, setShow] = useState(true)
-
+  
+  const {state, dispatch: ctxDispatch} = useContext(useStore)
+  
   const toggle =()=> setShow(!show)
+
+  const getData =()=>{
+    console.log('data')
+  }
+
+  const router = useRouter()
+
+  const logOutUser =()=>{
+    ctxDispatch({type: 'LOG_OUT'})
+    localStorage.removeItem('userData')
+    router.replace('/')
+  }
 
   const menu = [
       {
         title:"Dashboard",
         icon: <MdSpaceDashboard/>,
-        links:[{name:"Overview", href:"/dashboard"}]
+        links:[{name:"Overview", href:"/"}]
       },
       {
         title:"Enquiry",
@@ -202,7 +218,7 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
               ✉️ <Badge pill className='bg-info'>9</Badge>
               <span className='visually-hidden'>Notifications</span>
             </Button>
-          <Button variant='outline-danger'>
+          <Button variant='outline-danger' onClick={logOutUser}>
               ⏏️ Logout
           </Button>
           </ButtonGroup>
@@ -219,7 +235,7 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
           style={{ marginTop: '70px', width: '280px' }}
         >
           <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Dashboard</Offcanvas.Title>
+          <Offcanvas.Title>Dashboard</Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body>
             <ListGroup variant="flush">
@@ -254,7 +270,7 @@ const DashboardLayout = ({children, sidebar, modal, content}) => {
       <Container fluid className="p-0" style={{ marginTop: '70px' }}>
         <Row className="g-0">
           <Col className="p-3">
-            {content || children}
+            {children}
           </Col>
         </Row>
       </Container>

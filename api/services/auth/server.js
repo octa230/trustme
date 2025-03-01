@@ -34,7 +34,7 @@ authRouter.post('/', asyncHandler(async(req, res)=>{
 
 authRouter.post('/login', asyncHandler(async(req, res)=>{
     const {username, password} = req.body
-
+    //console.log(username, password)
     const user = await User.findOne({username: username})
 
     if( user ){

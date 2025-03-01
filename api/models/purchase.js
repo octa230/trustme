@@ -3,8 +3,10 @@ import mongoose from "mongoose";
 
 const purchaseSchema = new mongoose.Schema({
     purchaseNo: {type: Number},
-    customer: {type: String, required: true},
-    invoice: {type: String},
+    supplier: {type: mongoose.Types.ObjectId, ref:'Supplier'},
+    supplierId: {type: String},
+    description: {type: String},
+    invoiceNo: {type: String},
     items:[{
         name: {type: String},
         qty: {type: Number}

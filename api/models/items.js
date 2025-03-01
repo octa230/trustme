@@ -4,6 +4,7 @@ const itemSchema = new mongoose.Schema({
     category: {type: String},
     name: {type: String },
     unit: {type: String},
+    code: {type: String},
     brand: {type: String},
     model: {type: String},
     barcode: {type: String},
