@@ -107,7 +107,7 @@ export default function page() {
         </Accordion>
       </Card>
 
-      <DataTable/>
+      <DataTable type={'quotation'}/>
       </Row>
     </div>
   )
