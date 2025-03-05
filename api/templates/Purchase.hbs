@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Invoice</title>
+    <title>Purchase</title>
     <style>
       *{
         box-sizing: border-box;
@@ -10,6 +10,7 @@
       body{
         padding: 22px;
         margin: 0;
+        font-family:'Courier New', Courier, monospace;
         /*height: 100vh;*/
         
       }
@@ -18,7 +19,7 @@
         width: 100%;
         justify-content: space-between;
         align-content: center;
-        border-bottom: 1px solid black;
+        //border-bottom: 1px solid black;
         flex-direction: row;
         padding: 4px;
         margin-bottom: 30px;
@@ -29,7 +30,7 @@
         width: 100%;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid black;
+        //border-bottom: 1px solid black;
         flex-direction: row;
         padding: 4px;
       }
@@ -46,9 +47,16 @@
         flex-direction: row;
         padding-bottom: 8px;
       }
-
+      .supplier-table, .order-table strong{
+        font-size: small;
+        text-decoration: underline;
+        text-align: left;
+        padding: 1px;
+        
+      }
       .data-table{
         width: 100%;
+        //border: 0.5px solid black;
       }
       .document-info strong{
         text-decoration: none;
@@ -62,16 +70,22 @@
       }
 
       .supplier-table{
-        padding: 2px;
+        //padding: 2px;
+        display: flex;
         min-width: 400px;
-        border: 1px solid black;
+        border: 0.5px solid black;
+        flex-direction: column;
+        flex-wrap: wrap;
       }
+
       .order-table {
-        padding: 2px;
+        //padding: 2px;
+        display: flex;
         min-width: 260px;
-        border: 1px solid black;
-        align-items: center;
+        border: 0.5px solid black;
         justify-content: space-between;
+        flex-direction: column;
+        flex-wrap: wrap;
       }
 
       
@@ -87,7 +101,7 @@
         align-items: center; 
       }
       table, tr, td{
-        border: 1px solid black;
+        border: 1px solid rgba(0, 0, 0, 0.2);
         padding: 0;
         border-spacing: 0;
       }
@@ -143,7 +157,7 @@
                 <strong>09080088</strong><br/>
               </address>
               <div class="document-title">
-                <h2>PURCHASE ORDER</h2>
+                <h2>PURCHASE</h2>
                 <h3>TRN: 104517728200003</h3>
             </div>
               <section class="logo-section">
@@ -153,34 +167,26 @@
         </div>
         <div class="supplier-info">
                 <address class="supplier-table">
-                    <strong>DUBAI MARINA HOTEL L.L.C</strong>
-                    <hr/>
+                    <strong>{{supplier.name}}</strong>
                     <strong>66 Al Marsa Street</strong>
-                    <hr/>
-                    <strong>Dubai Marina</strong>
-                    <hr/>
-                    <strong>+971-0000-000</strong>
-                    <hr/>
-                    <strong>VAT Nō 104779940600003</strong>
+                    <strong>{{supplier.address}}</strong>
+                    <strong>{{supplier.mobile}}</strong>
+                    <strong>VAT Nō {{supplier.trn}}</strong>
                 </address>
                 <address class="order-table">
-                    <strong>Control Nō:</strong> <small>TM0070</small>
-                    <hr/>
-                    <strong>Invoice Nō:</strong> <small>#TM20250062</small>
-                    <hr/>
-                    <strong>Invoice Date:</strong> <small>13/01/2025</small>
-                    <hr/>
-                    <strong>Due Date:</strong> <small>13/01/2025</small>
-                    <hr/>
-                    <strong>PO Nō:</strong> <small>PO2338810</small>
+                    <strong>Control Nō: TM0070</strong> 
+                    <strong>Invoice Nō: #TM20250062</strong> 
+                    <strong>Invoice Date: 13/01/2025</strong> 
+                    <strong>Due Date: 13/01/2025</small></strong> 
+                    <strong>PO Nō: PO2338810</strong> 
                 </address>                
         </div>
     </header>
     <main>
-        <table class="data-table">
+        <table class="data-table" border="0.5">
             <thead>
                 <tr>
-                    <th style="text-align: left">Description</th>
+                    <th style="text-align: left; background: rgb(29, 29, 55); color:aliceblue">Description</th>
 {{!--                     <th>UNIT</th>
  --}}                    <th>QTY</th>
                     <th>UNIT PRICE</th>
@@ -233,7 +239,7 @@
                     👉Payment terms: Cash/Transfer<br/>
                     👉Please mention the invoice number while making payments<br/>
                 </p>
-                <h6>ORDERED BY ........................................</h6>
+                <h6>Recieved BY ........................................</h6>
                 <sub>Approved on behalf of Trust Me LLC</sub>
             </div>
             <div>

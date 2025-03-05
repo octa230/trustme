@@ -1,4 +1,4 @@
-import {Router} from "express";
+import { Router} from "express";
 import Customer from "../../models/customer.js";
 import asyncHandler from "express-async-handler";
 import { generateId } from "../../utils.js";
@@ -8,6 +8,32 @@ import { generateId } from "../../utils.js";
 
 const customerRouter = Router()
 
+
+customerRouter.get('/search', asyncHandler(async(req, res)=>{
+    const { searchKey } = req.query
+
+    const query = {
+        $or:[
+            
+            {name: {$regex: searchKey, $options: 'i'}},
+            {controlId: {$regex: searchKey, $options: 'i'}},
+            {phone: {$regex: searchKey, $options: 'i'}},
+            {mobile: {$regex: searchKey, $options: 'i'}},
+        ]
+    }
+
+    const customers = await Customer.aggregate([
+        {
+            $match: query
+        }
+    ])
+
+    if(customers.length > 0){
+        res.status(200).send(customers)
+    }else{
+        res.send({message: "no customer found"})
+    }
+}))
 
 customerRouter.post('/', asyncHandler(async(req, res)=>{
     

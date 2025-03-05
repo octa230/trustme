@@ -5,6 +5,8 @@ import 'react-calendar/dist/Calendar.css';
 import { StoreProvider } from "./Store";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import "./globals.css";
+import 'react-toastify/dist/ReactToastify.css'; 
+import { ToastContainer } from "react-toastify";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +32,7 @@ export default function RootLayout({ children }) {
         <html>
         <body>
           {children}
+          <ToastContainer/>
         </body>
       </html>
       </QueryClientProvider>

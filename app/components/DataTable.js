@@ -1,12 +1,15 @@
 import axios from 'axios'
-import React, { use, useEffect, useState } from 'react'
-import { Table, Row, Container, Stack, Button, Form, Modal, CloseButton, InputGroup, ListGroup } from 'react-bootstrap'
+import React, { useContext, useEffect, useState } from 'react'
+import { Table, Stack, Button, Form, Modal, InputGroup, ListGroup, DropdownButton, Dropdown } from 'react-bootstrap'
 import { createCalc } from '../dashboard/utils'
+import { useStore } from '../Store'
+import { toast } from 'react-toastify'
 
 
 export default function DataTable(props) {
     
     const {type} = props
+    const { state } = useContext(useStore)
 
     const [items, setItems] = useState([])
     const [item, setItem] = useState({
@@ -32,6 +35,7 @@ export default function DataTable(props) {
     const [cardAmount, setCardAmount] = useState(0);
     const [vatRate, setVatRate] = useState(0.05)
     const [vatEnabled, setVatEnabled] = useState(true)
+    const [bankName, setBankName ] = useState('')
     const [advanceAmount, setAdvanceAmount] = useState(0);
 
 
@@ -45,6 +49,8 @@ export default function DataTable(props) {
     const [newItem, setNewItem] = useState(false)
     const [categories, setCategories] = useState([])
     const [products, setProducts] = useState([])
+    const [banks, setBanks] = useState([])
+    const [units, setUnits] = useState([])
 
 
     //CREATE ITEM MODAL STATE OBJECT
@@ -107,15 +113,19 @@ export default function DataTable(props) {
       }, [])
 
 
-      //FETCH CATEGORY AND PRODUCTS
+      //FETCH CATEGORIES, UNITS, BANKS & PRODUCTS
       const tableData = async()=>{
-        const [categoriesRes, productsRes] = await Promise.all([
+        const [categoriesRes, productsRes, banksRes, unitsRes] = await Promise.all([
           axios.get('/api/category'),
-          axios.get('/api/items')
+          axios.get('/api/items'),
+          axios.get('/api/banks'),
+          axios.get('/api/units')
         ])
 
         setCategories(categoriesRes.data)
         setProducts(productsRes.data)
+        setBanks(banksRes.data)
+        setUnits(unitsRes.data)
       }
 
 
@@ -208,7 +218,7 @@ export default function DataTable(props) {
 
 
       const data = {
-        vatRate, discount, 
+        vatRate, discount, bankName,
         cashAmount, bankAmount, 
         cardAmount, advanceAmount, 
         items, pendingAmount, vatAmount,
@@ -216,35 +226,99 @@ export default function DataTable(props) {
         itemsWithVatTotal, discountAmount,
         advanceTotal, paidAmount, advanceAmount
       }
-      //SAVE & SAVE HANDLER
+      
 
-      const handleSave = async(action)=>{
-        switch(action){
-          case 'SAVE':
-            console.log('save only')
-            //console.log(data)
-            await axios.post(`/api/${type}`, {
-              data
-            })
+      ///SWITCH STATEMENT THAT ADJUSTS DATA FORMAT ACCORDING TO TYPE PASSED TO THE TABLE
+      const getDataForType = ( type ) => {
+        let preparedData = { ...data };
+
+        const {userData, supplierData, customerData, companyData} = state
+
+        switch (type) {
+          case 'purchase':
+            preparedData = { 
+              ...preparedData, 
+              supplier: supplierData,
+            };
             break;
-          case 'SAVE_AND_PRINT':
-            try{
-              const response = await axios.post(`/api/${type}`, {
-                data
-              }, {
-                responseType: 'blob'
-              })
-              const blob = new Blob([response.data], {type: 'application/pdf'});
-              const url = window.URL.createObjectURL(blob)
-              window.open(url, '_blank')
-            }catch(error){
-              console.log('error rendering pdf')
-            }
+      
+          case 'sales':
+            preparedData = { 
+              ...preparedData, 
+              customer: customerData,
+              employee: userData
+            };
+            break;
+      
+          case 'quotation':
+            preparedData = { 
+              ...preparedData, 
+              quotationDetails: companyData,
+            };
+            break;
+      
+          case 'invoice':
+            preparedData = { 
+              ...preparedData, 
+              companyInfo: companyData,
+            };
+            break;
+      
           default:
-            return
+            console.error('Unknown type:', type);
+            break;
         }
-      }
-
+      
+        return preparedData;
+      };
+      
+      //PRINT & SAVE HANDLER
+      const saveData = async (type, data) => {
+        await axios.post(`/api/${type}/save`, { data });
+      };
+      
+      const saveAndPrint = async (type, data) => {
+        try {
+          const response = await axios.post(`/api/${type}`, { data }, { responseType: "blob" });
+          const blob = new Blob([response.data], { type: "application/pdf" });
+          const url = window.URL.createObjectURL(blob);
+          window.open(url, "_blank");
+        } catch (error) {
+          console.error("Error rendering PDF", error);
+        }
+      };
+      
+      const handleSave = async (action) => {
+        const preparedData = getDataForType(type);
+      
+        if (["SAVE", "SAVE_AND_PRINT"].includes(action)) {
+          toast.promise(
+            (async () => {
+              switch (action) {
+                case "SAVE":
+                  console.log("Save only");
+                  await saveData(type, preparedData);
+                  break;
+                case "SAVE_AND_PRINT":
+                  console.log("Save and print");
+                  await saveAndPrint(type, preparedData);
+                  break;
+              }
+            })(),
+            {
+              pending: "...wait",
+              success: "Done",
+              error: "Oops, try again!",
+            },
+            {
+              autoClose: 3000,
+            }
+          );
+        } else {
+          console.log("Unknown action");
+        }
+      };
+      
 
 
 
@@ -468,6 +542,14 @@ export default function DataTable(props) {
         </InputGroup>
         <InputGroup className='mb-2'>
           {bank && (
+            <>
+            <DropdownButton title={bankName || 'SELECT BANK'} variant='danger'>
+              {banks.map((bank)=> (
+                <Dropdown.Item key={bank.code} onClick={(e)=> setBankName(e.target.value)}>
+                {bank.name}
+                </Dropdown.Item>
+              ))}
+            </DropdownButton>
             <Form.Control 
               type="number"
               step="0.01"
@@ -475,6 +557,7 @@ export default function DataTable(props) {
               value={bankAmount}
               onChange={e => setBankAmount(Number(e.target.value))}
             />
+            </>
           )}
           <InputGroup.Checkbox 
             checked={bank} 
@@ -586,6 +669,12 @@ export default function DataTable(props) {
           type='text' onChange={(e)=> {
           setCreateItem((prevState)=> ({...prevState, salePrice: e.target.value}))
         }}/>
+        <Form.Select>
+          <option>--Unit--</option>
+          {units.map((unit)=>(
+            <option key={unit.code}>{unit.name}</option>
+          ))}
+        </Form.Select>
       </Modal.Body>
       <Modal.Footer>
           <Button variant="secondary" onClick={()=> setNewItem(false)}>

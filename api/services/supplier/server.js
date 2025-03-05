@@ -1,14 +1,44 @@
 import {Router} from "express"
 import asyncHandler from 'express-async-handler'
 import Supplier from "../../models/supplier.js"
+import { generateId } from "../../utils.js"
 
 const supplierRouter = Router()
 
+
+supplierRouter.get('/search', asyncHandler(async(req, res)=>{
+    const { searchKey } = req.query
+
+    const query = {
+        $or:[
+            {name: {$regex: searchKey, $options: 'i'}},
+            {mobile: {$regex: searchKey, $options: 'i'}},
+            {phone: {$regex: searchKey, $options: 'i'}}
+        ]
+    }
+
+    const suppliers = await Supplier.aggregate([
+        {
+            $match: query
+        }
+    ])
+
+    if(suppliers.length > 0){
+        res.status(200).send(suppliers)
+    }else{
+        res.send({message: 'no resuls found'})
+    }
+}))
+
+
+
 supplierRouter.post('/', asyncHandler(async(req, res)=>{
-    const {name, mobile, phone, email, address, trn} = req.body
+    const {name, mobile, phone, email, address, trn, description} = req.body
     const supplier = new Supplier({
         name, 
+        controlId: await generateId(),
         mobile, 
+        description,
         phone, 
         email, 
         address, 

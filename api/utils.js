@@ -3,11 +3,34 @@ import {v4 as uuidv4 } from 'uuid'
 import puppeteer from 'puppeteer'
 import fs from 'fs'
 import Handlebars from 'handlebars'
+import { ToWords } from 'to-words'
 
 
 
 export const generateId = async()=> uuidv4().slice(0, 5).toString()
 
+
+const toWordsInstance = new ToWords({
+  localeCode: 'en-AE', // Ensure correct locale
+  converterOptions: {
+    currency: true, // Enable currency mode
+    currencyOptions: {
+      name: 'Dirham',
+      plural: 'Dirhams',
+      symbol: 'AED',
+      fractionalUnit: {
+        name: 'fill',
+        plural: 'fills',
+        symbol: '',
+      },
+    },
+  },
+});
+
+
+export const toWords =async(number)=> {
+  return toWordsInstance.convert(number)
+}
 
 
 class PdfGenerator{
@@ -27,15 +50,17 @@ class PdfGenerator{
 
   }
 
+
+  //GENERATE INVOICE PDF
   static async generateInvoice(data){
-    const templateSource = fs.readFileSync('Reciept.hbs', 'utf-8')
+    const templateSource = fs.readFileSync('./templates/Invoice.hbs', 'utf-8')
     const template = Handlebars.compile(templateSource)
     const htmlContent = template(data)
 
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({path: 'invoice.pdf', format:"A4"})
     await browser.close()
     return PdfBuffer
 
@@ -55,6 +80,8 @@ class PdfGenerator{
     return PdfBuffer
   }
 
+
+  ///GENERATE ENQUIRY PDF
   static async generateEnquiry(data){
     const templateSource = fs.readFileSync('Reciept.hbs', 'utf-8')
     const template = Handlebars.compile(templateSource)
@@ -68,6 +95,9 @@ class PdfGenerator{
     return PdfBuffer
   }
 
+
+
+  ////GENERATE DELIVERY NOTE PDF
   static async generateDeliveryNote(data){
     const templateSource = fs.readFileSync('Reciept.hbs', 'utf-8')
     const template = Handlebars.compile(templateSource)
@@ -81,6 +111,8 @@ class PdfGenerator{
     return PdfBuffer
   }
 
+
+  ////GENERATE PURCHASE ORDER PDF
   static async generatePurchaseOrder(data){
     const templateSource = fs.readFileSync('Reciept.hbs', 'utf-8')
     const template = Handlebars.compile(templateSource)
@@ -95,6 +127,8 @@ class PdfGenerator{
   }
 
 
+
+  ///GENERATE PURCHASE PDF
   static async generatePurchase(data){
     try{
       const templateSource = fs.readFileSync('./templates/Purchase.hbs', 'utf-8')
@@ -158,38 +192,6 @@ export const generatePDF = async (type, data) => {
     return null;
   }
 }
-
-/* export const generatePDF= async(type, data)=>{
-
-  switch(type){
-    case 'RECIEPT':
-      await PdfGenerator.generateReciept(data)
-      break;
-    case 'PURCHASE ORDER':
-      await PdfGenerator.generatePurchaseOrder(data)
-      break;
-    case 'PURCHASE':
-      await PdfGenerator.generatePurchase(data)
-      break;
-    case 'DELIVERY NOTE':
-      await PdfGenerator.generateDeliveryNote(data)
-      break;
-    case 'QUTOE':
-      await PdfGenerator.generateQuote(data)
-      break;
-    case 'ENQUIRY':
-      await PdfGenerator.generateEnquiry(data)
-      break;
-    case 'INVOICE':
-      await PdfGenerator.generateInvoice(data)
-      break;
-    case 'PRINTTABLE':
-      await PdfGenerator.generateTablePdf(data)
-    default:
-      return console.log('something went wrong')
-  }
-}
- */
 
 // Send the generated PDF as a response
 export const sendPDF = (pdfBuffer, filename = 'document.pdf') => {

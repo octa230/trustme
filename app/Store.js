@@ -12,7 +12,17 @@ const initialState ={
 
     companyData: localStorage.getItem('companyData')
     ? JSON.parse(localStorage.getItem('companyData'))
+    : null,
+
+    supplierData: localStorage.getItem('supplierData')
+    ? JSON.parse(localStorage.getItem('supplierData'))
+    : null,
+
+    customerData: localStorage.getItem('customerData')
+    ? JSON.parse(localStorage.getItem('customerData'))
     : null
+
+
 }
 
 
@@ -22,6 +32,14 @@ function reducer(state, action){
             return {...state, userData: action.payload}
         case 'LOG_OUT':
             return {...state, userData: null}
+        case 'SAVE_SUPPLIER':
+            const supplier = action.payload
+            localStorage.setItem('supplierData', JSON.stringify(supplier))
+            return{...state, supplierData: supplier}
+        case 'SAVE_CUSTOMER':
+            const customer = action.payload
+            localStorage.setItem('customerData', JSON.stringify(customer))
+            return{...state, customerData: customer}
         default:
             return state
 

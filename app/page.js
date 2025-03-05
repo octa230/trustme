@@ -53,6 +53,7 @@ const handleSubmit = async(e)=>{
       className="col-md-4 d-flex justify-content-center align-items-center" style={{height: '100vh'}} onSubmit={handleSubmit}>
       <Form className="w-100 border rounded p-3 shadow-sm">
         <h3 className='text-muted'>BUSINESS SOFTWARE SYSTEM</h3>
+        <hr/>
         <Form.Group>
           <Form.Label>USERNAME</Form.Label>
           <Form.Control type='text' onChange={(e)=>{
