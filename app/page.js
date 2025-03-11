@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { useStore } from './Store';
+import { toast } from 'react-toastify';
 
 
 
@@ -16,42 +17,59 @@ export default function Home() {
     password: ''
   })
 
-  const {state} = useContext(useStore)
-  const {userData} = state
+  const {state, dispatch: ctxDispatch} = useContext(useStore)
+  const { userData } = state
 
 
   useEffect(()=>{
     const redirectUser =async()=>{
-      if(userData){
-        router.push('dashboard')
+      if(userData !== null){
+        router.push('/dashboard')
       }
     }
 
     redirectUser()
   }, [userData])
 
-const handleSubmit = async(e)=>{
-  e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Use toast.promise with the proper structure
+    toast.promise(
+      // First argument should be a promise
+      axios.post('/api/auth/login', {
+        username: user.username,
+        password: user.password
+      }),
+      // Second argument is the toast options
+      {
+        pending: "...wait",
+        success: 'Success',
+        error: `...check username or password`
+      }
+    )
+    .then((response) => {
+      // Access data properly from the response
+      const data  = response.data;
 
-  const {data} = await axios.post(`/api/auth/login`, {
-    username: user.username,
-    password: user.password
-  })
-  //console.log(data)
-  if(data._id){
-    localStorage.setItem('userData', JSON.stringify(data))
-    const saveduser = await localStorage.getItem('userData')
-    if(saveduser){
-      router.push('/dashboard')
-    }
+      console.log(data)
 
-  }
-}
+      if (data && data._id) {
+        ctxDispatch({type: "SET_USER", payload: data});
+        router.push('/dashboard');
+      }
+    })
+    .catch((error) => {
+      // Handle any error that might occur
+      console.error(error);
+    });
+  };
+  
 
   return (
      <Container fluid='md' 
-      className="col-md-4 d-flex justify-content-center align-items-center" style={{height: '100vh'}} onSubmit={handleSubmit}>
-      <Form className="w-100 border rounded p-3 shadow-sm">
+      className="col-md-4 d-flex justify-content-center align-items-center" style={{height: '100vh'}}>
+      <Form className="w-100 border rounded p-3 shadow-sm" onSubmit={handleSubmit}>
         <h3 className='text-muted'>BUSINESS SOFTWARE SYSTEM</h3>
         <hr/>
         <Form.Group>

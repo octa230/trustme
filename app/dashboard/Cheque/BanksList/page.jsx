@@ -1,9 +1,24 @@
 'use client'
 
-import React from 'react'
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
 import { Table, Row, Col, ButtonToolbar, ButtonGroup, Button, Form } from 'react-bootstrap'
 
 export default function page() {
+
+  const [banks, setBanks ] = useState([])
+
+
+  useEffect(()=>{
+    const getData = async()=>{
+      const {data} = await axios.get(`/api/banks`)
+
+      setBanks(data)
+    }
+
+    getData()
+  }, [])
+
   return (
     <div>
       <h1>Banks List</h1>
@@ -42,7 +57,15 @@ export default function page() {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          {banks.map((bank, index)=> (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>{bank.controlId}</td>
+              <td>{bank.name}</td>
+            </tr>
+          ))}
+        </tbody>
       </Table>
     </div>
   )

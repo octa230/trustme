@@ -141,7 +141,7 @@ export default function page() {
                         <Form.Label>Mobile</Form.Label>
                         <Form.Control type='telephone'
                           value={customer.mobile || ''}
-                          onChange={(e)=> setCustomer(prevState => ({...prevState, name: e.target.value}))}
+                          onChange={(e)=> setCustomer(prevState => ({...prevState, mobile: e.target.value}))}
                         />
                       </Form.Group>
                       <Form.Group>

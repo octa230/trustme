@@ -11,7 +11,9 @@ export default function page() {
     e.preventDefault()
 
     toast.promise(
-      axios.post(`/api/banks`, name),
+      axios.post(`/api/banks`, {
+        name
+      }),
       {
         pending: "...wait",
         success: 'Done',

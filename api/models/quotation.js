@@ -2,9 +2,12 @@ import mongoose from "mongoose";
 
 
 const quotationSchema = new mongoose.Schema({
-    QuotationNo: {type: Number},
-    company: {type: mongoose.Types.ObjectId, ref:'Company'},
+    quotationNo: {type: Number},
     controlId: {type: String},
+    customer: {type: mongoose.Types.ObjectId, ref:'Customer'},
+    customerId: {type: String},
+    customerName: {type: String},
+    approved: {type: Boolean, default: false},
     description: {type: String},
     items:[{
         name: {type: String},
@@ -13,13 +16,15 @@ const quotationSchema = new mongoose.Schema({
         price: {type: Number},
         total: {type: Number}
     }],
-    totalExVat: {type: Number},
+    totalWithoutVat: {type: Number},
+    itemsTotal: {ype: Number},
     vatAmount: {type: Number},
-    totalIncVat: {type: Number},
-    discount: {type: Number},
-    dicountTotal: {type: Number},
-    paidBy: {type: String},
-    paidFrom: {type: String}
+    vatRate: {type: Number},
+    totalWithVat: {type: Number},
+    totalAfterDiscount: {type: Number},
+    discountAmount: {type: Number},
+    preparedBy: {type: String},
+    amountInWords: {type: String}
 })
 
 const Quotation = mongoose.model('Quotation', quotationSchema)

@@ -1,3 +1,4 @@
+import { generateId } from "../../utils.js";
 import Bank from "../../models/bank.js";
 import { Router } from "express";
 import asyncHandler from "express-async-handler";
@@ -8,7 +9,7 @@ const bankRouter = Router()
 
 ///CREATE BANK
 bankRouter.post('/', asyncHandler (async(req, res)=>{
-    const {name, code} = req.body
+    const { name } = req.body
 
     const exists = await Bank.findOne({name: name})
     if(exists){
@@ -18,7 +19,7 @@ bankRouter.post('/', asyncHandler (async(req, res)=>{
 
     const bank = new Bank({
         name: name,
-        code: code
+        controlId: await generateId()
     })
 
     await bank.save()

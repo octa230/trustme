@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 const customerSchema = new mongoose.Schema({
     name: {type: String, required: true, set: value => value.toLowerCase},
-    controlId: {type: String, unique: true, set: value => value.toLowerCase},
+    controlId: {type: String},
     mobile: {type: String},
     phone: {type: String},
     email: {type: String},
@@ -15,7 +15,7 @@ const customerSchema = new mongoose.Schema({
 
 
 customerSchema.index({name: 1}, {unique: true, collation: {locale:"en", strength: 2}})
-customerSchema.index({controlId: 1}, {unique: true, collation: {locale:"en", strength: 2}})
+//customerSchema.index({controlId: 1}, {unique: true, collation: {locale:"en", strength: 2}})
 
 const Customer = mongoose.model('Customer', customerSchema)
 export default Customer

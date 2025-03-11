@@ -8,7 +8,7 @@ const supplierRouter = Router()
 
 supplierRouter.get('/search', asyncHandler(async(req, res)=>{
     const { searchKey } = req.query
-
+    
     const query = {
         $or:[
             {name: {$regex: searchKey, $options: 'i'}},

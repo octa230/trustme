@@ -52,7 +52,7 @@ export default function page() {
     e.preventDefault()
 
     try{
-      const { data } = await axios.post('/api/suppliers', {
+      const { data } = await axios.post('/api/supplier', {
         name: supplier.name,
         mobile: supplier.mobile,
         email: supplier.email,
@@ -74,9 +74,10 @@ export default function page() {
 
   }
 
+  
   const searchSupplier = async (searchKey) => {
     try {
-      const searchData = await axios.get(`/api/suppliers/search`, {
+      const searchData = await axios.get(`/api/supplier/search`, {
         params: { searchKey: searchKey.toString() }, // Send searchKey as a query parameter
       });
       setSuppliers(searchData.data);

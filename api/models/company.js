@@ -4,6 +4,7 @@ const companySchema = new mongoose.Schema({
     name: {type: String, required: true},
     controlId: {type: String, trim: true, required: true, unique: true},
     logo: {type: String, required: true},
+    poBox:{type: String},
     footerLogo: {type: String},
     description: {type: String},
     mobile: {type: String},

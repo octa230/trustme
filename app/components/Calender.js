@@ -16,8 +16,8 @@ const Calender = ({setterFunc, type, title}) => {
         console.log(date)
     }
   return (
-    <div className='justify'>
-        <InputGroup className='my-2'>
+    <div>
+        <InputGroup className='p-2'>
         <FormControl aria-describedby='addon1' placeholder={date.toLocaleDateString()}/>
         <Button id='addon1'
             onClick={()=> setShow(true)} 
@@ -25,7 +25,7 @@ const Calender = ({setterFunc, type, title}) => {
                 {title}
             </Button>
         </InputGroup>
-      <Modal show={show} onHide={()=> setShow(false)} className='justify-items-center'>
+      <Modal show={show} onHide={()=> setShow(false)} className='d-flex justify-content-center p-2'>
         <Modal.Header closeButton>
             {date.toLocaleDateString()}
         </Modal.Header>

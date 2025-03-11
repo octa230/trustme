@@ -38,7 +38,7 @@ companyRouter.post('/', asyncHandler(async(req, res)=>{
 
 companyRouter.put('/:id', asyncHandler(async(req, res)=>{
     
-    const { name, logo, footerLogo, description, mobile, phone, address, email, trn, website, printFormat} = req.body
+    const { name, logo, footerLogo, description, mobile, phone, address, email, trn, website, printFormat, poBox} = req.body
 
     const company = await Company.findById(req.params.id)
 
@@ -46,6 +46,7 @@ companyRouter.put('/:id', asyncHandler(async(req, res)=>{
 
         if(name) company.name = name
         if(logo) company.logo = logo
+        if(poBox) company.poBox = poBox
         if(footerLogo) company.footerLogo = footerLogo
         if(description) company.description = description
         if(mobile) company.mobile = mobile
@@ -78,8 +79,8 @@ companyRouter.delete('/:id', asyncHandler(async(req, res)=>{
 //GET ALLL COMPANIES
 companyRouter.get('/', asyncHandler(async(req, res)=>{
 
-    const companies = await Company.find()    
-    res.status(200).send(companies)
+    const company = await Company.findOne({})    
+    res.status(200).send(company)
     
 }))
 

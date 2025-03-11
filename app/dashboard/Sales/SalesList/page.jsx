@@ -1,12 +1,26 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
-import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup } from 'react-bootstrap'
+import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup, Stack } from 'react-bootstrap'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
 
 export default function page() {
+
+  const [sales, setSales] = useState([])
+
+  useEffect(()=>{
+    const getSales = async()=>{
+      const {data } = await axios.get('/api/sales')
+
+
+      setSales(data)
+    }
+
+    getSales()
+  }, [])
   return (
     <Container fluid>
     <h1>Invoice/Sales List</h1>
@@ -76,11 +90,37 @@ export default function page() {
           <th>Paid Amt</th>
           <th>Pending Amt</th>
           <th>Status</th>
-          <th>Ageing</th>
+          <th>Files</th>
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        {sales && sales?.map((sale, index)=> (
+          <tr key={sale.controlId}>
+            <td>{index}</td>
+            <td>{sale.controlId}</td>
+            <td>00{sale.invoiceNo}</td>
+            <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
+            <td>{sale?.customerName}</td>
+            <td>{sale?.totalWithoutVat}</td>
+            <td>{sale?.totalAfterDiscount}</td>
+            <td>{sale?.cashAmount}</td>
+            <td>{sale?.cardAmount}</td>
+            <td>{sale?.bankAmount}</td>
+            <td>{sale?.paidAmount}</td>
+            <td>{sale?.pendingAmount}</td>
+            <td style={{color: sale.status ? 'red' : 'green'}}>{sale?.status ? 'PENDING' : 'PAID'}</td>
+            <td>x days</td>
+            <td>
+              <Stack gap={2}>
+                <Button variant='outline-info btn-sm'>🖊</Button>
+                <Button variant='outline-success btn-sm'>🖨</Button>
+                <Button variant='outline-danger btn-sm'>❌</Button>
+              </Stack>
+            </td>
+          </tr>
+        ))}
+      </tbody>
       <tfoot>
           <tr>
             <th colSpan={5}>Totals</th>

@@ -1,13 +1,26 @@
 'use client'
 
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import 'chart.js/auto'
 import { Card, Col, Container, Row } from 'react-bootstrap'
 import RevenueChart from '@/app/components/RevenueChart';
 import PendingsChart from '@/app/components/PendingsChart';
+import { useStore } from '../Store';
+import { useRouter } from 'next/navigation';
 
 const page = () => {
 
+  const {state} = useContext(useStore)
+  const {userData} =state
+
+  const router = useRouter()
+
+  useEffect(()=>{
+
+    if(!userData){
+      router.replace('/')
+    }
+  }, [userData])
 
   return (
     <Container>

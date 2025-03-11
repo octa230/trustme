@@ -10,6 +10,7 @@
       body{
         padding: 22px;
         /*height: 100vh;*/
+        font-family: Arial, Helvetica, sans-serif;
         
       }
       .company-info{
@@ -92,10 +93,13 @@
       <header>
         <div class="company-info">
             <address>
-                <h3>COMPANY NAME</h3>
-                <strong>PO BOX: 515000</strong><br/>
-                <strong>0908989908</strong><br/>
-                <strong>09080088</strong><br/>
+                <h3>{{company.name}}</h3>
+                <strong>PO BOX: {{company.poBox}}</strong><br/>
+                <strong>{{company.phone}}</strong><br/>
+                <strong>{{company.mobile}}</strong><br/>
+                <strong>{{company.email}}</strong><br/>
+                <strong>{{company.address}}</strong><br/>
+                <strong>{{company.region}}</strong>
               </address>
               <section class="logo-section">
                 <h5>QUOTATION</h5>
@@ -106,15 +110,15 @@
         <div>
             <section class="address-info">
                 <address>
-                    <strong>DUBAI MARINA HOTEL L.L.C</strong><br/>
-                    <strong>66 Al Marsa Street</strong><br/>
-                    <strong>Dubai Marina</strong><br/>
-                    <strong>+971-0000-000</strong>
+                    <strong>{{customer.name}}</strong><br/>
+                    <strong>{{customer.address}}</strong><br/>
+                    <strong>{{customer.region}}</strong><br/>
+                    <strong>{{customer.mobile}}</strong>
                 </address>
                 <address class="document-info">
-                    <strong>Control Nō: TM0070</strong><br/>
-                    <strong>Date: 13/01/2025</strong><br/>
-                    <strong>Contact Person: Marvin</strong>
+                    <strong>Control Nō: {{quotation.controlId}}</strong><br/>
+                    <strong>Quote Nō: <span style="color: tomato;">#{{quotation.quotationNo}}</span></strong><br/> 
+                    <strong>Contact Person: {{quotation.preparedBy}}</strong>
                 </address>
             </section>
         </div>
@@ -126,11 +130,12 @@
                     <th style="text-align: left">Description</th>
                     <th>QTY</th>
                     <th>PRICE</th>
+                    <th>VAT</th>
                     <th>TOTAL</th>
                 </tr>
             </thead>
             <tbody>
-                {{#each items}}
+                {{#each transaction.items}}
                 <tr>
                     <td style="text-align: left;">{{name}}
                         {{#if description}}<br/>
@@ -139,9 +144,10 @@
                         </span>
                         {{/if}}
                     </td>
-                    <td>{{qty}}</td>
-                    <td>{{salePrice}}</td>
-                    <td>{{total}}</td>
+                    <td style="text-align: center">{{qty}}</td>
+                    <td style="text-align: center">{{salePrice}}</td>
+                    <td>{{vat}}</td>
+                    <td style="text-align: center">{{total}}</td>
                 </tr>
                 {{/each}}
             </tbody>
@@ -149,23 +155,23 @@
         <table class="totals-table">
             <tr>
                 <td style="text-align: left"><strong>SUBTOTAL</strong></td>
-                <td>{{itemsWithVatTotal}}</td>
+                <td>{{quotation.totalWithVat}}</td>
             </tr>
             <tr>
                 <td style="text-align: left"><strong>DISCOUNT</strong></td>
-                <td>{{discountAmount}}</td>
+                <td>{{quotation.discountAmount}}</td>
             </tr>
             <tr>
                 <td style="text-align: left"><strong>TAX RATE</strong></td>
-                <td>{{vatRate}}%</td>
+                <td>{{quotation.vatRate}}%</td>
             </tr>
             <tr>
                 <td style="text-align: left"><strong>TOTAL TAX</strong></td>
-                <td>{{vatAmount}}</td>
+                <td>{{quotation.vatAmount}}</td>
             </tr>
             <tr>
                 <td style="text-align: left"><strong>TOTAL AMOUNT</strong></td>
-                <td>{{totalAfterDiscount}}</td>
+                <td>{{quotation.totalAfterDiscount}}</td>
             </tr>
         </table>
     </div>

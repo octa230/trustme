@@ -44,7 +44,10 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({
+      path: 'reciept.pdf', format:"A4",
+      printBackground: true
+    })
     await browser.close()
     return PdfBuffer
 
@@ -60,7 +63,10 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    const PdfBuffer = await page.pdf ({path: 'invoice.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({
+      path: 'invoice.pdf', format:"A4",
+      printBackground: true
+    })
     await browser.close()
     return PdfBuffer
 
@@ -75,7 +81,10 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    const PdfBuffer = await page.pdf ({path: 'quotation.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({
+      path: 'quotation.pdf', format:"A4",
+      printBackground: true
+    })
     await browser.close()
     return PdfBuffer
   }
@@ -90,7 +99,10 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({
+      path: 'reciept.pdf', format:"A4",
+      printBackground: true
+    })
     await browser.close()
     return PdfBuffer
   }
@@ -106,7 +118,10 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({
+      path: 'reciept.pdf', format:"A4",
+      printBackground: true
+    })
     await browser.close()
     return PdfBuffer
   }
@@ -121,7 +136,10 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({
+      path: 'reciept.pdf', format:"A4",
+      printBackground: true
+    })
     await browser.close()
     return PdfBuffer
   }
@@ -138,7 +156,10 @@ class PdfGenerator{
       const browser = await puppeteer.launch()
       const page = await browser.newPage()
       await page.setContent(htmlContent)
-      const PdfBuffer = await page.pdf ({path: 'purchase.pdf', format:"A4"})
+      const PdfBuffer = await page.pdf ({
+        path: 'purchase.pdf', format:"A4",
+        printBackground: true
+      })
       await browser.close()
 
       console.log('success')
@@ -157,7 +178,10 @@ class PdfGenerator{
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setContent(htmlContent)
-    const PdfBuffer = await page.pdf ({path: 'reciept.pdf', format:"A4"})
+    const PdfBuffer = await page.pdf ({
+      path: 'reciept.pdf', format:"A4",
+      printBackground: true
+    })
     await browser.close()
     return PdfBuffer
   }
@@ -175,7 +199,7 @@ export const generatePDF = async (type, data) => {
         return await PdfGenerator.generatePurchase(data);
       case 'DELIVERY NOTE':
         return await PdfGenerator.generateDeliveryNote(data);
-      case 'QUOTE':  /// WORKING
+      case 'QUOTATION':  /// WORKING
         return await PdfGenerator.generateQuote(data);
       case 'ENQUIRY':
         return await PdfGenerator.generateEnquiry(data);

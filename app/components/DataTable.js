@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { useContext, useEffect, useState } from 'react'
 import { Table, Stack, Button, Form, Modal, InputGroup, ListGroup, DropdownButton, Dropdown } from 'react-bootstrap'
-import { createCalc } from '../dashboard/utils'
+import { createCalc, round2 } from '../dashboard/utils'
 import { useStore } from '../Store'
 import { toast } from 'react-toastify'
 
@@ -10,17 +10,21 @@ export default function DataTable(props) {
     
     const {type} = props
     const { state } = useContext(useStore)
+    const {userData, supplierData, customerData, companyData} = state
+
 
     const [items, setItems] = useState([])
     const [item, setItem] = useState({
         code: '',
         name: '',
         catgeory:"",
+        unit: "",
         description: '',
         qty:0,
+        vat: 0,
+        salePrice:0,
         purchasePrice:0,
         inStock:0,
-        salePrice:0,
       })
 
     
@@ -55,8 +59,10 @@ export default function DataTable(props) {
 
     //CREATE ITEM MODAL STATE OBJECT
     const [creatItem, setCreateItem] = useState({
-      name: '',
+      name:'',
+      category:"",
       purchasePrice: '',
+      unit:"",
       salePrice: '',
     })
     
@@ -83,11 +89,21 @@ export default function DataTable(props) {
       ///SAVE NEW PRODUCT FROM MODAL
       const saveNewItem = async()=>{
         //console.log(creatItem)
-        const {data} = await axios.post('/api/items', {
-          name: creatItem.name,
-          purchasePrice: creatItem.purchasePrice,
-          salePrice: creatItem.salePrice
-        })
+        toast.promise(
+          axios.post('/api/items', {
+            name: creatItem.name,
+            purchasePrice: creatItem.purchasePrice,
+            salePrice: creatItem.salePrice,
+            category: creatItem.category,
+            unit: creatItem.unit
+          }),
+
+          {
+            pending: "...wait",
+            success:"Done",
+            error: "Oops, try again!"
+          }
+        )
 
         if(data){
           setProducts([...products, {...data}])
@@ -131,24 +147,62 @@ export default function DataTable(props) {
 
       ///EDIT ROW FUNCTION
       const handleRowChange = (index, field, value) => {
-        setItems((prevItems) =>
-            prevItems.map((itm, i) =>
-                i === index ? { ...itm, [field]: value } : itm
-            )
-        );
-        
-        // Recalculate total if qty or sellingPrice changes
-        if (field === 'qty' || field === 'salePrice') {
+        if (type !== 'purchase' && (field === 'qty' || field === 'salePrice')) {
+            // Handle non-purchase logic
             setItems((prevItems) =>
                 prevItems.map((itm, i) =>
-                    i === index ? { 
-                        ...itm, 
-                        total: itm.qty * itm.salePrice 
-                    } : itm
+                    i === index ? { ...itm, [field]: value } : itm
                 )
             );
+    
+            // Recalculate total if qty or salePrice changes
+            setItems((prevItems) =>
+                prevItems.map((itm, i) => {
+                    if (i === index) {
+                        const unitCost = round2(itm.qty * itm.salePrice); // Unit cost
+                        const vat = round2(unitCost * vatRate); // VAT
+                        const total = unitCost + vat; // Total value
+    
+                        return { 
+                            ...itm,
+                            vat: vat,
+                            unitCost: unitCost,
+                            total: total
+                        };
+                    }
+                    return itm;
+                })
+            );
+        } else if (type === 'purchase' && (field === 'qty' || field === 'purchasePrice')) {
+            // Handle purchase logic
+            setItems((prevItems) =>
+                prevItems.map((itm, i) =>
+                    i === index ? { ...itm, [field]: value } : itm
+                )
+            );
+    
+            // Recalculate total if qty or purchasePrice changes
+            setItems((prevItems) =>
+                prevItems.map((itm, i) => {
+                    if (i === index) {
+                        const unitCost = round2(itm.qty * itm.purchasePrice); // Unit cost
+                        const vat = round2(unitCost * vatRate); // VAT
+                        const total = unitCost + vat; // Total value
+    
+                        return { 
+                            ...itm,
+                            vat: vat,
+                            unitCost: unitCost,
+                            total: total
+                        };
+                    }
+                    return itm;
+                })
+            );
         }
-      };
+    };
+    
+    
     
 
       //SEARCH PRODUCT ON INPUT
@@ -183,28 +237,53 @@ export default function DataTable(props) {
                         qty: selectedItem.qty || 1, // Default to 1 when selecting item
                         inStock: selectedItem.inStock || 0,
                         category: selectedItem.category || itm.category,
-                        total: (selectedItem.qty || 1) * (selectedItem.salePrice || 0)
+                        unit: selectedItem.unit || itm.unit,
                     }
                     : itm
             )
         );
     
+        // Recalculate unitCost, vat, and total after the item details have been updated
+        setItems((prevItems) =>
+            prevItems.map((itm, i) => {
+                if (i === index) {
+                    const unitCost = round2(itm.qty * itm.salePrice); // Unit cost
+                    const vat = round2(unitCost * vatRate); // VAT
+                    const total = unitCost + vat; // Total value
+    
+                    return { 
+                        ...itm,
+                        unitCost: unitCost,
+                        vat: vat,
+                        total: total
+                    };
+                }
+                return itm;
+            })
+        );
+    
         setSearchTerm((prev) => ({ ...prev, [index]: selectedItem.name }));
         setFilterItems([]);
         setActiveRow(null);
-      };
+    };
+    
     
       // Handle category change
       const handleCategoryChange = (index, value) => {
         setItems((prevItems) =>
             prevItems.map((itm, i) =>
-                i === index ? { ...itm, category: value } : itm
+                i === index ? { ...itm, category: value } : itm.category
             )
         );
       };
 
       //STATE OBJECT VALUES FOR CALCULATOR
-      const calculator = createCalc({vatEnabled, vatRate, discount, cash, bank, card, cashAmount, bankAmount, cardAmount, advanceAmount, items})
+      const calculator = createCalc({
+        vatEnabled, vatRate, discount, 
+        cash, bank, card, cashAmount, 
+        bankAmount, cardAmount, 
+        advanceAmount, items
+      })
       
       const pendingAmount = calculator.pendingAmount().toFixed(2)
       const vatAmount = calculator.vatAmount().toFixed(2)
@@ -218,8 +297,9 @@ export default function DataTable(props) {
 
 
       const data = {
-        vatRate, discount, bankName,
+        vatRate, discount, 
         cashAmount, bankAmount, 
+        vatEnabled, bankName,
         cardAmount, advanceAmount, 
         items, pendingAmount, vatAmount,
         totalAfterDiscount, totalWithoutVat,
@@ -232,7 +312,6 @@ export default function DataTable(props) {
       const getDataForType = ( type ) => {
         let preparedData = { ...data };
 
-        const {userData, supplierData, customerData, companyData} = state
 
         switch (type) {
           case 'purchase':
@@ -253,7 +332,8 @@ export default function DataTable(props) {
           case 'quotation':
             preparedData = { 
               ...preparedData, 
-              quotationDetails: companyData,
+              customer: customerData,
+              employee: userData
             };
             break;
       
@@ -318,29 +398,6 @@ export default function DataTable(props) {
           console.log("Unknown action");
         }
       };
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -352,11 +409,13 @@ export default function DataTable(props) {
               <th>#</th>
               <th>Category</th>
               <th>Item</th>
-              <th>pPrice</th>
-              <th>sPrice</th>
+              <th>Unit</th>
               <th>Qty</th>
-              <th>Stock</th>
-              <th>Total</th>
+              <th>Pprice</th>
+              <th>Sprice</th>
+              <th>NetAmount</th>
+              <th>Vat</th>
+              <th>Total Incl.Vat</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -365,24 +424,30 @@ export default function DataTable(props) {
               <tr key={index}>
                 <td>{index + 1}</td>
                 <td>
-                  <select name='category' onChange={(e) => handleCategoryChange(index, e.target.value)}>
-                    <option>---select---</option>
+                  {itm.category ? (
+                    <Form.Control type='text' value={itm?.category} readOnly/>
+                  ):(
+                    <Form.Select name='category' 
+                    onChange={(e) => handleCategoryChange(index, e.target.value)}>
+                    <option>{itm.category || 'select'}</option>
                     {categories?.map((cat, catIndex)=> (
                         <option key={catIndex}>{cat.name}</option>
                     ))}
-                  </select>
+                  </Form.Select>
+                  )}
                 </td>
                 <td>
                   {/* Editable fields for name and description */}
                   <Stack gap={2}>
-                    <input
+                    <Form.Control className='sm'
                       type="text"
-                      value={searchTerm[index] || itm.name}
+                      value={searchTerm[index] || ""}
                       onChange={(e) => handleSearchChange(index, e)}
                       placeholder="Item Name"
                     />
                     {activeRow === index && filterItems?.length > 0 &&(
-                      <ListGroup style={{zIndex: 1, maxHeight: '300px', height:'300px', overflowY:"auto", background:"white"}}>
+                      <ListGroup 
+                        style={{zIndex: 1, maxHeight: '300px', height:'300px', overflowY:"auto", background:"white"}}>
                         {filterItems?.map((filteredItem)=> (
                           <ListGroup.Item
                           key={filteredItem.code}
@@ -393,7 +458,7 @@ export default function DataTable(props) {
                         ))}
                       </ListGroup>
                     )}
-                    <textarea
+                    <Form.Control as='textarea'
                       type="text"
                       value={itm.description  || ''}
                       onChange={(e) =>
@@ -405,7 +470,25 @@ export default function DataTable(props) {
                   </Stack>
                 </td>
                 <td>
-                  <input
+                  <Form.Control
+                    type="text" readOnly
+                    value={itm.unit || ''}
+                    onChange={(e) =>
+                      handleRowChange(index, 'unit', e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <Form.Control
+                    type="number"
+                    value={itm.qty || 0}
+                    onChange={(e) =>
+                      handleRowChange(index, 'qty', Number(e.target.value))
+                    }
+                  />
+                </td>
+                <td>
+                  <Form.Control
                     type="number"
                     value={itm.purchasePrice || 0}
                     onChange={(e) =>
@@ -414,25 +497,17 @@ export default function DataTable(props) {
                   />
                 </td>
                 <td>
-                  <input
+                  <Form.Control
                     type="number"
                     value={itm.salePrice || 0}
                     onChange={(e) =>
-                      handleRowChange(index, 'sellingPrice', Number(e.target.value))
+                      handleRowChange(index, 'salePrice', Number(e.target.value))
                     }
                   />
                 </td>
-                <td>
-                  <input
-                    type="number"
-                    value={itm.qty || 0}
-                    onChange={(e) =>
-                      handleRowChange(index, 'qty', Number(e.target.value))
-                    }
-                  />
-                </td>
-                <td>{itm.inStock || 0}</td>
-                <td>{(itm.qty || 0) * (itm.salePrice || 0)}</td>
+                <td>{itm.unitCost}</td>
+                <td>{round2(itm.vat)}</td>
+                <td>{itm.total}</td>
                 <td>
                     <Stack>
                         <Button variant='light' onClick={()=> handleRemoveRow(index)}>❌</Button>
@@ -442,16 +517,16 @@ export default function DataTable(props) {
             ))}
           </tbody>
           <tfoot>
-  <tr>
-    <th colSpan={3}>Totals summary:</th>
-  </tr>
-  <tr>
-    <td colSpan={3}><strong>Items Total Incl Vat:</strong> AED: {itemsWithVatTotal}</td>
-  </tr>
-  <tr>
-    <td colSpan={3}><strong>Items Total Excl Vat:</strong> AED: {totalWithoutVat}</td>
-  </tr>
-  <tr>
+        <tr>
+          <th colSpan={3}>Totals summary:</th>
+        </tr>
+        <tr>
+          <td colSpan={3}><strong>Items Total Incl Vat:</strong> AED: {itemsWithVatTotal}</td>
+        </tr>
+        <tr>
+          <td colSpan={3}><strong>Items Total Excl Vat:</strong> AED: {totalWithoutVat}</td>
+        </tr>
+        <tr>
     <td colSpan={3}>
       <InputGroup>
         <InputGroup.Text>Discount</InputGroup.Text>
@@ -468,7 +543,7 @@ export default function DataTable(props) {
   <tr>
     <td colSpan={3}>
       <InputGroup>
-        {!vatEnabled && (
+        {vatEnabled && (
           <Form.Control 
             type="number"
             step="0.01"
@@ -543,13 +618,15 @@ export default function DataTable(props) {
         <InputGroup className='mb-2'>
           {bank && (
             <>
-            <DropdownButton title={bankName || 'SELECT BANK'} variant='danger'>
+            <Form.Select title={bankName || 'SELECT BANK'} variant='danger'>
+              <option>{bankName || 'select Bank'}</option>
               {banks.map((bank)=> (
-                <Dropdown.Item key={bank.code} onClick={(e)=> setBankName(e.target.value)}>
-                {bank.name}
-                </Dropdown.Item>
+                <option key={bank.controlId} 
+                  onClick={(e)=> setBankName(e.target.value)}>
+                  {bank.name}
+                </option>
               ))}
-            </DropdownButton>
+            </Form.Select>
             <Form.Control 
               type="number"
               step="0.01"
@@ -669,10 +746,29 @@ export default function DataTable(props) {
           type='text' onChange={(e)=> {
           setCreateItem((prevState)=> ({...prevState, salePrice: e.target.value}))
         }}/>
-        <Form.Select>
+        <Form.Select className='mb-2' 
+          value={creatItem.category || ''}
+          onChange={(e)=>{
+            setCreateItem((prevState)=> ({...prevState, category: e.target.value}))
+          }}
+        >
+          <option>--category--</option>
+          {categories.map((unit)=>(
+            <option key={unit.code} value={unit.name}>
+              {unit.name}
+            </option>
+          ))}
+        </Form.Select>
+        <Form.Select value={creatItem.unit || ''} 
+          onChange={(e)=>{
+            setCreateItem((prevState)=> ({...prevState, unit: e.target.value}))
+          }}
+        >
           <option>--Unit--</option>
           {units.map((unit)=>(
-            <option key={unit.code}>{unit.name}</option>
+            <option key={unit.code} value={unit.name}>
+              {unit.name}
+            </option>
           ))}
         </Form.Select>
       </Modal.Body>

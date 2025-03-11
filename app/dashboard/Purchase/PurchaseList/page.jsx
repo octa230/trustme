@@ -1,9 +1,28 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
-import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup } from 'react-bootstrap'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
+import {Container, Stack, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup } from 'react-bootstrap'
 
 export default function page() {
+
+
+  const [purchases, setPurchases] = useState([])
+  
+  
+  
+  useEffect(()=>{
+    const getData = async()=>{
+      const {data} = await axios.get(`/api/purchase`)
+      setPurchases(data)
+    }
+
+    getData()
+  }, [])
+
+
+
   return (
     <Container fluid>
     <h1>Purchase List</h1>
@@ -28,7 +47,7 @@ export default function page() {
         <Form.Select>
           <option>--select--</option>
           {['paid', 'pending', 'partially Paid'].map((x)=>(
-            <option>{x}</option>
+            <option key={x}>{x}</option>
           ))}
         </Form.Select>
       </Col>
@@ -75,11 +94,12 @@ export default function page() {
           <th>CtrID</th>
           <th>Puchase No</th>
           <th>InvoiceDate</th>
-          <th>Supplier</th>
-          <th>Net Amt</th>
-          <th>TT Vat</th>
-          <th>Grand TT</th>
-          <th>G-TT After Discount</th>
+          <th>SUPPLIER</th>
+          <th>TOTAL EXCL.VAT</th>
+          <th>VAT AMOUNT</th>
+          <td>TOTAL</td>
+          <th>DISCOUNT AMT</th>
+          <th>TT After Discount</th>
           <th>Cash Paid</th>
           <th>Card Paid</th>
           <th>Bank Paid</th>
@@ -90,7 +110,36 @@ export default function page() {
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        {purchases && purchases?.map((purchase, index)=> (
+          <tr key={index}>
+            <td>{index}</td>
+            <td>{purchase.controlId}</td>
+            <td>{purchase.purchaseNo}</td>
+            <td>{new Date(purchase.createdAt)?.toLocaleDateString()}</td>
+            <td>{purchase?.supplierName}</td>
+            <td>{purchase?.totalWithoutVat}</td>
+            <td>{purchase?.vatAmount}</td>
+            <td>{purchase.totalWithVat}</td>
+            <td>{purchase.discountAmount}</td>
+            <td>{purchase.totalAfterDiscount}</td>
+            <td>{purchase?.cashAmount}</td>
+            <td>{purchase?.cardAmount}</td>
+            <td>{purchase?.bankAmount}</td>
+            <td>{purchase?.totalWithVat}</td>
+            <td>{purchase?.pendingAmount}</td>
+            <td style={{color: purchase.status ? 'red' : 'green'}}>{purchase?.status ? 'PENDING' : 'PAID'}</td>
+            <td>🗂️</td>
+            <td>
+              <Stack gap={2}>
+                <Button variant='outline-info btn-sm'>🖊</Button>
+                <Button variant='outline-success btn-sm'>🖨</Button>
+                <Button variant='outline-danger btn-sm'>❌</Button>
+              </Stack>
+            </td>
+          </tr>
+        ))}
+      </tbody>
       <tfoot>
           <tr>
             <th colSpan={5}>Totals</th>

@@ -3,16 +3,27 @@ import mongoose from "mongoose";
 
 
 const transactionSchema = new mongoose.Schema({
-    type: {type: String, Enumerator:['SALE', 'PURCHASE', 'REFUND']},
+    type: {type: String, required: true},
     controlId: {type: String},
     totalAmount: {type: Number},
-    type: {String},
     bankName: {String},
     items:[
         {
-            item: {type: String},
+            category: {type: String},
+            name: {type: String },
+            qty: {type: Number, default: 0},
+            vat: {type: Number, default: 0},
+            unit: {type: String},
+            total: {type: Number, default: 0},
             code: {type: String},
-            qty: {type: Number},
+            brand: {type: String},
+            model: {type: String},
+            barcode: {type: String},
+            purchasePrice: {type: Number, default: 0},
+            salePrice: {type: Number, default: 0},
+            photo: {type: String},
+            description: {type: String},
+            note: {type: String}
         }
     ],
     

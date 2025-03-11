@@ -29,7 +29,9 @@ const initialState ={
 function reducer(state, action){
     switch(action.type){
         case'SET_USER':
-            return {...state, userData: action.payload}
+            const user = action.payload
+            localStorage.setItem('userData', JSON.stringify(user))
+            return {...state, userData: user}
         case 'LOG_OUT':
             return {...state, userData: null}
         case 'SAVE_SUPPLIER':
