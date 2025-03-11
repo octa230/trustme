@@ -66,7 +66,8 @@ class PurchaseClass{
                     vat: item.vat,
                     brand: item.brand,
                     purchasePrice: item.purchasePrice ,
-                    salePrice: item.salePrice ,
+                    salePrice: item.salePrice,
+                    costAmount: item.unitCost,
                     total: item.total
                 }
             )), 

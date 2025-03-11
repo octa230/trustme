@@ -111,7 +111,7 @@ class PdfGenerator{
 
   ////GENERATE DELIVERY NOTE PDF
   static async generateDeliveryNote(data){
-    const templateSource = fs.readFileSync('Reciept.hbs', 'utf-8')
+    const templateSource = fs.readFileSync('./templates/DeliveryNote.hbs', 'utf-8')
     const template = Handlebars.compile(templateSource)
     const htmlContent = template(data)
 
@@ -119,7 +119,7 @@ class PdfGenerator{
     const page = await browser.newPage()
     await page.setContent(htmlContent)
     const PdfBuffer = await page.pdf ({
-      path: 'reciept.pdf', format:"A4",
+      path: 'deliveryNote.pdf', format:"A4",
       printBackground: true
     })
     await browser.close()

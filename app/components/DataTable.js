@@ -147,7 +147,7 @@ export default function DataTable(props) {
 
       ///EDIT ROW FUNCTION
       const handleRowChange = (index, field, value) => {
-        if (type !== 'purchase' && (field === 'qty' || field === 'salePrice')) {
+        if (type !== 'purchase' && (field === 'qty' || field === 'salePrice' || 'description')) {
             // Handle non-purchase logic
             setItems((prevItems) =>
                 prevItems.map((itm, i) =>
@@ -162,9 +162,11 @@ export default function DataTable(props) {
                         const unitCost = round2(itm.qty * itm.salePrice); // Unit cost
                         const vat = round2(unitCost * vatRate); // VAT
                         const total = unitCost + vat; // Total value
+                        const description = itm.description
     
                         return { 
                             ...itm,
+                            description: description,
                             vat: vat,
                             unitCost: unitCost,
                             total: total
@@ -173,7 +175,7 @@ export default function DataTable(props) {
                     return itm;
                 })
             );
-        } else if (type === 'purchase' && (field === 'qty' || field === 'purchasePrice')) {
+        } else if (type === 'purchase' && (field === 'qty' || field === 'purchasePrice' || 'description')) {
             // Handle purchase logic
             setItems((prevItems) =>
                 prevItems.map((itm, i) =>
@@ -188,12 +190,14 @@ export default function DataTable(props) {
                         const unitCost = round2(itm.qty * itm.purchasePrice); // Unit cost
                         const vat = round2(unitCost * vatRate); // VAT
                         const total = unitCost + vat; // Total value
+                        const description = itm.description
     
                         return { 
                             ...itm,
                             vat: vat,
                             unitCost: unitCost,
-                            total: total
+                            total: total,
+                            description: description
                         };
                     }
                     return itm;
@@ -250,12 +254,14 @@ export default function DataTable(props) {
                     const unitCost = round2(itm.qty * itm.salePrice); // Unit cost
                     const vat = round2(unitCost * vatRate); // VAT
                     const total = unitCost + vat; // Total value
+                    const description = itm.description
     
                     return { 
                         ...itm,
                         unitCost: unitCost,
                         vat: vat,
-                        total: total
+                        total: total,
+                        description: description
                     };
                 }
                 return itm;
@@ -330,6 +336,14 @@ export default function DataTable(props) {
             break;
       
           case 'quotation':
+            preparedData = { 
+              ...preparedData, 
+              customer: customerData,
+              employee: userData
+            };
+            break;
+
+          case 'deliveryNote':
             preparedData = { 
               ...preparedData, 
               customer: customerData,
@@ -413,7 +427,7 @@ export default function DataTable(props) {
               <th>Qty</th>
               <th>Pprice</th>
               <th>Sprice</th>
-              <th>NetAmount</th>
+              <th>Cost</th>
               <th>Vat</th>
               <th>Total Incl.Vat</th>
               <th>Actions</th>
@@ -447,7 +461,7 @@ export default function DataTable(props) {
                     />
                     {activeRow === index && filterItems?.length > 0 &&(
                       <ListGroup 
-                        style={{zIndex: 1, maxHeight: '300px', height:'300px', overflowY:"auto", background:"white"}}>
+                        style={{zIndex: 1, maxHeight: '250px', height:'250px', overflowY:"auto", background:"white"}}>
                         {filterItems?.map((filteredItem)=> (
                           <ListGroup.Item
                           key={filteredItem.code}

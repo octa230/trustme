@@ -52,9 +52,11 @@ class QuotationClass{
                     qty: item.qty,
                     unit: item.unit,
                     vat: item.vat,
+                    description: item.description,
                     brand: item.brand,
                     purchasePrice: item.purchasePrice ,
-                    salePrice: item.salePrice ,
+                    salePrice: item.salePrice,
+                    costAmount: item.unitCost,
                     total: item.total
                 }
             )),
@@ -111,6 +113,7 @@ class QuotationClass{
 
 
 
+
 quotationRouter.post('/save', asyncHandler(async(req, res)=>{
     const { data } = req.body
 
@@ -126,6 +129,16 @@ quotationRouter.post('/save', asyncHandler(async(req, res)=>{
         console.log(error)
     }
 }))
+
+
+
+quotationRouter.get('/', asyncHandler(async(req, res)=>{
+    const quotations = await Quotation.find({})
+    .sort({createdAt: -1})
+
+    res.status(200).send(quotations)
+}))
+
 
 quotationRouter.post('/', asyncHandler(async(req, res)=> {
     const {data} = req.body
@@ -146,6 +159,8 @@ quotationRouter.post('/', asyncHandler(async(req, res)=> {
         res.status(400).send('Invalid PDF type or system Faliure')
     }
 }))
+
+
 
 
 export default quotationRouter

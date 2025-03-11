@@ -199,13 +199,17 @@ export default function page() {
         <Accordion className='m-1'>
           <Accordion.Item eventKey='1'>
             <Accordion.Header>
-                Qutation Details
+                Invoice Details
             </Accordion.Header>
             <Accordion.Body>
                 <Form>
                   <Form.Group>
                       <Form.Label>Invoice Number</Form.Label>
                         <Form.Control type='text' placeholder='101'/>
+                      </Form.Group>
+                    <Form.Group>
+                      <Form.Label>Delivery Note Number</Form.Label>
+                        <Form.Control type='text' placeholder='101xxx'/>
                       </Form.Group>
                       <Form.Group>
                         <Calender title='Invoice Date'/>

@@ -43,6 +43,14 @@ const DashboardLayout = ({children}) => {
       ]
       },
       {
+        title:"Delivery Note",
+        icon: <MdSpaceDashboard/>,
+        links:[ 
+          {name:"Delivery Note", href:"/dashboard/DeliveryNote" },
+          {name:"Delivery Notes List", href:"/dashboard/DeliveryNote/DeliveryNoteList" }
+      ]
+      },
+      {
         title:"Quotations",
         icon: <MdSpaceDashboard/>,
         links:[
@@ -55,7 +63,7 @@ const DashboardLayout = ({children}) => {
         title:"Sales",
         icon: <MdSpaceDashboard/>,
         links:[
-          { name:"Sales", href:  "/dashboard/Sales/Sales"},
+          { name:"Sales", href:  "/dashboard/Sales"},
           { name:"Sales List", href:  "/dashboard/Sales/SalesList"}
       ]
       },
@@ -226,13 +234,13 @@ const DashboardLayout = ({children}) => {
       </Navbar>
 
       <aside>
-        <Offcanvas
+        <Offcanvas 
           show={show}
           onHide={toggle}
           scroll={true}
           backdrop={false}
           placement="start"
-          style={{ marginTop: '70px', width: '280px' }}
+          style={{ marginTop: '70px', width: '280px'}}
         >
           <Offcanvas.Header closeButton>
           <Offcanvas.Title>Dashboard</Offcanvas.Title>

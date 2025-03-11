@@ -21,12 +21,16 @@ const transactionSchema = new mongoose.Schema({
             barcode: {type: String},
             purchasePrice: {type: Number, default: 0},
             salePrice: {type: Number, default: 0},
+            costAmount: {type: Number, default: 0},
             photo: {type: String},
             description: {type: String},
             note: {type: String}
         }
     ],
     
+},
+{
+    timestamps: true
 })
 
 

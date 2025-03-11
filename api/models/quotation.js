@@ -25,6 +25,9 @@ const quotationSchema = new mongoose.Schema({
     discountAmount: {type: Number},
     preparedBy: {type: String},
     amountInWords: {type: String}
+}, 
+{
+    timestamps: true,
 })
 
 const Quotation = mongoose.model('Quotation', quotationSchema)

@@ -10,7 +10,7 @@
       body{
         padding: 22px;
         /*height: 100vh;*/
-        font-family: Arial, Helvetica, sans-serif;
+        font-family:'Times New Roman', Times, serif;
         
       }
       .company-info{
@@ -33,27 +33,30 @@
         width: 100%;
         justify-content: space-between;
         flex-direction: row;
+        font-weight: 500;
         padding: 12px;
         align-items: center;
       }
       .address-info strong{
         text-decoration: underline;
         padding-top: 22px;
+        font-weight: 400;
       }
       .data-table{
         width: 100%;
       }
+      .data-table td{
+        border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+      }
       .document-info strong{
         text-decoration: none;
+        font-weight: 400;
       }
-      table, tr, td{
-        border: 1px solid black;
-        padding: 0;
-        border-spacing: 0;
-      }
+
       td{
         padding-right: 12px;
         text-align: right;
+        border-bottom: 0.5 solid rgba(0, 0, 0, 0.2);
       }
       thead{
         background-color: #20114d;
@@ -78,7 +81,7 @@
     
       .totals-table td{
         padding: 2px;
-        font-size: 12px;
+        font-size: 14px;
         width: 120px;
         border: none;
         border-bottom: 1px solid black;
@@ -128,8 +131,10 @@
             <thead>
                 <tr>
                     <th style="text-align: left">Description</th>
+                    <th>UNIT</th>
                     <th>QTY</th>
                     <th>PRICE</th>
+                    <th>COST</th>
                     <th>VAT</th>
                     <th>TOTAL</th>
                 </tr>
@@ -144,8 +149,10 @@
                         </span>
                         {{/if}}
                     </td>
+                    <td>{{unit}}</td>
                     <td style="text-align: center">{{qty}}</td>
                     <td style="text-align: center">{{salePrice}}</td>
+                    <td style="text-align: center">{{costAmount}}</td>
                     <td>{{vat}}</td>
                     <td style="text-align: center">{{total}}</td>
                 </tr>

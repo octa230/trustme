@@ -12,7 +12,7 @@ const QuotationList =  () => {
   const [quotations, setQuotations] = useState([])
 
   const getData = async()=>{
-    const {data} = await axios.get(`/api/quotation`)
+    const {data} = await axios.get(`/api/deliveryNote`)
     setQuotations(data)
   } 
 
@@ -22,7 +22,7 @@ const QuotationList =  () => {
   }, [])
   return (
     <Container fluid>
-      <h1>Quotations List</h1>
+      <h1>Delivery Notes List</h1>
       <Row className='bg-light p-3 border'>
       <ButtonToolbar className='mb-2'>
         <Col className='col-md-2'>
@@ -68,7 +68,7 @@ const QuotationList =  () => {
         </InputGroup>
         </Col>
         <Col>
-          <Button variant='danger'>ADD QUOTATION</Button>
+          <Button variant='danger'>ADD DELIVERY NOTE</Button>
         </Col>
       </Row>
       </Row>
@@ -90,19 +90,19 @@ const QuotationList =  () => {
           </tr>
         </thead>
         <tbody>
-          {quotations?.map((quotation, index)=> (
+          {quotations?.map((note, index)=> (
             <tr key={index}>
               <td>{index + 1}</td>
-              <td>{quotation.controlId}</td>
-              <td>{quotation.quotationNo}</td>
-              <td>{new Date(quotation.createdAt)?.toLocaleDateString()}</td>
-              <td>{quotation.customerName}</td>
-              <td>{quotation.totalWithoutVat}</td>
-              <td>{quotation.vatAmount}</td>
-              <td>{quotation.totalWithVat}</td>
-              <td>{quotation.discountAmount}</td>
-              <td style={{color: quotation.approved ? 'greenyellow' : 'tomato'} }>
-                {quotation.approved ? 'APPROVED' : 'PENDING'}
+              <td>{note.controlId}</td>
+              <td>{note.noteNo}</td>
+              <td>{new Date(note.createdAt)?.toLocaleDateString()}</td>
+              <td>{note.customerName}</td>
+              <td>{note.totalWithoutVat}</td>
+              <td>{note.vatAmount}</td>
+              <td>{note.totalWithVat}</td>
+              <td>{note.discountAmount}</td>
+              <td style={{color: note.approved ? 'greenyellow' : 'tomato'} }>
+                {note.approved ? 'APPROVED' : 'PENDING'}
               </td>
               <td>
                 <Stack gap={2}>

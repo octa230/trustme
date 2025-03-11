@@ -20,8 +20,9 @@ const itemSchema = {
 }
 
 
-const saleSchema = new mongoose.Schema({
+const deliverySchema = new mongoose.Schema({
     createdBy: {type: String},
+    noteNo: {type: String},
     invoiceNo: {type: String},
     date: {type: Date},
     controlId: {type: String},
@@ -55,5 +56,5 @@ const saleSchema = new mongoose.Schema({
 }
 )
 
-const Sale = mongoose.model('Sale', saleSchema)
-export default Sale
+const DeliveryNote = mongoose.model('DeliveryNote', deliverySchema)
+export default DeliveryNote

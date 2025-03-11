@@ -5,7 +5,7 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import {Container, Stack, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup } from 'react-bootstrap'
 
-export default function page() {
+const PurchaseList = ()=> {
 
 
   const [purchases, setPurchases] = useState([])
@@ -158,3 +158,6 @@ export default function page() {
   </Container>
   )
 }
+
+
+export default PurchaseList
