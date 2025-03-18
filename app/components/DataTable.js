@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { useContext, useEffect, useState } from 'react'
-import { Table, Stack, Button, Form, Modal, InputGroup, ListGroup, DropdownButton, Dropdown } from 'react-bootstrap'
+import { Table, Stack, Button, Form, Modal, InputGroup, ListGroup } from 'react-bootstrap'
 import { createCalc, round2 } from '../dashboard/utils'
 import { useStore } from '../Store'
 import { toast } from 'react-toastify'
@@ -10,7 +10,7 @@ export default function DataTable(props) {
     
     const {type} = props
     const { state } = useContext(useStore)
-    const {userData, supplierData, customerData, companyData} = state
+    const {userData, supplierData, customerData, companyData, saleData, purchaseData} = state
 
 
     const [items, setItems] = useState([])
@@ -131,17 +131,18 @@ export default function DataTable(props) {
 
       //FETCH CATEGORIES, UNITS, BANKS & PRODUCTS
       const tableData = async()=>{
-        const [categoriesRes, productsRes, banksRes, unitsRes] = await Promise.all([
-          axios.get('/api/category'),
-          axios.get('/api/items'),
-          axios.get('/api/banks'),
-          axios.get('/api/units')
-        ])
 
-        setCategories(categoriesRes.data)
-        setProducts(productsRes.data)
-        setBanks(banksRes.data)
-        setUnits(unitsRes.data)
+          const [categoriesRes, productsRes, banksRes, unitsRes] = await Promise.all([
+            axios.get('/api/category'),
+            axios.get('/api/items'),
+            axios.get('/api/banks'),
+            axios.get('/api/units')
+          ])
+  
+          setCategories(categoriesRes.data)
+          setProducts(productsRes.data)
+          setBanks(banksRes.data)
+          setUnits(unitsRes.data)
       }
 
 
@@ -324,6 +325,7 @@ export default function DataTable(props) {
             preparedData = { 
               ...preparedData, 
               supplier: supplierData,
+              employee: userData
             };
             break;
       
@@ -339,6 +341,15 @@ export default function DataTable(props) {
             preparedData = { 
               ...preparedData, 
               customer: customerData,
+              employee: userData
+            };
+            break;
+
+          case 'return':
+            preparedData = { 
+              ...preparedData, 
+              sale: saleData,
+              purchase: purchaseData,
               employee: userData
             };
             break;
@@ -372,14 +383,14 @@ export default function DataTable(props) {
       };
       
       const saveAndPrint = async (type, data) => {
-        try {
-          const response = await axios.post(`/api/${type}`, { data }, { responseType: "blob" });
-          const blob = new Blob([response.data], { type: "application/pdf" });
-          const url = window.URL.createObjectURL(blob);
-          window.open(url, "_blank");
-        } catch (error) {
-          console.error("Error rendering PDF", error);
-        }
+          try {
+            const response = await axios.post(`/api/${type}`, { data }, { responseType: "blob" });
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, "_blank");
+          } catch (error) {
+            console.error("Error rendering PDF", error);
+          }
       };
       
       const handleSave = async (action) => {
@@ -691,7 +702,7 @@ export default function DataTable(props) {
       <Button onClick={() => setNewCategory(true)} className='mx-2'>New Category</Button>
     </td>
     <td colSpan='6'>
-      <Button variant='secondary' onClick={()=>{
+      <Button disabled={type === 'return'} variant='secondary' onClick={()=>{
         if(items.length > 0 && window.confirm('Save & Print Now?')){
           handleSave('SAVE_AND_PRINT')
         }
@@ -713,7 +724,7 @@ export default function DataTable(props) {
   </tr>
 </tfoot>
 
-    </Table>
+  </Table>
     
 
 

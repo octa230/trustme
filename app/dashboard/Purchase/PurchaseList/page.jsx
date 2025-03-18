@@ -3,7 +3,7 @@
 import Calender from '@/app/components/Calender'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import {Container, Stack, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup } from 'react-bootstrap'
+import {Container, Stack, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup, Badge } from 'react-bootstrap'
 
 const PurchaseList = ()=> {
 
@@ -115,7 +115,11 @@ const PurchaseList = ()=> {
           <tr key={index}>
             <td>{index}</td>
             <td>{purchase.controlId}</td>
-            <td>{purchase.purchaseNo}</td>
+            <td>
+              <Badge>
+              {purchase.purchaseNo}
+              </Badge>
+            </td>
             <td>{new Date(purchase.createdAt)?.toLocaleDateString()}</td>
             <td>{purchase?.supplierName}</td>
             <td>{purchase?.totalWithoutVat}</td>
@@ -126,7 +130,7 @@ const PurchaseList = ()=> {
             <td>{purchase?.cashAmount}</td>
             <td>{purchase?.cardAmount}</td>
             <td>{purchase?.bankAmount}</td>
-            <td>{purchase?.totalWithVat}</td>
+            <td>{purchase?.paidAmount}</td>
             <td>{purchase?.pendingAmount}</td>
             <td style={{color: purchase.status ? 'red' : 'green'}}>{purchase?.status ? 'PENDING' : 'PAID'}</td>
             <td>🗂️</td>

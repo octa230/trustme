@@ -31,9 +31,9 @@ itemsRouter.post('/', asyncHandler(async(req, res)=> {
 
 
 itemsRouter.get('/', asyncHandler(async(req, res)=>{
-    const categories = await Item.find()
-    if(categories){
-        res.status(200).send(categories)
+    const items = await Item.find().sort({name: 1})
+    if(items.length){
+        res.status(200).send(items)
     }
 }))
 

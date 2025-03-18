@@ -1,12 +1,16 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
+import axios from 'axios'
 import React from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
-  ButtonGroup, Table, Button, Modal  } from 'react-bootstrap'
+  ButtonGroup, Table, Button, Modal,InputGroup  } from 'react-bootstrap'
 
 export default function page() {
 
+  const getItems = async()=>{
+    const {data}= await axios.get('/api/items')
+  }
 
   return (
     <div>

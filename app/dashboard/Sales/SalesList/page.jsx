@@ -1,7 +1,7 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
-import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup, Stack } from 'react-bootstrap'
+import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup, Stack, Badge } from 'react-bootstrap'
 
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
@@ -99,7 +99,9 @@ export default function page() {
           <tr key={sale.controlId}>
             <td>{index}</td>
             <td>{sale.controlId}</td>
-            <td>00{sale.invoiceNo}</td>
+            <td>
+              <Badge pill>{sale.invoiceNo}</Badge>
+            </td>
             <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
             <td>{sale?.customerName}</td>
             <td>{sale?.totalWithoutVat}</td>

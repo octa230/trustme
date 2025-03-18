@@ -2,11 +2,14 @@ import { Router} from "express";
 import Customer from "../../models/customer.js";
 import asyncHandler from "express-async-handler";
 import { generateId } from "../../utils.js";
+import { AccountingService } from "../accounts/accountservice.js";
 
 
 
 
 const customerRouter = Router()
+
+const accountingService = new AccountingService()
 
 
 customerRouter.get('/search', asyncHandler(async(req, res)=>{
@@ -85,6 +88,22 @@ customerRouter.put('/:id', asyncHandler(async(req, res)=> {
     res.status(200).send(customer) 
 })) 
 
+
+customerRouter.get('/:controlId/ledger', asyncHandler(async(req, res)=>{
+    try{
+        const { controlId } = req.params
+        const {startDate, endDate } = req.query
+
+        const ledger = await accountingService.getCustomerLedger(
+            controlId,
+            startDate ? new Date(startDate) : undefined,
+            endDate ? new Date(endDate) : undefined
+         )
+         res.status(200).send(ledger)
+    }catch(error){
+        console.log(error)
+    }
+}))
 
 customerRouter.get('/', asyncHandler(async(req, res)=>{
     const customers = await Customer.find()

@@ -132,15 +132,16 @@
         <div class="company-info">
             <address>
                 <h3 style="text-transform: uppercase;">{{company.name}}</h3>
-                <strong>PO BOX: 515000</strong><br/>
+                <strong>PO BOX: {{company.poBox}}</strong><br/>
                 <strong>{{company.phone}}</strong><br/>
                 <strong>{{company.mobile}}</strong><br/>
                 <strong>{{company.email}}</strong><br/>
-                <strong>{{company.region}}/</strong><br/>
+                <strong>{{company.address}}</strong><br/>
+                <strong>{{company.region}}</strong><br/>
               </address>
               <section class="logo-section">
                 <img class="logo"
-                  src="https://www.shutterstock.com/image-vector/buildings-icon-company-logo-260nw-274839713.jpg"/>
+                  src="https://res.cloudinary.com/drovqqnv7/image/upload/v1741761113/WhatsApp_Image_2024-06-18_at_11.01.53_sjff5x.jpg"/>
               </section>
         </div>
         <div class="document-title">
@@ -151,8 +152,8 @@
                 <address>
                     <strong>{{customer.name}}</strong><br/>
                     <strong>{{customer.address}}</strong><br/>
-{{!--                     <strong>Dubai Marina</strong><br/>
- --}}                    <strong>{{customer.phone}}</strong><br/>
+
+                    <strong>{{customer.phone}}</strong><br/>
                     <strong>VAT Nō {{customer.trn}}</strong>
                 </address>
                 <address>
@@ -170,8 +171,11 @@
             <thead>
                 <tr>
                     <th style="text-align: left">Description</th>
+                    <th>UNIT</th>
                     <th>QTY</th>
                     <th>PRICE</th>
+                    <th>COST</th>
+                    <th>VAT</th>
                     <th>TOTAL</th>
                 </tr>
             </thead>
@@ -179,9 +183,12 @@
                {{#each transaction.items}}
                <tr>
                 <td style="text-align: left;">{{name}}</td>
+                <td>{{unit}}</td>
                 <td>{{qty}}</td>
                 <td>{{salePrice}}</td>
-                <td>{{netAmount}}</td>
+                <td>{{costAmount}}</td>
+                <td>{{vat}}</td>
+                <td>{{total}}</td>
                </tr>
                {{/each}}
             </tbody>

@@ -20,8 +20,15 @@ const initialState ={
 
     customerData: localStorage.getItem('customerData')
     ? JSON.parse(localStorage.getItem('customerData'))
-    : null
+    : null,
 
+    saleData: localStorage.getItem('saleData')
+    ? JSON.parse(localStorage.getItem('saleData'))
+    : null,
+
+    purchaseData: localStorage.getItem('purchaseData')
+    ? JSON.parse(localStorage.getItem('purchaseData'))
+    : null
 
 }
 
@@ -42,6 +49,15 @@ function reducer(state, action){
             const customer = action.payload
             localStorage.setItem('customerData', JSON.stringify(customer))
             return{...state, customerData: customer}
+        case 'SAVE_SALE':
+            const sale = action.payload
+            sale.type = 'SALE'
+            localStorage.setItem('saleData', JSON.stringify(sale))
+            return{...state, saleData: sale}
+        case 'SAVE_PURCHASE':
+            const purchase = action.payload
+            localStorage.setItem('purchaseData', JSON.stringify(purchase))
+            return{...state, purchaseData: purchase}
         default:
             return state
 

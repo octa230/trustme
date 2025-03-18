@@ -184,5 +184,35 @@ purchaseRouter.post('/', asyncHandler(async(req, res, next)=>{
 }))
 
 
+purchaseRouter.get('/search', asyncHandler(async(req, res)=>{
+    
+    const { searchKey } = req.query
+
+    if (!searchKey) {
+        return res.status(400).send({ message: "Search key is required." });
+    }
+
+    const purchase = await Purchase.findOne({
+        $or:[
+            { controlId: searchKey },
+            { purchaseNo: searchKey }
+        ]
+    })
+
+    if(!purchase){
+        return res.status(404).send({message: 'Purchase not found'})
+    }
+
+    const transaction = await Transaction.findOne({type:'PURCHASE', controlId: purchase.controlId})
+
+    if(!transaction){
+        return res.status(404).send({message: 'Items for this Purchase not found'})
+    }
+
+    purchase.items = [...transaction.items]
+    res.status(200).send(purchase)
+}))
+
+
 
 export default purchaseRouter

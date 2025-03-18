@@ -5,6 +5,7 @@ import { generateId, generatePDF, sendPDF, toWords } from '../../utils.js';
 import Transaction from '../../models/transaction.js';
 import Company from '../../models/company.js';
 import Customer from '../../models/customer.js';
+import { AccountingService } from '../accounts/accountservice.js';
 
 
 const salesRouter = Router();
@@ -24,7 +25,8 @@ class SalesClass{
         const sale = new Sale({
             invoiceNo: invoiceNo,
             controlId: await generateId(),
-            createdBy: data.employee.username,
+            createdByName: data.employee.username,
+            createdBy: data.employee._id,
             expiryDate: data.expiryDate,
             description: data.description,
             customer: data.customer._id,
@@ -52,6 +54,13 @@ class SalesClass{
         })
 
         const newSale = await sale.save()
+        const journalData = {
+            date: newSale.createdAt,
+            referenceId: newSale.controlId,
+            referenceNumber: newSale.invoiceNo, 
+        }
+        
+        await AccountingService.createSale(newSale)
 
         const transaction = new Transaction({
             type: 'SALE',
@@ -65,7 +74,7 @@ class SalesClass{
                     brand: item.brand,
                     purchasePrice: item.purchasePrice ,
                     salePrice: item.salePrice,
-                    costAmount: item.costAmount,
+                    costAmount: item.unitCost,
                     total: item.total
                 }
             )),
@@ -75,6 +84,7 @@ class SalesClass{
         })
 
         await transaction.save()
+
 
         return{
             invoiceNo: newSale.invoiceNo,
@@ -172,10 +182,41 @@ salesRouter.post('/', asyncHandler(async(req, res)=>{
 }))
 
 
+salesRouter.get('/invoice/search', asyncHandler(async (req, res) => {
+    const { searchKey } = req.query;
+  
+    if (!searchKey) {
+      return res.status(400).send({ message: "Search key is required." });
+    }
+  
+    const sale = await Sale.findOne({
+      $or: [
+        { controlId: searchKey },
+        { invoiceNo: searchKey }
+      ],
+    });
+
+
+  
+    if (!sale) {
+      return res.status(404).send({ message: "Sale not found." });
+    }
+
+    const transaction = await Transaction.findOne({type: 'SALE', controlId: sale.controlId})
+
+    if (!transaction) {
+      return res.status(404).send({ message: "Items For this sale not found." });
+    }
+
+    sale.items = [...transaction.items]
+    res.status(200).send(sale);
+  }));
+  
+
 salesRouter.get('/', asyncHandler(async(req, res)=>{
     const  query = req.query
 
-    const sales = await Sale.find({})
+    const sales = await Sale.find({}).sort({createdAt: -1})
     res.send(sales)
 }))
 

@@ -21,19 +21,22 @@ const itemSchema = {
 
 
 const saleSchema = new mongoose.Schema({
-    createdBy: {type: String},
-    invoiceNo: {type: String},
+    createdByName: {type: String},
+    invoiceNo: {type: String, required: true, unique: true},
     date: {type: Date},
-    controlId: {type: String},
+    controlId: {type: String, unique: true},
     itemsTotal: {type: Number, default: 0},
     createdBy: {type: String},
-    status: {type: Boolean, default: true},
+    status: {type: String, Enumerator:['draft', 'confirmed', 'paid', 'partially_paid', 'void']},
     expiryDate: {type: Date},
     description: {type: String},
     customer: {type: mongoose.Types.ObjectId, ref: 'customer'},
     customerId: {type: String},
     customerName: {type: String},
     items: [itemSchema],
+
+
+    //FINANCIAL CALCULATIONS VALUES
     totalWithoutVat: {type: Number, default: 0},
     vatAmount:{type: Number, default: 0},
     vatRate:{type: Number, default: 0},
@@ -47,8 +50,17 @@ const saleSchema = new mongoose.Schema({
     advanceAmount: {type: Number, default: 0},
     pendingAmount: {type: Number, default: 0},
     amountInWords: {type: String}, 
-    paidBy: {type: String},
-    paidFrom: {type: String},
+
+    ///PAYMENT METHODS
+    paymentMethods: [{
+        method: {type: String, Enumerator:['cash', 'bank', 'card', 'credit']},
+        amount: {type: Number, default: 0},
+        transactionId: {type: String},
+        reference: {type: String},
+        account: {type: mongoose.Types.ObjectId, ref: "Account"},
+        accountId: {type: String}
+    }],
+    createdBy: {type: mongoose.Types.ObjectId, ref: 'Employee'},
 },
 {
     timestamps: true
