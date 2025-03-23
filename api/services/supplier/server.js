@@ -5,6 +5,11 @@ import { generateId } from "../../utils.js"
 
 const supplierRouter = Router()
 
+supplierRouter.get('/', asyncHandler(async(req, res)=>{
+    const suppliers = await Supplier.find({}).sort({name: 1})
+    res.status(200).send(suppliers)
+}))
+
 
 supplierRouter.get('/search', asyncHandler(async(req, res)=>{
     const { searchKey } = req.query
@@ -81,10 +86,6 @@ supplierRouter.put('/:id', asyncHandler(async(req, res)=> {
 }))
 
 
-supplierRouter.get('/', asyncHandler(async(req, res)=>{
-    const suppliers = await Supplier.find()
-    res.status(200).send(suppliers)
-}))
 
 
 

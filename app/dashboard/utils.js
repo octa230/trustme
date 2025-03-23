@@ -1,5 +1,11 @@
 export const states = ['Abu Dhabi', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah']
 
+export const ledgerAccountTypes = ['asset', 'liability', 'equity', 'revenue', 'expense']
+
+export const handleDateChange=(newDate, setterFunc)=>{
+  
+}
+
 
 export const createCalc = (state) => {
   const {

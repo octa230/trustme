@@ -50,17 +50,21 @@ const saleSchema = new mongoose.Schema({
     advanceAmount: {type: Number, default: 0},
     pendingAmount: {type: Number, default: 0},
     amountInWords: {type: String}, 
+    
+    //PAYMENT METHODS
+    paidBy: {type: String},
 
     ///PAYMENT METHODS
-    paymentMethods: [{
+  /*   paymentMethods: [{
         method: {type: String, Enumerator:['cash', 'bank', 'card', 'credit']},
         amount: {type: Number, default: 0},
         transactionId: {type: String},
         reference: {type: String},
         account: {type: mongoose.Types.ObjectId, ref: "Account"},
         accountId: {type: String}
-    }],
+    }], */
     createdBy: {type: mongoose.Types.ObjectId, ref: 'Employee'},
+    transactionId: {type: mongoose.Types.ObjectId, ref: "Transaction"}
 },
 {
     timestamps: true

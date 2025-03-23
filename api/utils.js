@@ -2,13 +2,50 @@ import jwt from 'jsonwebtoken'
 import {v4 as uuidv4 } from 'uuid'
 import puppeteer from 'puppeteer'
 import fs from 'fs'
+import { Account } from './models/account.js'
 import Handlebars from 'handlebars'
 import { ToWords } from 'to-words'
 
 
 
-export const generateId = async()=> uuidv4().slice(0, 5).toString()
+export const generateId = async()=> uuidv4().slice(0, 8).toString()
 
+/* export const accIdGenerator =async(type, dbLen)=>{
+  const prefix = type.toUpperCase().substring(0, 4);
+  return `${prefix}-${(dbLen =+ 1).toString().padStart(3, '0')}`
+}
+ */
+
+export const accIdGenerator = async (type) => {
+  const prefix = type.toUpperCase().substring(0, 4);
+  let isUnique = false;
+  let serialNumber;
+
+  while (!isUnique) {
+    const uniqueSuffix = Date.now().toString(36);
+    serialNumber = `${prefix}-${uniqueSuffix}`;
+
+    // Check if the serialNumber already exists in the database
+    const existingAccount = await Account.findOne({ serialNumber });
+    if (!existingAccount) {
+      isUnique = true;
+    }
+  }
+
+  return serialNumber;
+};
+
+export const generateStatus = async(pendingAmount) => {
+  // Ensure the returned value matches one of the allowed enum values
+  if (pendingAmount === 0) {
+      return 'paid'; // If pending amount is 0, the status is 'paid'
+  } else if (pendingAmount > 0 && pendingAmount < 0.01) {
+      return 'partially_paid';
+  } else if (pendingAmount > 0) {
+      return 'pending'; // If there's a pending amount
+  }
+  return 'draft'; // Default status if no conditions match
+};
 
 const toWordsInstance = new ToWords({
   localeCode: 'en-AE', // Ensure correct locale

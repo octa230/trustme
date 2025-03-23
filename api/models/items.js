@@ -3,10 +3,12 @@ import mongoose from "mongoose";
 const itemSchema = new mongoose.Schema({
     category: {type: String},
     name: {type: String },
-    inStock: {type: Number},
+    inStock: {type: Number, default: 0},
     unit: {type: String},
     code: {type: String},
     brand: {type: String},
+    purchased: {type: Number, default: 0},
+    sold: {type: Number, default: 0},
     model: {type: String},
     barcode: {type: String},
     purchasePrice: {type: Number},

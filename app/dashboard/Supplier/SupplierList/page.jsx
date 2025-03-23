@@ -2,13 +2,29 @@
 
 import Calender from '@/app/components/Calender'
 import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table } from 'react-bootstrap'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
 
 export default function page() {
+
+  const [suppliers, setSuppliers] = useState([])
+
+  useEffect(()=>{
+    const getData=async()=>{
+      const {data} = await axios.get(`/api/supplier`)
+      setSuppliers(data)
+    }
+    getData()
+  },[])
+
+
+
+
+
   return (
     <Container fluid>
-    <h1>Customer List</h1>
+    <h1>Supplier List</h1>
     <Row className='bg-light p-3 border shadow-sm rounded'>
     <ButtonToolbar className='mb-2'>
       <Col className='col-md-2'>
@@ -84,7 +100,21 @@ export default function page() {
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        {suppliers.map((supplier, index)=> (
+          <tr key={supplier._id}>
+            <td>{index}</td>
+            <td>{supplier.controlId}</td>
+            <td>{supplier.name}</td>
+            <td>{supplier.phone}</td>
+            <td>{supplier.email}</td>
+            <td>{supplier.address}</td>
+            <td>{supplier.trn}</td>
+            <td>{supplier.pendingAmount || 0}</td>
+            <td></td>
+          </tr>
+        ))}
+      </tbody>
     </Table>
   </Container>
   )

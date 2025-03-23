@@ -12,7 +12,7 @@ export default function page() {
 
     toast.promise(
       axios.post(`/api/banks`, {
-        name
+        bankName: name
       }),
       {
         pending: "...wait",

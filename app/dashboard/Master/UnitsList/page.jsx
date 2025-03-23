@@ -1,12 +1,26 @@
 'use client'
 
+import axios from 'axios'
 //import Calender from '@/app/components/Calender'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
-  ButtonGroup, Table, Button } from 'react-bootstrap'
+  ButtonGroup, Table, Button, 
+  Stack} from 'react-bootstrap'
 
 
-export default function page() {
+const UnitsList =()=> {
+
+  const [units, setUnits] = useState([])
+
+
+  const getUnits =async()=>{
+    const {data} = await axios.get(`/api/units`)
+    setUnits(data)
+  }
+
+  useEffect(()=>{
+    getUnits()
+  }, [])
   return (
     <div>
       <Container fluid>
@@ -31,7 +45,7 @@ export default function page() {
   
       </Row>
 
-      <Table striped='columns' bordered hover className='m-2'>
+      <Table striped='columns' bordered hover className='m-2' responsive>
         <thead>
           <tr>
             <th>#</th>
@@ -40,9 +54,26 @@ export default function page() {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          {units.map((unit, index)=> (
+            <tr key={unit._id}>
+              <td>{index}</td>
+              <td>{unit.code}</td>
+              <td>{unit.name}</td>
+              <td>
+                <Stack direction="horizontal" gap={3}>
+                  <Button className='mx-1'>Edit</Button>
+                  <Button variant='danger'>Del</Button>
+                </Stack>
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </Table>
     </Container>
     </div>
   )
 }
+
+
+export default UnitsList

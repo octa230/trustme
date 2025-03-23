@@ -1,32 +1,71 @@
 import { Router } from "express";
-import asyncHandler from 'express'
+import asyncHandler from 'express-async-handler'
 import Expense from "../../models/expense.js";
+import { Account } from "../../models/account.js";
+import { AccountingService } from "../accounts/accountservice.js";
 
 
 
 const expenseRouter = Router()
 
+expenseRouter.get('/', asyncHandler(async(req, res)=>{
+
+    console.log('expenses triggered')
+    const exps = await Expense.find({})
+    res.send(exps)
+}))
+
+
+
+expenseRouter.post('/', asyncHandler(async(req, res)=>{
+    
+}))
+
 expenseRouter.post('/', asyncHandler(async(req, res)=> {
-    const {date, recieptNumber, expenseName, expenseAmount, expenseVat, totalExpense, paymentMethod, billFile, bankName, notes} = req.body 
+   const{
+    date,
+    paymentMethod,
+    recieptNumber,
+    account,
+    amount,
+    vat,
+    bankName,
+    totalAmount,
+    cardAmount,
+    bankAmount,
+    cashAmount,
+    billFile,
+    notes 
+} = req.body
+
+    const dbAccount = await Account.findById(account)
 
     const expense = new Expense({
         date,
+        account,
+        amount,
+        name: dbAccount.name,
         recieptNumber,
-        expenseName,
-        expenseAmount,
-        expenseVat,
-        totalExpense,
+        amount,
+        vat,
+        totalAmount,
+        cardAmount,
+        bankAmount,
+        cashAmount,
         paymentMethod,
         billFile,
         bankName,
         notes,
     })
 
-    await expense.save()
+    const dbExpense = await expense.save()
+    console.log(dbExpense)
+
+    await AccountingService.createExpense(dbExpense)
     res.status(200).send(expense)
 }))
 
-expenseRouter.post('/', asyncHandler(async(req, res)=>{
+/* expenseRouter.post('/:id', asyncHandler(async(req, res)=>{
     
     const {date, recieptNumber, expenseName, expenseAmount, expenseVat, totalExpense, paymentMethod, billFile, bankName, notes} = req.body 
 
@@ -47,7 +86,7 @@ expenseRouter.post('/', asyncHandler(async(req, res)=>{
 
     await expense.save()
     res.send(expense)
-}))
+})) */
 
 
 export default expenseRouter

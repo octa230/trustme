@@ -62,7 +62,7 @@ export default function page() {
             <tr key={index}>
               <td>{index + 1}</td>
               <td>{bank.controlId}</td>
-              <td>{bank.name}</td>
+              <td>{bank.bankName}</td>
             </tr>
           ))}
         </tbody>

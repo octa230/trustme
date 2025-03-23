@@ -33,6 +33,8 @@ export default function DataTable(props) {
     const [cash, setCash] = useState(false);
     const [bank, setBank] = useState(false);
     const [card, setCard] = useState(false);
+    const [selectedBank, setSelectedBank] = useState(null)
+    const [paymentMethod, setPaymentMethod] = useState(null)
     const [advance, setAdvance] = useState(false);
     const [cashAmount, setCashAmount] = useState(0);
     const [bankAmount, setBankAmount] = useState(0);
@@ -126,7 +128,16 @@ export default function DataTable(props) {
       ///FETCH INITIAL DATA USE EFFECT
       useEffect(()=>{
         tableData()
-      }, [])
+
+        if(bank){
+          setPaymentMethod("bank")
+        }else if(cash){
+          setPaymentMethod("cash")
+        }else if(card){
+          setPaymentMethod("card")
+        }
+
+      }, [cash, card, bank])
 
 
       //FETCH CATEGORIES, UNITS, BANKS & PRODUCTS
@@ -284,6 +295,15 @@ export default function DataTable(props) {
         );
       };
 
+
+      const handleBankChange = (e) => {
+        const selectedBank = JSON.parse(e.target.value);
+        setSelectedBank(selectedBank);
+        console.log(selectedBank)
+      };
+
+      
+
       //STATE OBJECT VALUES FOR CALCULATOR
       const calculator = createCalc({
         vatEnabled, vatRate, discount, 
@@ -325,7 +345,9 @@ export default function DataTable(props) {
             preparedData = { 
               ...preparedData, 
               supplier: supplierData,
-              employee: userData
+              employee: userData,
+              paymentMethod,
+              bankName,
             };
             break;
       
@@ -333,7 +355,9 @@ export default function DataTable(props) {
             preparedData = { 
               ...preparedData, 
               customer: customerData,
-              employee: userData
+              employee: userData,
+              paymentMethod,
+              bankName
             };
             break;
       
@@ -341,7 +365,7 @@ export default function DataTable(props) {
             preparedData = { 
               ...preparedData, 
               customer: customerData,
-              employee: userData
+              employee: userData,
             };
             break;
 
@@ -350,7 +374,7 @@ export default function DataTable(props) {
               ...preparedData, 
               sale: saleData,
               purchase: purchaseData,
-              employee: userData
+              employee: userData,
             };
             break;
 
@@ -366,6 +390,8 @@ export default function DataTable(props) {
             preparedData = { 
               ...preparedData, 
               companyInfo: companyData,
+              paymentMethod,
+              bankName
             };
             break;
       
@@ -643,13 +669,13 @@ export default function DataTable(props) {
         <InputGroup className='mb-2'>
           {bank && (
             <>
-            <Form.Select title={bankName || 'SELECT BANK'} variant='danger'>
+            <Form.Select title={bankName || 'SELECT BANK'} variant='danger' 
+              onChange={(e) => handleBankChange(e)}>
               <option>{bankName || 'select Bank'}</option>
               {banks.map((bank)=> (
-                <option key={bank.controlId} 
-                  onClick={(e)=> setBankName(e.target.value)}>
-                  {bank.name}
-                </option>
+                <option key={bank.controlId} value={JSON.stringify(bank)}>
+                {bank.bankName}
+              </option>
               ))}
             </Form.Select>
             <Form.Control 
@@ -721,10 +747,9 @@ export default function DataTable(props) {
     <td colSpan="4">
       <Button onClick={handleAddRow} variant='warning'>Add Row➕</Button>
     </td>
-  </tr>
-</tfoot>
-
-  </Table>
+    </tr>
+  </tfoot>
+</Table>
     
 
 

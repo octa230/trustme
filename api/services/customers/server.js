@@ -106,7 +106,7 @@ customerRouter.get('/:controlId/ledger', asyncHandler(async(req, res)=>{
 }))
 
 customerRouter.get('/', asyncHandler(async(req, res)=>{
-    const customers = await Customer.find()
+    const customers = await Customer.find({})
 
     res.status(200).send(customers)
 }))

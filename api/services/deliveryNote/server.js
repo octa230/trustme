@@ -8,7 +8,7 @@ import Customer from '../../models/customer.js';
 import DeliveryNote from '../../models/deliveryNote.js';
 
 
-const salesRouter = Router();
+const notesRouter = Router();
 
 
 class DeliveryNoteClass{
@@ -121,7 +121,7 @@ class DeliveryNoteClass{
 
 
 ///SAVE Note
-salesRouter.post('/save', asyncHandler(async(req, res)=>{
+notesRouter.post('/save', asyncHandler(async(req, res)=>{
     const {data} = req.body
     if(!data || !data.customer || !data.items || data.items.length === 0){
         return res.status(400).send({message: "Incomplete Data"})
@@ -137,7 +137,7 @@ salesRouter.post('/save', asyncHandler(async(req, res)=>{
 
 
 ///SAVE & PRINT SALE
-salesRouter.post('/', asyncHandler(async(req, res)=>{
+notesRouter.post('/', asyncHandler(async(req, res)=>{
     
     const {data} = req.body
     
@@ -168,15 +168,15 @@ salesRouter.post('/', asyncHandler(async(req, res)=>{
 }))
 
 
-salesRouter.get('/', asyncHandler(async(req, res)=>{
+notesRouter.get('/', asyncHandler(async(req, res)=>{
     const  query = req.query
 
-    const sales = await DeliveryNote.find({})
-    res.send(sales)
+    const notes = await DeliveryNote.find({})
+    res.send(notes).sort({createdAt: -1})
 }))
 
 
-export default salesRouter
+export default notesRouter
 
 
 

@@ -3,17 +3,19 @@
 import Calender from '@/app/components/Calender'
 import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Card, Dropdown, Button, Table } from 'react-bootstrap'
 import axios from 'axios'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 
 
-export default function page() {
+const CustomersPage =()=> {
+
+  const [customers, setCustomers] = useState([])
 
   useEffect(()=>{
     const getCustomers = async()=>{
       try{
         const {data} = await axios.get('/api/customers')
-
+        setCustomers(data)
         console.log(data)
       }catch(error){
         console.log(error)
@@ -99,8 +101,23 @@ export default function page() {
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        {customers.map((customer, index) =>(
+          <tr key={customer._id}>
+            <td>{index}</td>
+            <td>{customer.controlId}</td>
+            <td>{customer.name}</td>
+            <td>{customer.phone}</td>
+            <td>{customer.email}</td>
+            <td>{customer.trn}</td>
+            <td>{customer.pendingAmount || 0}</td>
+            <td></td>
+          </tr>
+        ))}
+      </tbody>
     </Table>
   </Container>
   )
 }
+
+export default CustomersPage

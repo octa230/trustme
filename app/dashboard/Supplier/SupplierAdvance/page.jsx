@@ -1,22 +1,62 @@
 'use client'
 
-import React, {useState} from 'react'
-import { Button, Form, InputGroup, Container } from 'react-bootstrap'
+import React, {useEffect, useState} from 'react'
+import { Button, Form, InputGroup, Container, Dropdown, ListGroup } from 'react-bootstrap'
 import Calender from '@/app/components/Calender'
+import axios from 'axios'
 
 
 export default function page() {
 
+  const [banks, setBanks] = useState([])
+  const [suppliers, setSuppliers] = useState([])
+  const [supplier, setSupplier] = useState(null)
+  const [filteredSuppliers, setFilteredsuppliers ] = useState([])
+  const [advanceData, setAdvanceData ] = useState({
+    receiptNumber: '',
+    bankName: '',
+    paymentMethod:"",
+    supplier: null,
+    description:""
+  })
+  const [searchKey, setSearchKey] = useState('')
   const [selectedPaymentMthd, setSelectedPaymentMthd] = useState('')
+
+  console.log(supplier)
+
+
+  const getData = async()=>{
+    const [banksRes, suppliersRes] = await Promise.all([
+      axios.get(`/api/banks`),
+      axios.get(`/api/supplier`)
+    ])
+    setBanks(banksRes.data)
+    setSuppliers(suppliersRes.data)
     
+  }
     
-    const handlePaymentChange =(e)=>{
-      setSelectedPaymentMthd(e.target.value)
-    }
+  useEffect(()=>{
+    getData()
+  },[])
+
+  const handlePaymentChange =(e)=>{
+    setSelectedPaymentMthd(e.target.value)
+  }
+
+
+  const supplierSearch=(value)=>{
+    setSearchKey(value)
+    const res = suppliers.filter((supplier)=> 
+      supplier.name.toLowerCase().includes(value.toLowerCase()) 
+    )
+    setFilteredsuppliers(res)
+  }
+
+
   return (
     <Container className='col-md-5'>
       <Form className='p-2 border rounded shadow-sm'>
-          <h1>Supplier Advance</h1>
+        <h1>Supplier Advance</h1>
           <hr/>
         <Form.Group>
           <Form.Group>
@@ -28,13 +68,28 @@ export default function page() {
           </Form.Group>
           <Form.Group>
             <Form.Label>Supplier Name</Form.Label>
-            <Form.Select>
-              <option>---select---</option>
-              {['petrol', 'computer', 'services'].map((item, index)=>(
-                <option key={index}>{item}</option>
-              ))}
-            </Form.Select>
+            <InputGroup>
+            <Form.Control value={searchKey} onChange={(e)=> {
+              e.preventDefault()
+              supplierSearch(e.target.value)
+            }}/>
+            <Button variant='danger' onClick={()=> setSearchKey('')}>cancel</Button>
+            </InputGroup>
           </Form.Group>
+          {filteredSuppliers.length > 0 && (
+              <ListGroup className='border rounded' variant='flush' 
+                style={{overflowX: 'hidden', width: 130, maxHeight: 200, zIndex: 100, overflowY: 'auto'}}>
+                {filteredSuppliers.map((supp)=> (
+                  <ListGroup.Item key={supp.controlId} onClick={()=> {
+                    setSupplier(supp)
+                    setSearchKey(supp.name)
+                    setFilteredsuppliers([])
+                  }}>
+                    {supp.name}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+          )}
           <Form.Group>
             <Form.Label>Amount</Form.Label>
             <Form.Control type='number'/>
@@ -56,18 +111,12 @@ export default function page() {
               <Form.Label>Bank Name</Form.Label>
               <Form.Select>
                 <option>---select---</option>
-                {['bankA', 'bankB', 'bankC'].map((bank, index)=>(
-                  <option key={index}>{bank}</option>
+                {banks.map((bank, index)=>(
+                  <option key={index}>{bank.bankName}</option>
                 ))}
               </Form.Select>
             </Form.Group>
           )}
-          <Form.Group>
-            <InputGroup>
-              <Form.Control type='text' id='addon1'/>
-              <Button aria-describedby='addon1' variant='outline-secondary'>upload file</Button>
-            </InputGroup>
-          </Form.Group>
           <Form.Group>
             <Form.Label>Notes</Form.Label>
             <Form.Control as='textarea' rows={5} type='text' placeholder='write something here'/>

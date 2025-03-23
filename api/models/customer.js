@@ -5,6 +5,7 @@ const customerSchema = new mongoose.Schema({
     name: {type: String, required: true, set: value => value.toLowerCase},
     controlId: {type: String},
     mobile: {type: String},
+    pendingAmount: {type: Number, default: 0},
     phone: {type: String},
     email: {type: String},
     region: {type: String},
