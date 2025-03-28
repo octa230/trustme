@@ -1,11 +1,30 @@
 'use client'
 
 
-import React from 'react'
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
   ButtonGroup, Table, Button, InputGroup } from 'react-bootstrap'
 
-export default function page() {
+const StockReportPage =()=> {
+
+  const [products, setProducts]= useState([])
+
+  useEffect(()=>{
+    const getData =async()=>{
+      const {data}= await axios.get(`/api/items`)
+      setProducts(data)
+    }
+    getData()
+  }, [])
+
+
+
+
+
+
+
+
   return (
     <div>
       <Container fluid>
@@ -52,7 +71,6 @@ export default function page() {
           <tr>
             <th>#</th>
             <th>ctrlId</th>
-            <th>Category</th>
             <th>Model</th>
             <th>Name</th>
             <th>Pprice</th>
@@ -64,7 +82,23 @@ export default function page() {
             <th>TT SalesAmt</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          {products.map((product, index)=> (
+            <tr key={product.code}>
+              <td>{index}</td>
+              <td>{product.code}</td>
+              <td>{product.model}</td>
+              <td>{product.name}</td>
+              <td>{product.purchasePrice}</td>
+              <td>{product.salePrice}</td>
+              <td>{product.purchased}</td>
+              <td>{product.sold}</td>
+              <td>{product.inStock}</td>
+              <td>{product.purchasePrice * product.purchased}</td>
+              <td>{product.purchasePrice * product.salePrice}</td>
+            </tr>
+          ))}
+        </tbody>
         <tfoot>
           <tr>
             <th className='text-danger' colSpan={5}>Totals</th>
@@ -82,3 +116,5 @@ export default function page() {
     </div>
   )
 }
+
+export default StockReportPage

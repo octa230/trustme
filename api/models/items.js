@@ -13,6 +13,8 @@ const itemSchema = new mongoose.Schema({
     barcode: {type: String},
     purchasePrice: {type: Number},
     salePrice: {type: Number},
+    retrnedToSupplier: {type: Number}, 
+    retrnedToCustomer: {type: Number},
     photo: {type: String},
     description: {type: String},
     note: {type: String}

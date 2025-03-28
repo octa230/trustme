@@ -111,7 +111,7 @@ export default function page() {
             <td>{sale?.bankAmount}</td>
             <td>{sale?.paidAmount}</td>
             <td>{sale?.pendingAmount}</td>
-            <td style={{color: sale.status ? 'red' : 'green'}}>{sale?.status ? 'PENDING' : 'PAID'}</td>
+            <td>{sale?.status}</td>
             <td>x days</td>
             <td>
               <Stack gap={2}>

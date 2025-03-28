@@ -1,6 +1,7 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
+import XlsExportButton from '@/app/components/XlsExportButon'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
@@ -9,11 +10,11 @@ import {Container, ButtonToolbar, Col, Row, Form,
 
 const QuotationList =  () => {
 
-  const [quotations, setQuotations] = useState([])
+  const [notes, setNotes] = useState([])
 
   const getData = async()=>{
     const {data} = await axios.get(`/api/deliveryNote`)
-    setQuotations(data)
+    setNotes(data)
   } 
 
 
@@ -42,7 +43,7 @@ const QuotationList =  () => {
         <ButtonGroup>
         <Button size='md' variant='outline-danger'>RESET</Button>
         <Button size='md' variant='outline-warning'>SEARCH</Button>
-        <Button size='md' variant='outline-success'>EXCEL</Button>
+        <XlsExportButton data={notes}/>
         <Button size='md'>PRINT</Button>
         </ButtonGroup>
         </Col>
@@ -90,7 +91,7 @@ const QuotationList =  () => {
           </tr>
         </thead>
         <tbody>
-          {quotations?.map((note, index)=> (
+          {notes?.map((note, index)=> (
             <tr key={index}>
               <td>{index + 1}</td>
               <td>{note.controlId}</td>
@@ -117,10 +118,10 @@ const QuotationList =  () => {
         <tfoot>
             <tr>
               <th colSpan={5}>Totals</th>
-              <td>{quotations.reduce((acc, curr)=> acc + curr.totalWithoutVat, 0)}</td>
-              <td>{quotations.reduce((acc, curr) => acc + curr.vatAmount, 0)}</td>
-              <td>{quotations.reduce((acc, curr)=> acc + curr.totalWithVat, 0)}</td>
-              <td>{quotations.reduce((acc, curr)=> acc + curr.discountAmount, 0 )}</td>
+              <td>{notes.reduce((acc, curr)=> acc + curr.totalWithoutVat, 0)}</td>
+              <td>{notes.reduce((acc, curr) => acc + curr.vatAmount, 0)}</td>
+              <td>{notes.reduce((acc, curr)=> acc + curr.totalWithVat, 0)}</td>
+              <td>{notes.reduce((acc, curr)=> acc + curr.discountAmount, 0 )}</td>
             </tr>
         </tfoot>
       </Table>

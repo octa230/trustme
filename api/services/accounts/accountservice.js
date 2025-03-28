@@ -130,6 +130,730 @@ export class AccountingService {
         }
     }
 
+    static async getGeneralSupplierLedger(startDate, endDate) {
+        try {
+            // Find the Payables account using exact controlId or name
+            const payablesAccount = await Account.findOne({ 
+                $or: [
+                    { controlId: 'ACC-PAYABLES' },
+                    { name: 'Payables' }
+                ]
+            });
+    
+            if (!payablesAccount) {
+                throw new Error('Payables account not found');
+            }
+    
+            // Prepare date filters
+            const dateFilter = {};
+            if (startDate) dateFilter['$gte'] = new Date(startDate);
+            if (endDate) dateFilter['$lte'] = new Date(endDate);
+    
+            // Construct base query
+            const query = {
+                'entries.account': payablesAccount._id,
+                postingStatus: 'posted'
+            };
+    
+            // Add date filter if dates provided
+            if (Object.keys(dateFilter).length > 0) {
+                query.date = dateFilter;
+            }
+    
+            // Get journal entries with supplier information
+            const journalEntries = await JournalEntry.aggregate([
+                { $match: query },
+                { $unwind: '$entries' },
+                { $match: { 'entries.account': payablesAccount._id } },
+                {
+                    $lookup: {
+                        from: 'purchases',
+                        localField: 'referenceId',
+                        foreignField: '_id',
+                        as: 'purchase'
+                    }
+                },
+                { $unwind: { path: '$purchase', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'payments',
+                        localField: 'referenceId',
+                        foreignField: '_id',
+                        as: 'payment'
+                    }
+                },
+                { $unwind: { path: '$payment', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'returns',
+                        localField: 'referenceId',
+                        foreignField: '_id',
+                        as: 'return'
+                    }
+                },
+                { $unwind: { path: '$return', preserveNullAndEmptyArrays: true } },
+                {
+                    $project: {
+                        date: 1,
+                        description: 1,
+                        referenceType: 1,
+                        referenceNumber: 1,
+                        debit: '$entries.debit',
+                        credit: '$entries.credit',
+                        supplier: {
+                            $cond: {
+                                if: { $ifNull: ['$purchase.supplier', false] },
+                                then: '$purchase.supplier',
+                                else: {
+                                    $cond: {
+                                        if: { $ifNull: ['$payment.supplier', false] },
+                                        then: '$payment.supplier',
+                                        else: '$return.supplier'
+                                    }
+                                }
+                            }
+                        },
+                        docType: {
+                            $cond: {
+                                if: { $ifNull: ['$purchase', false] },
+                                then: 'Purchase',
+                                else: {
+                                    $cond: {
+                                        if: { $ifNull: ['$payment', false] },
+                                        then: 'Payment',
+                                        else: 'Return'
+                                    }
+                                }
+                            }
+                        },
+                        docNumber: {
+                            $cond: {
+                                if: { $ifNull: ['$purchase.invoiceNumber', false] },
+                                then: '$purchase.invoiceNumber',
+                                else: {
+                                    $cond: {
+                                        if: { $ifNull: ['$payment.paymentNumber', false] },
+                                        then: '$payment.paymentNumber',
+                                        else: '$return.returnNumber'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                { $match: { supplier: { $exists: true, $ne: null } } },
+                { $sort: { date: 1 } }
+            ]);
+    
+            // Calculate running balance
+            let balance = 0;
+            const entries = journalEntries.map(entry => {
+                const amount = entry.debit - entry.credit;
+                balance += amount;
+                
+                return {
+                    date: entry.date,
+                    name: entry.supplier.name,
+                    particulars: entry.description,
+                    docVoucherNo: entry.docNumber,
+                    docVoucherType: entry.docType,
+                    debit: entry.debit,
+                    credit: entry.credit,
+                    balance: balance
+                };
+            });
+    
+            // Calculate totals
+            const totalDebit = entries.reduce((sum, entry) => sum + entry.debit, 0);
+            const totalCredit = entries.reduce((sum, entry) => sum + entry.credit, 0);
+    
+            return {
+                accountId: payablesAccount._id,
+                accountName: payablesAccount.name,
+                entries,
+                totalDebit,
+                totalCredit,
+                balance
+            };
+        } catch (error) {
+            console.error('Error in getGeneralSupplierLedger:', error);
+            throw new Error('Failed to fetch general supplier ledger: ' + error.message);
+        }
+    }
+    
+    // Specific Supplier Ledger
+    static async getSupplierLedger(controlId, startDate, endDate) {
+        try {
+            const supplier = await Supplier.findOne({ controlId });
+            if (!supplier) throw new Error('Supplier not found');
+    
+            const payablesAccount = await Account.findOne({ 
+                $or: [
+                    { controlId: 'ACC-PAYABLES' },
+                    { name: 'Payables' }
+                ]
+            });
+            if (!payablesAccount) throw new Error('Payables account not found');
+    
+            // Prepare date filters
+            const dateFilter = {};
+            if (startDate) dateFilter['$gte'] = new Date(startDate);
+            if (endDate) dateFilter['$lte'] = new Date(endDate);
+    
+            // Get all relevant journal entries
+            const journalEntries = await JournalEntry.aggregate([
+                { 
+                    $match: { 
+                        'entries.account': payablesAccount._id,
+                        postingStatus: 'posted',
+                        ...(Object.keys(dateFilter).length > 0 && { date: dateFilter })
+                    } 
+                },
+                { $unwind: '$entries' },
+                { $match: { 'entries.account': payablesAccount._id } },
+                {
+                    $lookup: {
+                        from: 'purchases',
+                        let: { refId: '$referenceId' },
+                        pipeline: [
+                            { 
+                                $match: { 
+                                    $expr: { $eq: ['$_id', '$$refId'] },
+                                    'supplier.controlId': controlId
+                                } 
+                            }
+                        ],
+                        as: 'purchase'
+                    }
+                },
+                { $unwind: { path: '$purchase', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'payments',
+                        let: { refId: '$referenceId' },
+                        pipeline: [
+                            { 
+                                $match: { 
+                                    $expr: { $eq: ['$_id', '$$refId'] },
+                                    'supplier.controlId': controlId
+                                } 
+                            }
+                        ],
+                        as: 'payment'
+                    }
+                },
+                { $unwind: { path: '$payment', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'returns',
+                        let: { refId: '$referenceId' },
+                        pipeline: [
+                            { 
+                                $match: { 
+                                    $expr: { $eq: ['$_id', '$$refId'] },
+                                    'supplier.controlId': controlId
+                                } 
+                            }
+                        ],
+                        as: 'return'
+                    }
+                },
+                { $unwind: { path: '$return', preserveNullAndEmptyArrays: true } },
+                { $match: { 
+                    $or: [
+                        { 'purchase': { $exists: true, $ne: null } },
+                        { 'payment': { $exists: true, $ne: null } },
+                        { 'return': { $exists: true, $ne: null } }
+                    ]
+                }},
+                { $sort: { date: 1 } }
+            ]);
+    
+            // Process entries
+            let balance = 0;
+            const entries = journalEntries.map(entry => {
+                balance += entry.entries.debit - entry.entries.credit;
+                
+                const docType = entry.purchase ? 'Purchase' : 
+                              entry.payment ? 'Payment' : 'Return';
+                
+                const docNumber = entry.purchase?.invoiceNumber || 
+                                entry.payment?.paymentNumber || 
+                                entry.return?.returnNumber;
+    
+                return {
+                    date: entry.date,
+                    particulars: entry.description,
+                    docVoucherNo: docNumber,
+                    docVoucherType: docType,
+                    debit: entry.entries.debit,
+                    credit: entry.entries.credit,
+                    balance: balance
+                };
+            });
+    
+            // Calculate totals
+            const totalDebit = entries.reduce((sum, e) => sum + e.debit, 0);
+            const totalCredit = entries.reduce((sum, e) => sum + e.credit, 0);
+    
+            return {
+                accountId: payablesAccount._id,
+                accountName: payablesAccount.name,
+                supplierId: supplier._id,
+                supplierName: supplier.name,
+                entries,
+                totalDebit,
+                totalCredit,
+                balance
+            };
+        } catch (error) {
+            console.error('Error in getSupplierLedger:', error);
+            throw new Error('Failed to fetch supplier ledger: ' + error.message);
+        }
+    }
+
+
+
+    
+    static async getGeneralCustomerLedger(startDate, endDate) {
+        try {
+            // Find the Receivables account using the exact controlId or name
+            const receivablesAccount = await Account.findOne({ 
+                $or: [
+                    { controlId: 'ACC-RECEIVABLES' },  // Match by exact controlId
+                    { name: 'Receivables' }           // Or by exact name
+                ]
+            });
+    
+            if (!receivablesAccount) {
+                throw new Error('Receivables account not found');
+            }
+    
+            // Prepare date filters
+            const dateFilter = {};
+            if (startDate) dateFilter['$gte'] = new Date(startDate);
+            if (endDate) dateFilter['$lte'] = new Date(endDate);
+    
+            // Construct base query
+            const query = {
+                'entries.account': receivablesAccount._id,
+                postingStatus: 'posted'
+            };
+    
+            // Add date filter if dates provided
+            if (Object.keys(dateFilter).length > 0) {
+                query.date = dateFilter;
+            }
+    
+            // Get journal entries with customer information
+            const journalEntries = await JournalEntry.aggregate([
+                { $match: query },
+                { $unwind: '$entries' },
+                { $match: { 'entries.account': receivablesAccount._id } },
+                {
+                    $lookup: {
+                        from: 'sales',
+                        localField: 'referenceId',
+                        foreignField: '_id',
+                        as: 'sale'
+                    }
+                },
+                { $unwind: { path: '$sale', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'payments',
+                        localField: 'referenceId',
+                        foreignField: '_id',
+                        as: 'payment'
+                    }
+                },
+                { $unwind: { path: '$payment', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'returns',
+                        localField: 'referenceId',
+                        foreignField: '_id',
+                        as: 'return'
+                    }
+                },
+                { $unwind: { path: '$return', preserveNullAndEmptyArrays: true } },
+                {
+                    $project: {
+                        date: 1,
+                        description: 1,
+                        referenceType: 1,
+                        referenceNumber: 1,
+                        debit: '$entries.debit',
+                        credit: '$entries.credit',
+                        customer: {
+                            $cond: {
+                                if: { $ifNull: ['$sale.customer', false] },
+                                then: '$sale.customer',
+                                else: {
+                                    $cond: {
+                                        if: { $ifNull: ['$payment.customer', false] },
+                                        then: '$payment.customer',
+                                        else: '$return.customer'
+                                    }
+                                }
+                            }
+                        },
+                        docType: {
+                            $cond: {
+                                if: { $ifNull: ['$sale', false] },
+                                then: 'Sale',
+                                else: {
+                                    $cond: {
+                                        if: { $ifNull: ['$payment', false] },
+                                        then: 'Payment',
+                                        else: 'Return'
+                                    }
+                                }
+                            }
+                        },
+                        docNumber: {
+                            $cond: {
+                                if: { $ifNull: ['$sale.invoiceNumber', false] },
+                                then: '$sale.invoiceNumber',
+                                else: {
+                                    $cond: {
+                                        if: { $ifNull: ['$payment.paymentNumber', false] },
+                                        then: '$payment.paymentNumber',
+                                        else: '$return.returnNumber'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                { $match: { customer: { $exists: true, $ne: null } } },
+                { $sort: { date: 1 } }
+            ]);
+    
+            // Calculate running balance
+            let balance = 0;
+            const entries = journalEntries.map(entry => {
+                const amount = entry.debit - entry.credit;
+                balance += amount;
+                
+                return {
+                    date: entry.date,
+                    name: entry.customer.name,
+                    particulars: entry.description,
+                    docVoucherNo: entry.docNumber,
+                    docVoucherType: entry.docType,
+                    debit: entry.debit,
+                    credit: entry.credit,
+                    balance: balance
+                };
+            });
+    
+            // Calculate totals
+            const totalDebit = entries.reduce((sum, entry) => sum + entry.debit, 0);
+            const totalCredit = entries.reduce((sum, entry) => sum + entry.credit, 0);
+    
+            return {
+                accountId: receivablesAccount._id,
+                accountName: receivablesAccount.name,
+                entries,
+                totalDebit,
+                totalCredit,
+                balance
+            };
+        } catch (error) {
+            console.error('Error in getGeneralCustomerLedger:', error);
+            throw new Error('Failed to fetch general customer ledger: ' + error.message);
+        }
+    }
+    
+
+    static async getCustomerLedger(controlId, startDate, endDate) {
+        try {
+            // 1. Validate the customer exists
+            const customer = await Customer.findOne({ controlId });
+            if (!customer) {
+                throw new Error(`Customer with controlId ${controlId} not found`);
+            }
+    
+            // 2. Find the Receivables account
+            const receivablesAccount = await Account.findOne({ 
+                $or: [
+                    { controlId: 'ACC-RECEIVABLES' },
+                    { name: 'Receivables' }
+                ]
+            });
+            if (!receivablesAccount) {
+                throw new Error('Receivables account not found');
+            }
+    
+            // 3. Prepare date filters
+            const dateFilter = {};
+            if (startDate) dateFilter.$gte = new Date(startDate);
+            if (endDate) dateFilter.$lte = new Date(endDate);
+    
+            // 4. Build the aggregation pipeline
+            const pipeline = [
+                // Match base journal entries
+                { 
+                    $match: { 
+                        'entries.account': receivablesAccount._id,
+                        postingStatus: 'posted',
+                        ...(Object.keys(dateFilter).length > 0 && { date: dateFilter })
+                    } 
+                },
+                { $unwind: '$entries' },
+                { $match: { 'entries.account': receivablesAccount._id } },
+                
+                // Lookup related documents with customer filtering
+                {
+                    $lookup: {
+                        from: 'sales',
+                        let: { refId: '$referenceId' },
+                        pipeline: [
+                            { 
+                                $match: { 
+                                    $expr: { $eq: ['$_id', '$$refId'] },
+                                    'customer.controlId': controlId
+                                } 
+                            }
+                        ],
+                        as: 'sale'
+                    }
+                },
+                { $unwind: { path: '$sale', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'payments',
+                        let: { refId: '$referenceId' },
+                        pipeline: [
+                            { 
+                                $match: { 
+                                    $expr: { $eq: ['$_id', '$$refId'] },
+                                    'customer.controlId': controlId
+                                } 
+                            }
+                        ],
+                        as: 'payment'
+                    }
+                },
+                { $unwind: { path: '$payment', preserveNullAndEmptyArrays: true } },
+                {
+                    $lookup: {
+                        from: 'returns',
+                        let: { refId: '$referenceId' },
+                        pipeline: [
+                            { 
+                                $match: { 
+                                    $expr: { $eq: ['$_id', '$$refId'] },
+                                    'customer.controlId': controlId
+                                } 
+                            }
+                        ],
+                        as: 'return'
+                    }
+                },
+                { $unwind: { path: '$return', preserveNullAndEmptyArrays: true } },
+                
+                // Filter to only include entries for this customer
+                { $match: { 
+                    $or: [
+                        { 'sale': { $exists: true, $ne: null } },
+                        { 'payment': { $exists: true, $ne: null } },
+                        { 'return': { $exists: true, $ne: null } }
+                    ]
+                }},
+                
+                // Sort chronologically
+                { $sort: { date: 1 } },
+                
+                // Project the final fields
+                { 
+                    $project: {
+                        date: 1,
+                        description: 1,
+                        referenceType: 1,
+                        referenceNumber: 1,
+                        debit: '$entries.debit',
+                        credit: '$entries.credit',
+                        docType: {
+                            $cond: {
+                                if: { $ifNull: ['$sale', false] },
+                                then: 'Sale',
+                                else: {
+                                    $cond: {
+                                        if: { $ifNull: ['$payment', false] },
+                                        then: 'Payment',
+                                        else: 'Return'
+                                    }
+                                }
+                            }
+                        },
+                        docNumber: {
+                            $cond: {
+                                if: { $ifNull: ['$sale.invoiceNumber', false] },
+                                then: '$sale.invoiceNumber',
+                                else: {
+                                    $cond: {
+                                        if: { $ifNull: ['$payment.paymentNumber', false] },
+                                        then: '$payment.paymentNumber',
+                                        else: '$return.returnNumber'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ];
+    
+            // 5. Execute the aggregation
+            const journalEntries = await JournalEntry.aggregate(pipeline);
+    
+            // 6. Calculate running balance
+            let balance = 0;
+            const entries = journalEntries.map(entry => {
+                const amount = entry.debit - entry.credit;
+                balance += amount;
+                
+                return {
+                    date: entry.date,
+                    particulars: entry.description,
+                    docVoucherNo: entry.docNumber,
+                    docVoucherType: entry.docType,
+                    debit: entry.debit,
+                    credit: entry.credit,
+                    balance: balance
+                };
+            });
+    
+            // 7. Calculate totals
+            const totalDebit = entries.reduce((sum, entry) => sum + entry.debit, 0);
+            const totalCredit = entries.reduce((sum, entry) => sum + entry.credit, 0);
+    
+            // 8. Return the formatted response
+            return {
+                accountId: receivablesAccount._id,
+                accountName: receivablesAccount.name,
+                customerId: customer._id,
+                customerName: customer.name,
+                customerControlId: customer.controlId,
+                entries,
+                totalDebit,
+                totalCredit,
+                balance,
+                asOfDate: new Date().toISOString()
+            };
+        } catch (error) {
+            console.error(`Error in getCustomerLedger for ${controlId}:`, error);
+            throw new Error(`Failed to fetch ledger for customer ${controlId}: ${error.message}`);
+        }
+    }
+
+    
+    static async getGeneralLedger(account, entityType, startDate, endDate) {
+        // Prepare date filters
+        const dateFilter = {};
+        if (startDate) dateFilter['$gte'] = new Date(startDate);
+        if (endDate) dateFilter['$lte'] = new Date(endDate);
+    
+        // Construct query
+        const query = {
+            'entries.account': account._id,
+            postingStatus: 'posted',
+        };
+    
+        if (Object.keys(dateFilter).length > 0) {
+            query.date = dateFilter;
+        }
+    
+        // Get journal entries
+        const journalEntries = await JournalEntry.aggregate([
+            { $match: query },
+            { $unwind: '$entries' },
+            { $match: { 'entries.account': account._id } },
+            {
+                $lookup: {
+                    from: `${entityType === 'customer' ? 'sales' : 'purchases'}`,
+                    localField: 'referenceId',
+                    foreignField: '_id',
+                    as: 'document',
+                },
+            },
+            {
+                $lookup: {
+                    from: 'payments',
+                    localField: 'referenceId',
+                    foreignField: '_id',
+                    as: 'paymentDoc',
+                },
+            },
+            {
+                $lookup: {
+                    from: 'returns',
+                    localField: 'referenceId',
+                    foreignField: '_id',
+                    as: 'returnDoc',
+                },
+            },
+            { $sort: { date: 1 } },
+        ]);
+    
+        // Process entries
+        const processedEntries = [];
+        let runningBalance = 0;
+    
+        for (const entry of journalEntries) {
+            // Determine the customer/supplier and document details
+            let entity = null;
+            let docNumber = '';
+            let docType = '';
+            
+            if (entry.document && entry.document.length > 0) {
+                entity = entry.document[0][entityType];
+                docNumber = entry.document[0].invoiceNumber || entry.document[0].referenceNumber || '';
+                docType = entityType === 'customer' ? 'Sale' : 'Purchase';
+            } else if (entry.paymentDoc && entry.paymentDoc.length > 0) {
+                entity = entry.paymentDoc[0][entityType];
+                docNumber = entry.paymentDoc[0].paymentNumber || '';
+                docType = 'Payment';
+            } else if (entry.returnDoc && entry.returnDoc.length > 0) {
+                entity = entry.returnDoc[0][entityType];
+                docNumber = entry.returnDoc[0].returnNumber || '';
+                docType = 'Return';
+            }
+    
+            if (!entity) continue;
+    
+            // Calculate balance
+            const amount = entry.entries.debit - entry.entries.credit;
+            runningBalance += amount;
+    
+            processedEntries.push({
+                date: entry.date,
+                name: entity.name,
+                particulars: entry.description,
+                docVoucherNo: docNumber,
+                docVoucherType: docType,
+                debit: entry.entries.debit,
+                credit: entry.entries.credit,
+                balance: runningBalance
+            });
+        }
+    
+        // Calculate totals
+        const totalDebit = processedEntries.reduce((sum, entry) => sum + entry.debit, 0);
+        const totalCredit = processedEntries.reduce((sum, entry) => sum + entry.credit, 0);
+    
+        return {
+            accountId: account._id,
+            accountName: account.name,
+            entries: processedEntries,
+            totalDebit,
+            totalCredit,
+            balance: runningBalance,
+        };
+    }
+
+
     /**
      * Get customer ledger.
      * @param {string} controlId - Customer control ID.
@@ -300,59 +1024,78 @@ export class AccountingService {
     }
 
 
-    static async createPurchase(purchaseData) {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-    
+    static async createPurchase(purchaseData, session) {
         try {
-            // Fetch required accounts
-            const inventory = await Account.findOne({ name: 'Inventory' }).session(session);
-            const accountsPayable = await Account.findOne({ name: 'Accounts Payable' }).session(session);
+            // Fetch required accounts using the exact names/controlIds from your database
+            const inventoryAccount = await Account.findOne({ 
+                $or: [
+                    { controlId: 'ACC-OPENING STOCK' }, // or use 'ACC-PURCHASE' if that's more appropriate
+                    { name: 'Opening Stock' }
+                ]
+            }).session(session);
     
-            if (!inventory || !accountsPayable) {
-                throw new Error('Required accounts not found');
+            const payablesAccount = await Account.findOne({
+                $or: [
+                    { controlId: 'ACC-PAYABLES' },
+                    { name: 'Payables' }
+                ]
+            }).session(session);
+    
+            const inputVatAccount = await Account.findOne({
+                $or: [
+                    { controlId: 'ACC-INPUT VAT (PURCHASE)' },
+                    { name: 'Input VAT (Purchase)' }
+                ]
+            }).session(session);
+    
+            if (!inventoryAccount || !payablesAccount || !inputVatAccount) {
+                const missingAccounts = [];
+                if (!inventoryAccount) missingAccounts.push('Inventory/Opening Stock');
+                if (!payablesAccount) missingAccounts.push('Payables');
+                if (!inputVatAccount) missingAccounts.push('Input VAT');
+                throw new Error(`Required accounts not found: ${missingAccounts.join(', ')}`);
             }
     
             // Prepare journal entry data
             const journalData = {
-                date: new Date(),
+                date: new Date(purchaseData.invoiceDate || Date.now()),
                 referenceType: 'purchase',
                 referenceId: purchaseData._id,
                 referenceNumber: purchaseData.purchaseNo,
                 description: `Purchase ${purchaseData.purchaseNo} from ${purchaseData.supplierName}`,
                 entries: [
+                    // Debit Inventory (net amount without VAT)
                     {
-                        account: inventory._id, // Debit Inventory
+                        account: inventoryAccount._id,
                         description: `Purchase ${purchaseData.purchaseNo}`,
-                        debit: purchaseData.totalAmount,
+                        debit: purchaseData.totalAmount - (purchaseData.vatAmount || 0),
                         credit: 0,
                     },
+                    // Debit Input VAT (if VAT exists)
+                    ...((purchaseData.vatAmount && purchaseData.vatAmount > 0) ? [{
+                        account: inputVatAccount._id,
+                        description: `Input VAT for Purchase ${purchaseData.purchaseNo}`,
+                        debit: purchaseData.vatAmount,
+                        credit: 0,
+                    }] : []),
+                    // Credit Accounts Payable (total amount)
                     {
-                        account: accountsPayable._id, // Credit Accounts Payable
+                        account: payablesAccount._id,
                         description: `Purchase ${purchaseData.purchaseNo}`,
                         debit: 0,
                         credit: purchaseData.totalAmount,
-                    },
+                    }
                 ],
             };
     
             // Create journal entry
             await this.createJournalEntry(journalData, session);
-    
-            // Commit the transaction
-            await session.commitTransaction();
-            console.log('Purchase recorded successfully.');
+            console.log('Purchase accounting entries recorded successfully.');
         } catch (error) {
-            // Rollback the transaction in case of error
-            await session.abortTransaction();
-            console.error('Error recording purchase:', error);
+            console.error('Error recording purchase accounting entries:', error);
             throw error;
-        } finally {
-            // End the session
-            session.endSession();
         }
     }
-
 
     static async createPurchaseReturn(returnData) {
         const session = await mongoose.startSession();

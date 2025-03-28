@@ -1,16 +1,25 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
+import XlsExportButton from '@/app/components/XlsExportButon'
 import axios from 'axios'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
-  ButtonGroup, Table, Button, Modal,InputGroup  } from 'react-bootstrap'
+  ButtonGroup, Table, Button, Modal,InputGroup,  
+  Stack} from 'react-bootstrap'
 
-export default function page() {
+const ItemsList =()=> {
+
+  const [products, setProducts] = useState([])
 
   const getItems = async()=>{
     const {data}= await axios.get('/api/items')
+    setProducts(data)
   }
+
+  useEffect(()=>{
+    getItems()
+  },[])
 
   return (
     <div>
@@ -39,7 +48,7 @@ export default function page() {
         <ButtonGroup>
         <Button size='md' variant='outline-danger'>RESET</Button>
         <Button size='md' variant='outline-warning'>SEARCH</Button>
-        <Button size='md' variant='outline-success'>EXCEL</Button>
+        <XlsExportButton data={products}/>
         <Button size='md'>PRINT</Button>
         </ButtonGroup>
         </Col>
@@ -89,9 +98,36 @@ export default function page() {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          {products.map((product, index)=> (
+            <tr key={product.code}>
+              <td>{index +1}</td>
+              <td>{product.code}</td>
+              <td>{product.category}</td>
+              <td>{product.name}</td>
+              <td>{product.unit}</td>
+              <td>{product.inStock}</td>
+              <td>{product.purchasePrice}</td>
+              <td>{product.salePrice}</td>
+              <td>{product.barcode || 'NA'}</td>
+              <td>{product.brand || 'NA'}</td>
+              <td>{product.model || 'NA'}</td>
+              <td>{product.note || 'NA'}</td>
+              <td>{product.files || 'NO FIILES'}</td>
+              <td>
+                <Stack direction='horizontal' gap={2}>
+                  <Button>Edit</Button>
+                  <Button variant='danger'>Del</Button>
+                </Stack>
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </Table>
     </Container>
     </div>
   )
 }
+
+
+export default ItemsList

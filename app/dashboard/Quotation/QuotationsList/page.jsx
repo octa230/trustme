@@ -1,6 +1,7 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
+import XlsExportButton from '@/app/components/XlsExportButon'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
@@ -42,7 +43,7 @@ const QuotationList =  () => {
         <ButtonGroup>
         <Button size='md' variant='outline-danger'>RESET</Button>
         <Button size='md' variant='outline-warning'>SEARCH</Button>
-        <Button size='md' variant='outline-success'>EXCEL</Button>
+        <XlsExportButton data={quotations}/>
         <Button size='md'>PRINT</Button>
         </ButtonGroup>
         </Col>

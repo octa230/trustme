@@ -8,6 +8,7 @@ import Company from '../../models/company.js';
 import Customer from '../../models/customer.js';
 import { AccountingService } from '../accounts/accountservice.js';
 import { generateId, generatePDF, generateStatus, sendPDF, toWords } from '../../utils.js';
+import { StockService } from '../items/StockService.js';
 
 const salesRouter = Router();
 
@@ -32,7 +33,7 @@ class SalesClass {
         session.startTransaction();
     
         try {
-            console.log('Creating new sale:', data);
+            //console.log('Creating new sale:', data);
     
             // Generate invoice number and status
             const docsCount = await Sale.countDocuments();
@@ -51,6 +52,7 @@ class SalesClass {
                 customerId: data.customer.controlId,
                 customerName: data.customer.name,
                 status,
+                deliveryNote: data.deliveryNote,
                 totalWithoutVat: data.totalWithoutVat,
                 itemsTotal: data.itemsWithVatTotal,
                 vatAmount: data.vatAmount,
@@ -72,6 +74,8 @@ class SalesClass {
     
             const newSale = await sale.save({ session });
 
+            await StockService.UpdateOnSale(data.items) ////STOCK UPDATER METHOD
+
             if (status === 'partially_paid' || status === "pending") {
                 const customer = await Customer.findById(data.customer._id).session(session);
                 customer.pendingAmount += data.pendingAmount;
@@ -81,7 +85,7 @@ class SalesClass {
             }
 
 
-            console.log('Sale saved:', newSale);
+            //console.log('Sale saved:', newSale);
 
     
             // Create accounting entry

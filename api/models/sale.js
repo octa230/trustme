@@ -34,6 +34,7 @@ const saleSchema = new mongoose.Schema({
     customerId: {type: String},
     customerName: {type: String},
     items: [itemSchema],
+    deliveryNote: {type: String},
 
 
     //FINANCIAL CALCULATIONS VALUES

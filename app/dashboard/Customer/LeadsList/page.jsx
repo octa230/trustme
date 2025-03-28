@@ -1,6 +1,7 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
+import XlsExportButton from '@/app/components/XlsExportButon'
 import React from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
   ButtonGroup, Button, Table } from 'react-bootstrap'
@@ -27,7 +28,6 @@ export default function page() {
       <ButtonGroup>
         <Button size='md' variant='outline-danger'>RESET</Button>
         <Button size='md' variant='info text-dark' className='border border-dark'>SEARCH</Button>
-        <Button size='md' variant='outline-success'>EXCEL</Button>
         <Button size='md'>PRINT</Button>
       </ButtonGroup>
       </Col>

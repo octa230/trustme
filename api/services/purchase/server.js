@@ -2,90 +2,105 @@ import {Router} from 'express'
 import { generateId, generatePDF, sendPDF, toWords } from '../../utils.js'
 import asyncHandler from 'express-async-handler'
 import Purchase from '../../models/purchase.js'
-
+import mongoose from 'mongoose'
 import Transaction from '../../models/transaction.js'
 import Company from '../../models/company.js'
+import { AccountingService } from '../accounts/accountservice.js'
 import Supplier from '../../models/supplier.js'
+import { StockService } from '../items/StockService.js'
 
 
 const purchaseRouter = Router()
 
 
 class PurchaseClass{
-    static async newPurchase(data){
+    static async newPurchase(data) {
+        const session = await mongoose.startSession();
+        session.startTransaction();
         
-        console.log(data)
+        try {
+            //console.log(data);
+            const docsCount = await Purchase.countDocuments();
+            const purchaseNo = isNaN(docsCount) ? 1 : docsCount + 1;
+            const status = parseInt(data.pendingAmount) == 0 ? false : true;
 
-        const docsCount = await Purchase.countDocuments()
-        const purhcaseNo = isNaN(docsCount) ? 1 : docsCount + 1;
+            // Create the purchase document
+            const purchase = new Purchase({
+                purchaseNo: purchaseNo,
+                controlId: await generateId(),
+                supplier: data.supplier._id,
+                supplierId: data.supplier.controlId,
+                purchaseInvoiceNo: data.purchaseInvoiceNo,
+                supplierName: data.supplier.name,
+                description: data.description,
+                status: status,
+                totalWithoutVat: data.totalWithoutVat,
+                itemsTotal: data.itemsTotal,
+                vatAmount: data.vatAmount,
+                vatRate: data.vatRate,
+                totalWithVat: data.itemsWithVatTotal,
+                totalAfterDiscount: data.totalAfterDiscount,
+                discountAmount: data.discountAmount,
+                pendingAmount: data.pendingAmount,
+                paidAmount: data.paidAmount,
+                invoiceDate: data.invoiceDate,
+                cashAmount: data.cashAmount,
+                cardAmount: data.cardAmount,
+                bankAmount: data.bankAmount,
+                advanceAmount: data.advanceAmount,
+                amountInWords: await toWords(data.totalAfterDiscount)
+            });
 
+            const newPurchase = await purchase.save({ session });
 
-        const status = parseInt(data.pendingAmount) == 0 ?
-        false : true;
+            // UPDATE STOCK
+            await StockService.UpdateOnPurchase(data.items, session);
 
-
-        const purchase = new Purchase({
-            purchaseNo: purhcaseNo,
-            controlId: await generateId(),
-            supplier: data.supplier._id,
-            supplierId: data.supplier.controlId,
-            purchaseInvoiceNo: data.purchaseInvoiceNo,
-            supplierName: data.supplier.name,
-            description: data.description,
-            status: status,
-            totalWithoutVat: data.totalWithoutVat,
-            itemsTotal: data.itemsTotal,
-            vatAmount: data.vatAmount,
-            vatRate: data.vatRate,
-            totalWithVat: data.itemsWithVatTotal,
-            totalAfterDiscount: data.totalAfterDiscount,
-            discountAmount: data.discountAmount,
-            pendingAmount: data.pendingAmount,
-            paidAmount: data.paidAmount,
-            invoiceDate: data.invoiceDate,
-            paidAmount: data.paidAmount,
-            cashAmount: data.cashAmount,
-            cardAmount: data.cardAmount,
-            bankAmount: data.bankAmount,
-            advanceAmount: data.advanceAmount,
-            amountInWords: await toWords(data.totalAfterDiscount)
-            
-
-        })
-
-        const newPurchase = await purchase.save()
-
-        const transaction = new Transaction({
-            type: 'PURCHASE',
-            items: data.items.map(item =>(
-                {
+            // Create transaction record
+            const transaction = new Transaction({
+                type: 'PURCHASE',
+                items: data.items.map(item => ({
                     name: item.name,
                     code: item.code,
                     qty: item.qty,
                     unit: item.unit,
                     vat: item.vat,
                     brand: item.brand,
-                    purchasePrice: item.purchasePrice ,
+                    purchasePrice: item.purchasePrice,
                     salePrice: item.salePrice,
                     costAmount: item.unitCost,
                     total: item.total
-                }
-            )), 
-            totalAmount: purchase.totalWithVat,
-            vatAmount: purchase.vatAmount,
-            controlId: purchase.controlId,
-        })
+                })), 
+                totalAmount: purchase.totalWithVat,
+                vatAmount: purchase.vatAmount,
+                controlId: purchase.controlId,
+            });
 
-        await transaction.save()
+            await transaction.save({ session });
 
+            // RECORD ACCOUNTING ENTRIES
+            await AccountingService.createPurchase({
+                _id: newPurchase._id,
+                purchaseNo: newPurchase.purchaseNo,
+                supplierName: newPurchase.supplierName,
+                totalAmount: newPurchase.totalWithVat,
+            }, session);
 
-        return{
-            purchaseNo: newPurchase.purchaseNo,
-            controlId: newPurchase.controlId,
-            supplierId: newPurchase.supplierId
+            await session.commitTransaction();
+            
+            return {
+                purchaseNo: newPurchase.purchaseNo,
+                controlId: newPurchase.controlId,
+                supplierId: newPurchase.supplierId
+            };
+        } catch (error) {
+            await session.abortTransaction();
+            console.error('Error in newPurchase:', error);
+            throw error;
+        } finally {
+            session.endSession();
         }
     }
-
 
 
 
@@ -154,7 +169,33 @@ purchaseRouter.post('/save', asyncHandler(async(req, res)=>{
 
 
 ///SAVE & PRINT PURCHASE ACTION 
-purchaseRouter.post('/', asyncHandler(async(req, res, next)=>{
+purchaseRouter.post('/', asyncHandler(async(req, res) => {
+    const { data } = req.body;
+
+    if (!data || !data.supplier || !data.items || data.items.length === 0) {
+        return res.status(400).send({ message: "Incomplete data" });
+    }
+
+    try {
+        // This now runs in a transaction
+        const { purchaseNo, controlId, supplierId } = await PurchaseClass.newPurchase(data);
+
+        const pdfData = await PurchaseClass.getPrintablePurchase(purchaseNo, controlId, supplierId);
+        const PdfBuffer = await generatePDF('PURCHASE', pdfData);
+
+        if (PdfBuffer) {
+            const filename = 'purchase.pdf';
+            sendPDF(PdfBuffer, filename)(req, res);
+        } else {
+            res.status(400).send('Invalid PDF type or failed to generate PDF');
+        }
+    } catch (error) {
+        console.error('Error in save & print action:', error);
+        res.status(500).send(error.message || 'Internal server error');
+    }
+}));
+
+/* purchaseRouter.post('/', asyncHandler(async(req, res, next)=>{
     const { data } = req.body
 
 
@@ -181,7 +222,7 @@ purchaseRouter.post('/', asyncHandler(async(req, res, next)=>{
         res.status(500).send('Internal server error');
     }
 
-}))
+})) */
 
 
 purchaseRouter.get('/search', asyncHandler(async(req, res)=>{

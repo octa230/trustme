@@ -251,19 +251,16 @@ const DashboardLayout = ({children}) => {
                 <Accordion defaultActiveKey={index} flush key={index}>
                   <Accordion.Item eventKey="0">
                     <Accordion.Header>{item.title}</Accordion.Header>
-                    <Accordion.Body>
+                    <Accordion.Body className='p-1'>
                       {item.links?.map((link, linkIndex) => (
-                        <ListGroup.Item className="py-3" key={linkIndex}>
-                          <Link href={link.href} passHref>
-                          <Nav.Item 
+                        <ListGroup.Item className="py-2 px-1 border-none" key={linkIndex}>
+                          <Link href={link.href} passHref
                             onClick={() => {
                               //console.log(link.name);
                               toggle();
                             }}
-                            style={{ cursor: 'pointer' }}
-                          >
+                            style={{ cursor: 'pointer' }}>
                             {link.name}
-                          </Nav.Item>
                           </Link>
                         </ListGroup.Item>
                       ))}

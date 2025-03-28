@@ -12,6 +12,7 @@ const transactionSchema = new mongoose.Schema({
             category: { type: String },
             name: { type: String },
             qty: { type: Number, default: 0 },
+            returned: { type: Number, default: 0 },
             vat: { type: Number, default: 0 },
             unit: { type: String },
             total: { type: Number, default: 0 },

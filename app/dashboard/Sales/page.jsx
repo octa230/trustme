@@ -23,8 +23,9 @@ export default function page() {
     address:"",
     trn:"",
     description:""
-
   })
+
+  const [deliveryNoteNumber, setDeliveryNoteNumber] = useState('')
 
   const [searchKey, setSearchKey] = useState('')
   const [customers, setCustomers] = useState([])
@@ -128,7 +129,7 @@ export default function page() {
             <Accordion.Header>
               {customer?.name || 'New Customer'}
             </Accordion.Header>
-            <Accordion.Body>
+              <Accordion.Body>
                   <Form onSubmit={handleSubmit}>
                     <Form.Group>
                         <Form.Label>Name</Form.Label>
@@ -209,7 +210,18 @@ export default function page() {
                       </Form.Group>
                     <Form.Group>
                       <Form.Label>Delivery Note Number</Form.Label>
-                        <Form.Control type='text' placeholder='101xxx'/>
+                      <Form.Control 
+                          type='text' 
+                          placeholder='#deliveryNote' 
+                          value={deliveryNoteNumber} 
+                          onChange={async (e) => {
+                            const newValue = e.target.value; // capture the new input value
+                            setDeliveryNoteNumber(newValue); // update the state with the new value
+                            if (newValue) {
+                              await localStorage.setItem('deliveryNote', JSON.stringify(newValue)); // store it in localStorage
+                            }
+                          }}
+                        />
                       </Form.Group>
                       <Form.Group>
                         <Calender title='Invoice Date'/>

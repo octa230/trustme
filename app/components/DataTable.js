@@ -42,6 +42,7 @@ export default function DataTable(props) {
     const [vatRate, setVatRate] = useState(0.05)
     const [vatEnabled, setVatEnabled] = useState(true)
     const [bankName, setBankName ] = useState('')
+    const [deliveryNoteNumber, setDeliveryNoteNumber ] = useState('')
     const [advanceAmount, setAdvanceAmount] = useState(0);
 
 
@@ -352,12 +353,14 @@ export default function DataTable(props) {
             break;
       
           case 'sales':
+            const dataNo = localStorage.getItem('deliveryNote') 
             preparedData = { 
               ...preparedData, 
               customer: customerData,
               employee: userData,
               paymentMethod,
-              bankName
+              bankName,
+              deliveryNote: JSON.parse(dataNo)
             };
             break;
       

@@ -1,145 +1,111 @@
 import mongoose from "mongoose";
 
-
 const returnSchema = new mongoose.Schema({
-    returnNo: {type: String, required: true},
-    controlId: {type: String, required: true, unique: true},
-    date: {type: Date, default: Date.now},
-    returnType:{type: String, Enumerator:['customer', 'supplier']},
-
-
-    // For customer returns
-    customer: { type: mongoose.Types.ObjectId, ref: 'Customer' },
-    customerId: { type: String },
-    customerName: { type: String },
-
-    // For supplier returns
-    supplier: { type: mongoose.Types.ObjectId, ref: 'Supplier' },
-    supplierId: { type: String },
-    supplierName: { type: String },
-
-    //ORIGINAL DOCUMENT INFORMATION
-    originalDocumentType: { type: String, enum: ['sale', 'purchase'] },
-    originalDocumentId: { type: mongoose.Types.ObjectId, refPath: 'originalDocumentType' },
-    originalDocumentNo: { type: String },
+    // Document Identification
+    returnNo: { type: String, required: true, unique: true },
+    controlId: { type: String, required: true, unique: true },
+    date: { type: Date, default: Date.now },
     status: { 
-      type: String, 
-      enum: ['draft', 'confirmed', 'refunded', 'credited', 'void'], 
-      default: 'draft' 
+        type: String, 
+        enum: ['draft', 'confirmed', 'processed', 'void'], 
+        default: 'draft' 
     },
+    
+    // Return Classification
+    returnType: { 
+        type: String, 
+        enum: ['customer', 'supplier'], 
+        required: true 
+    },
+    returnReason: { type: String },
     description: { type: String },
 
+    // Original Document Reference
+    originalDocument: {
+        type: { type: String, enum: ['sale', 'purchase'], required: true },
+        documentId: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            refPath: 'originalDocument.type',
+            required: true 
+        },
+        documentNo: { type: String, required: true }
+    },
 
-    // Financial calculations  
-    itemsTotal: { type: Number, default: 0 },
-    totalWithoutVat: { type: Number, default: 0 },
+    // Party Information (customer or supplier)
+    party: {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: 'partyType',
+        required: true
+    },
+    partyType: {
+        type: String,
+        enum: ['Customer', 'Supplier'],
+        required: true
+    },
+    partyId: { type: String, required: true },
+    partyName: { type: String, required: true },
+
+    // Financial Information
+    items: [{
+        //product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+        productCode: { type: String, required: true },
+        productName: { type: String, required: true },
+        quantity: { type: Number, required: true, min: 1 },
+        unitPrice: { type: Number, required: true, min: 0 },
+        vatRate: { type: Number, default: 0 },
+        total: { type: Number, required: true, min: 0 }
+    }],
+    
+    subtotal: { type: Number, default: 0 },
     vatAmount: { type: Number, default: 0 },
-    vatRate: { type: Number, default: 0 },
-    totalWithVat: { type: Number, default: 0 },
-
-
-    // Refund tracking
-    refundAmount: { type: Number, default: 0 },
-    refundMethod: { type: String, enum: ['cash', 'bank', 'card', 'credit'] },
-    refundReference: { type: String },
-    createdBy: { type: mongoose.Types.ObjectId, ref: 'User' }
-})
-
-
-const Return = mongoose.model('Return', returnSchema)
-export default Return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* import mongoose from "mongoose";
-
-// Base Return Schema
-const baseReturnSchema = new mongoose.Schema({
-    controlId: { type: String, unique: true }, // RETURN TXN UUID
-    type: { type: String, enum: ['SALE', 'PURCHASE'], required: true }, // Corrected enum
-    transactionId: { type: String }, // Corrected typo (was "transctionId")
-    returnedTo: { type: String },
-    returnedFrom: { type: String },
-    totalAmount: { type: Number },
-    vatAmount: { type: Number },
+    totalAmount: { type: Number, required: true },
     amountInWords: { type: String },
-}, {
-    discriminatorKey: 'type',
-    timestamps: true
+
+    // Processing Information
+    refundDetails: {
+        method: { type: String, enum: ['cash', 'bank', 'card', 'credit'] },
+        amount: { type: Number, default: 0 },
+        reference: { type: String },
+        processedDate: { type: Date }
+    },
+    
+    // System Information
+    createdBy: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User', 
+        required: true 
+    },
+    processedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    notes: { type: String }
+
+}, { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-// Create the Base Model
-const Return = mongoose.model('Return', baseReturnSchema);
+// Virtual for return type display
+returnSchema.virtual('displayType').get(function() {
+    return this.returnType === 'customer' ? 'Customer Return' : 'Supplier Return';
+});
 
-// Returned Sale Schema
-const saleReturnSchema = new mongoose.Schema({
-    customer: { type: mongoose.Types.ObjectId, ref: "Customer" },
-    customerId: { type: String },
-    transactionId: { type: String },
-    invoiceNo: { type: Number },
-    returnReason: { type: String },
-}, { timestamps: true });
+// Pre-save hook to calculate totals
+returnSchema.pre('save', function(next) {
+    if (this.isModified('items')) {
+        this.subtotal = this.items.reduce((sum, item) => sum + item.total, 0);
+        this.vatAmount = this.items.reduce((sum, item) => sum + (item.total * item.vatRate), 0);
+        this.totalAmount = this.subtotal + this.vatAmount;
+    }
+    next();
+});
 
-// Returned Purchase Schema
-const purchaseReturnSchema = new mongoose.Schema({
-    supplier: { type: mongoose.Types.ObjectId, ref: "Supplier" },
-    supplierId: { type: String },
-    transactionId: { type: String },
-    invoiceNo: { type: Number },
-    purchaseNo: { type: Number },
-    purchaseOrderNumber: { type: Number },
-    returnReason: { type: String },
-}, { timestamps: true });
+// Indexes for better query performance
+returnSchema.index({ returnNo: 1 });
+returnSchema.index({ controlId: 1 });
+returnSchema.index({ 'originalDocument.documentId': 1 });
+returnSchema.index({ party: 1 });
+returnSchema.index({ status: 1 });
+returnSchema.index({ date: 1 });
 
-// Define Discriminators Correctly
-const SaleReturn = Return.discriminator('SALE', saleReturnSchema);
-const PurchaseReturn = Return.discriminator('PURCHASE', purchaseReturnSchema);
-
-export { Return, SaleReturn, PurchaseReturn };
- */
+const Return = mongoose.model('Return', returnSchema);
+export default Return;

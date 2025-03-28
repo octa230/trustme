@@ -1,6 +1,7 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
+import XlsExportButton from '@/app/components/XlsExportButon'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import {Container, Stack, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup, Badge } from 'react-bootstrap'
@@ -56,7 +57,7 @@ const PurchaseList = ()=> {
       <ButtonGroup>
       <Button size='md' variant='outline-danger'>RESET</Button>
       <Button size='md' variant='outline-warning'>SEARCH</Button>
-      <Button size='md' variant='outline-success'>EXCEL</Button>
+      <XlsExportButton data={purchases}/>
       <Button size='md'>PRINT</Button>
       </ButtonGroup>
       </Col>
