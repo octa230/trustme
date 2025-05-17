@@ -81,13 +81,13 @@
   font-weight: 500;
 }
 
-a.primary {
+a .primary {
   background: var(--foreground);
   color: var(--background);
   gap: 8px;
 }
 
-a.secondary {
+a .secondary {
   border-color: var(--gray-alpha-200);
   min-width: 180px;
 }
