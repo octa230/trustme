@@ -8,14 +8,14 @@ import axios from 'axios'
 import { useStore } from '@/app/Store'
 
 const BankTransactionsPage = () => {
-  const {state} = useContext(useStore)
+  const {state} = useContext( useStore)
   const {userData} = state
 
   const [banks, setBanks] = useState([])
   const [date, setDate] = useState(null)
   const [txn, setTxn] = useState({
     type:'',
-    user: userData?.username,
+    user: userData ? userData.username : '',
     amount: 0,
     bankName:'',
     notes:'',
