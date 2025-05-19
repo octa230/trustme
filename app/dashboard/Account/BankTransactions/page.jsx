@@ -13,36 +13,54 @@ const BankTransactionsPage = () => {
 
   const [banks, setBanks] = useState([])
   const [date, setDate] = useState(null)
-  const userName = userData?.username || ''
-
   const [txn, setTxn] = useState({
-    type:'',
-    user: userName,
+    type: '',
+    user: '',
     amount: 0,
-    bankName:'',
-    notes:'',
+    bankName: '',
+    notes: '',
     date
   })
+  
+  const [isClient, setIsClient] = useState(false) // Flag to check if we are on the client side
+  
+  useEffect(() => {
+    // Only set the userData once the component is mounted on the client side
+    setIsClient(true)
+    
+    const getBanks = async () => {
+      const { data } = await axios.get(`/api/banks`)
+      setBanks(data)
+    }
+    
+    getBanks()
+  }, [])
+  
+  useEffect(() => {
+    if (userData && isClient) {
+      setTxn(prevState => ({
+        ...prevState,
+        user: userData.username || ''
+      }))
+    }
+  }, [userData, isClient])
 
-  const handleSubmit =async(e)=>{
+  const handleSubmit = async (e) => {
     e.preventDefault()
     console.log(txn)
   }
 
-  const handleDate=(newDate)=>{
-    setTxn(prevState=> ({
-      ...prevState, 
+  const handleDate = (newDate) => {
+    setTxn(prevState => ({
+      ...prevState,
       date: newDate
     }))
-  } 
+  }
 
-  useEffect(()=>{
-    const getBanks =async()=>{
-      const {data} = await axios.get(`/api/banks`)
-      setBanks(data)
-    }
-    getBanks()
-  }, [])
+  if (!isClient) {
+    // Optionally render a loading spinner while waiting for the client-side code to load
+    return <div>Loading...</div>
+  }
 
   
   return (
