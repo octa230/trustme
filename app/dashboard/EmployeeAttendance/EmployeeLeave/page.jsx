@@ -4,7 +4,7 @@ import Calender from '@/app/components/Calender'
 import React from 'react'
 import { ButtonGroup, Row, Col, Container, Form, Button } from 'react-bootstrap'
 
-export default function page() {
+export default function Page() {
   
   return (
     <div>
