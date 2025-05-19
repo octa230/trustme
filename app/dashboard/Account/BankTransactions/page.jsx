@@ -13,11 +13,11 @@ const BankTransactionsPage = () => {
 
   const [banks, setBanks] = useState([])
   const [date, setDate] = useState(null)
-
+  const userName = userData?.username || ''
 
   const [txn, setTxn] = useState({
     type:'',
-    user,
+    user: userName,
     amount: 0,
     bankName:'',
     notes:'',
@@ -36,23 +36,14 @@ const BankTransactionsPage = () => {
     }))
   } 
 
-   useEffect(() => {
-    if (userData && userData.username) {
-      setTxn(prev => ({
-        ...prev,
-        user: userData.username
-      }))
-    }
-  }, [userData])
-
-  /* useEffect(()=>{
+  useEffect(()=>{
     const getBanks =async()=>{
       const {data} = await axios.get(`/api/banks`)
       setBanks(data)
     }
     getBanks()
   }, [])
- */
+
   
   return (
     <Container className='col-md-5 border rounded p-1'>
