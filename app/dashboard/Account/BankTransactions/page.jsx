@@ -7,7 +7,7 @@ import Calender from '@/app/components/Calender'
 import axios from 'axios'
 import { useStore } from '@/app/Store'
 
-const page = () => {
+const BankTransactionsPage = () => {
   const {state} = useContext(useStore)
   const {userData} = state
 
@@ -91,4 +91,4 @@ const page = () => {
   )
 }
 
-export default page
+export default BankTransactionsPage

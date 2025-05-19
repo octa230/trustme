@@ -7,7 +7,7 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 
 
-const page = () => {
+const AddExpensePage = () => {
   const [selectedPaymentMthd, setSelectedPaymentMthd] = useState('')
   const [expenseAccounts, setExpenseAccounts] = useState([])
   const [banks, setBanks] = useState([])
@@ -170,4 +170,4 @@ const page = () => {
   )
 }
 
-export default page
+export default AddExpensePage

@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-const page = () => {
+const CustomerRecievePage = () => {
   return (
     <div>
       <h1>Customer Recieve</h1>
@@ -10,4 +10,4 @@ const page = () => {
   )
 }
 
-export default page
+export default CustomerRecievePage

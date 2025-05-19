@@ -11,4 +11,4 @@ const ProfitAndLossPage = () => {
   )
 }
 
-export default page
+export default ProfitAndLossPage
