@@ -15,7 +15,7 @@ const BankTransactionsPage = () => {
   const [date, setDate] = useState(null)
   const [txn, setTxn] = useState({
     type:'',
-    user: userData.username,
+    user: userData?.username,
     amount: 0,
     bankName:'',
     notes:'',

@@ -1,7 +1,10 @@
-import React from 'react'
-import { Card, Form, Col, Container, Button } from 'react-bootstrap'
+'use client'
 
-const Quotes = () => {
+import React from 'react'
+import { Card, Form, Col, Container} from 'react-bootstrap'
+import Button from 'react-bootstrap/esm/Button'
+
+const QuotesEnquiry = () => {
   return (
     <Container className='justify-items-center'>
       <h1>Quotation From Enquiry</h1>
@@ -25,4 +28,4 @@ const Quotes = () => {
   )
 }
 
-export default Quotes
+export default QuotesEnquiry
