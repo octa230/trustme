@@ -12,7 +12,11 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals"),
   {
-    parser: "espree"
+    parser: "espree",
+     parserOptions: {
+      ecmaVersion: 2020, // Supports modern JS features
+      sourceType: "module", // Support for ES modules
+    },
   }
 ];
 
