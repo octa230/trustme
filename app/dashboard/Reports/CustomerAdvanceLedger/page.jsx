@@ -1,4 +1,8 @@
+'use client'
+
 import React from 'react'
+import { Button, ButtonGroup, ButtonToolbar, Col, Container, Form, Row, Table } from 'react-bootstrap'
+import Calender from '@/app/components/Calender'
 
 export default function CustomerAdvancePage() {
   return (

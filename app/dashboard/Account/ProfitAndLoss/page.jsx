@@ -1,6 +1,9 @@
+'use client'
+
+
 import React from 'react'
 
-const page = () => {
+const ProfitAndLossPage = () => {
   return (
     <div>
       <h1>profit and loss</h1>
