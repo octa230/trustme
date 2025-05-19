@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react'
 import { Col, Container, InputGroup, Row, Form, Button, Table, ButtonGroup } from 'react-bootstrap'
 
 
-export default function page() {
+export default function AttendanceReportPage() {
 
   const [employees, setEmployees] = useState([])
 

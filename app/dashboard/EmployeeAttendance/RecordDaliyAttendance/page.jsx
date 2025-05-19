@@ -5,7 +5,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { Col, Container, InputGroup, Row, Form, Button, Table, ButtonGroup } from 'react-bootstrap'
 
-export default function Page() {
+export default function RecordDailyPage() {
   const [employees, setEmployees] = useState([])
 
   useEffect(() => {

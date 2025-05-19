@@ -5,7 +5,7 @@ import {useState, useEffect} from 'react'
 import axios from 'axios'
 import { ButtonGroup, Row, Col, Container, Form, Button, InputGroup, Table } from 'react-bootstrap'
 
-export default function page() {
+export default function EmployeeLeaveReport() {
 
 
   const [employees, setEmployees] = useState([])

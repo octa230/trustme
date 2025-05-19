@@ -4,7 +4,7 @@ import React from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Card, InputGroup, Button, Table } from 'react-bootstrap'
 
 
-export default function page() {
+export default function EmployeeListPage() {
   return (
     <div>
       <h1>Employee List</h1>
