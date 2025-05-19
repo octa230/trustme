@@ -6,7 +6,7 @@ import { Button, ButtonGroup, Container, Form } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 
 
-export default function page() {
+export default function AddSupplierPage() {
   const [supplier, setSupplier] = useState({
     name:"",
     mobile:"",

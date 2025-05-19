@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 
 
-export default function page() {
+export default function SaleListPage() {
 
   const [sales, setSales] = useState([])
 

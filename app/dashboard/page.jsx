@@ -8,7 +8,7 @@ import PendingsChart from '@/app/components/PendingsChart';
 import { useStore } from '../Store';
 import { useRouter } from 'next/navigation';
 
-const page = () => {
+const Page = () => {
 
   const {state} = useContext(useStore)
   const {userData} =state
@@ -90,4 +90,4 @@ const imgStyle ={
 
 
 
-export default page
+export default Page

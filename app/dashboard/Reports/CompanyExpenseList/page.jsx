@@ -6,7 +6,7 @@ import {Container, ButtonToolbar, Col, Row, Form,
   ButtonGroup, Table, Button } from 'react-bootstrap'
 
 
-export default function page() {
+export default function CompanyExpensePage() {
   return (
     <Container fluid>
     <h1>Company Expense Details</h1>

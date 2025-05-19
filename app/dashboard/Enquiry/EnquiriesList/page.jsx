@@ -3,7 +3,7 @@
 import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table } from 'react-bootstrap'
 
 
-export default function page() {
+export default function EnquryListPage() {
   return (
     <Container fluid>
       <h1>Enquiries List</h1>

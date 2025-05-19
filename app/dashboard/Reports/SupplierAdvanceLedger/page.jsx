@@ -5,7 +5,7 @@ import React from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
   ButtonGroup, Table, Button } from 'react-bootstrap'
 
-export default function page() {
+export default function SupplierAdvancePage() {
   return (
     <Container fluid>
     <h1>Supplier Advance Ledger</h1>

@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function page() {
+export default function PurchaseReportPage() {
   return (
     <div>
       <h1>Purchase Report (ProductWise)</h1>

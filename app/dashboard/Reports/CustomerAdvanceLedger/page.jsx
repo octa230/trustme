@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function page() {
+export default function CustomerAdvancePage() {
   return (
     <Container fluid>
     <h1>Customer Advance Ledger</h1>

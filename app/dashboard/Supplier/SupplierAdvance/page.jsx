@@ -6,7 +6,7 @@ import Calender from '@/app/components/Calender'
 import axios from 'axios'
 
 
-export default function page() {
+export default function SupplierAdvancePage() {
 
   const [banks, setBanks] = useState([])
   const [suppliers, setSuppliers] = useState([])

@@ -5,7 +5,7 @@ import DataTable from '@/app/components/DataTable'
 import React from 'react'
 import { InputGroup, Form, Col, Row, Card, Button, Accordion } from 'react-bootstrap'
 
-export default function page() {
+export default function EnquiriesPage() {
   return (
     <div>
       <h1>Enquiries</h1>

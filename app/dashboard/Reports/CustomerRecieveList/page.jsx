@@ -6,7 +6,7 @@ import {Container, ButtonToolbar, Col, Row, Form,
   ButtonGroup, Table, Button } from 'react-bootstrap'
 
 
-export default function page() {
+export default function CustomerRecievePage() {
   return (
     <Container fluid>
     <h1>Customer Payment Details</h1>

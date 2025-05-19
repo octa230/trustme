@@ -12,7 +12,7 @@ import { toast } from 'react-toastify'
 
 
 
-export default function page() {
+export default function QuotationsPage() {
 
   const [searchKey, setSearchKey] = useState('')
   const [customers, setCustomers] = useState([])

@@ -7,7 +7,7 @@ import {Container, ButtonToolbar, Col, Row, Form,
 
 
 
-export default function page() {
+export default function SupplierPaymentPage() {
   return (
     <Container fluid>
     <h1>Supplier Payment Details</h1>

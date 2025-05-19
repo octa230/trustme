@@ -18,7 +18,7 @@ import { InputGroup, Form, Row, Card, Button, Accordion, ListGroup } from 'react
 
 
 
-export default function page() {
+export default function PurchasePage() {
 
   const [supplier, setSupplier] = useState({
     name: "",

@@ -11,7 +11,7 @@ import { InputGroup, Form, Row, Card, Button, Accordion, ListGroup } from 'react
 import { toast } from 'react-toastify'
 
 
-export default function page() {
+export default function SalesPage() {
 
   const [customer, setCustomer] = useState({
     name:"",

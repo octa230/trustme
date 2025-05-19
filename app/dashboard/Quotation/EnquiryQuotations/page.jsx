@@ -3,7 +3,7 @@
 import React from 'react'
 import { Container, Form, InputGroup } from 'react-bootstrap'
 
-export default function page() {
+export default function EnquiryQuotesList() {
   return (
     <div>
       <Container className='col-md-4'>

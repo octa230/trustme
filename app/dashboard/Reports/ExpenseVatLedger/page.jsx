@@ -6,7 +6,7 @@ import {Container, ButtonToolbar, Col, Row, Form,
   ButtonGroup, Table, Button } from 'react-bootstrap'
 
 
-export default function page() {
+export default function ExpenseVatPage() {
   return (
     <Container fluid>
     <h1>Expense Vat Ledger</h1>

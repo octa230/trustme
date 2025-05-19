@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, Form, Col } from 'react-bootstrap'
 
-const server = () => {
+const Quotes = () => {
   return (
     <Container className='justify-items-center'>
       <h1>Quotation From Enquiry</h1>
@@ -25,4 +25,4 @@ const server = () => {
   )
 }
 
-export default server
+export default Quotes
