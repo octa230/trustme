@@ -1,6 +1,6 @@
 import React from 'react'
 
-const page = () => {
+const BalanceSheetPage = () => {
   return (
     <div>
       <h1>Balance Sheet</h1>
@@ -8,4 +8,4 @@ const page = () => {
   )
 }
 
-export default page
+export default BalanceSheetPage
