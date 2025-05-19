@@ -1,0 +1,28 @@
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+const eslintConfig = [
+  ...compat.extends("next/core-web-vitals"),
+  {
+    // Override settings for JavaScript files to avoid TypeScript parser issues
+    files: ["*.js", "*.jsx"], // Only apply this to JavaScript and JSX files
+    parser: "espree", // Use the default parser for JavaScript files
+    parserOptions: {
+      ecmaVersion: 2020, // Use modern JS features
+      sourceType: "module", // Support ES module syntax (import/export)
+    },
+    rules: {
+      // You can add any custom rules here
+    },
+  },
+];
+
+export default eslintConfig;
