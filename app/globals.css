@@ -40,7 +40,7 @@ a {
   text-decoration: none;
 }
 
-.btn:{
+.btn {
   margin: 1rem
 }
 @media (prefers-color-scheme: dark) {
