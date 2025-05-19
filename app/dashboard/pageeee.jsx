@@ -6,7 +6,7 @@ import { Col, Row, Container, Button, Accordion, ListGroup} from 'react-bootstra
 import Nav  from 'react-bootstrap/esm/Nav'
 import Navbar  from 'react-bootstrap/esm/Navbar'
 
-const page = () => {
+const Page = () => {
 
   const show = true
   return (
@@ -23,4 +23,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
