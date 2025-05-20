@@ -143,35 +143,35 @@ export default function QuotationsPage() {
                         <Form.Label>Name</Form.Label>
                         <Form.Control type='text'
                         value={customer.name || ''}
-                        onChange={(e)=> set(prevState => ({...prevState, name: e.target.value}))}
+                        onChange={(e)=> setCustomer(prevState => ({...prevState, name: e.target.value}))}
                         />
                       </Form.Group>
                       <Form.Group>
                         <Form.Label>Mobile</Form.Label>
                         <Form.Control type='text'
                           value={customer.mobile || ''}
-                          onChange={(e)=> set(prevState => ({...prevState, mobile: e.target.value}))}
+                          onChange={(e)=> setCustomer(prevState => ({...prevState, mobile: e.target.value}))}
                         />
                       </Form.Group>
                       <Form.Group>
                         <Form.Label>Phone</Form.Label>
                         <Form.Control type='text'
                           value={customer.phone || ''}
-                          onChange={(e)=> set(prevState => ({...prevState, phone: e.target.value}))}
+                          onChange={(e)=> setCustomer(prevState => ({...prevState, phone: e.target.value}))}
                         />
                       </Form.Group>
                       <Form.Group>
                         <Form.Label>Email</Form.Label>
-                        <Form.Control type='email'
+                        <Form.Control type='text'
                           value={customer.email || ''}
-                          onChange={(e)=> set(prevState => ({...prevState, x: e.target.value}))}
+                          onChange={(e)=> setCustomer(prevState => ({...prevState, email: e.target.value}))}
                         />
                       </Form.Group>
                       <Form.Group>
                         <Form.Label>Emirate Region</Form.Label>
                         <Form.Control type='text'
                         value={customer.region || ''}
-                        onChange={(e)=> set(prevState => ({...prevState, region: e.target.value}))}
+                        onChange={(e)=> setCustomer(prevState => ({...prevState, region: e.target.value}))}
                         />
                       </Form.Group>
                       <Form.Group>
@@ -179,14 +179,14 @@ export default function QuotationsPage() {
                         <Form.Control type='text'
                           placeholder='location/ address'
                           value={customer.address || ''}
-                          onChange={(e)=> set(prevState => ({...prevState, address: e.target.value}))}
+                          onChange={(e)=> setCustomer(prevState => ({...prevState, address: e.target.value}))}
                         />
                       </Form.Group>
                       <Form.Group>
                         <Form.Label>Trn</Form.Label>
                         <Form.Control type='text'
                           value={customer.trn || ''}
-                          onChange={(e)=> set(prevState => ({...prevState, trn: e.target.value}))}
+                          onChange={(e)=> setCustomer(prevState => ({...prevState, trn: e.target.value}))}
                           placeholder='Tax Registration Number'
                         />
                       </Form.Group>
@@ -195,7 +195,7 @@ export default function QuotationsPage() {
                         <Form.Control type='text' as='textarea'
                           rows={3}
                           value={customer.description || ''}
-                          onChange={(e)=> set(prevState => ({...prevState, description: e.target.value}))}
+                          onChange={(e)=> setCustomer(prevState => ({...prevState, description: e.target.value}))}
                           placeholder='write something here'
                         />
                       </Form.Group>
