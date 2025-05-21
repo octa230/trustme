@@ -1,10 +1,128 @@
 import axios from 'axios'
 import React, { useContext, useEffect, useState } from 'react'
-import { Table, Stack, Button, Form, Modal, InputGroup, ListGroup } from 'react-bootstrap'
+import { Table, Stack, Button, Form, Modal, InputGroup, ListGroup,ButtonGroup } from 'react-bootstrap'
 import { createCalc, round2 } from '../dashboard/utils'
 import { useStore } from '../Store'
 import { toast } from 'react-toastify'
 
+function PaymentMethodsSection({
+  advance, advanceAmount, setAdvance, setAdvanceAmount,
+  cash, cashAmount, setCash, setCashAmount,
+  bank, bankAmount, bankName, banks, handleBankChange, setBank, setBankAmount,
+  card, cardAmount, setCard, setCardAmount
+}) {
+  return (
+    <>
+      <tr>
+        <td colSpan={3}>
+          <strong>Payment Methods</strong>
+        </td>
+      </tr>
+      
+      {/* Advance Payment */}
+      <tr>
+        <td colSpan={3}>
+          <InputGroup className="mb-2">
+            {advance && (
+              <Form.Control
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={advanceAmount}
+                onChange={e => setAdvanceAmount(Number(e.target.value))}
+              />
+            )}
+            <InputGroup.Checkbox
+              checked={advance}
+              onChange={e => setAdvance(e.target.checked)}
+            />
+            <InputGroup.Text>Advance Amount</InputGroup.Text>
+          </InputGroup>
+        </td>
+      </tr>
+
+      {/* Cash Payment */}
+      <tr>
+        <td colSpan={3}>
+          <InputGroup className="mb-2">
+            {cash && (
+              <Form.Control
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={cashAmount}
+                onChange={e => setCashAmount(Number(e.target.value))}
+              />
+            )}
+            <InputGroup.Checkbox
+              checked={cash}
+              onChange={(e) => setCash(e.target.checked)}
+            />
+            <InputGroup.Text>Cash</InputGroup.Text>
+          </InputGroup>
+        </td>
+      </tr>
+
+      {/* Bank Payment */}
+      <tr>
+        <td colSpan={3}>
+          <InputGroup className="mb-2">
+            {bank && (
+              <>
+                <Form.Select
+                  title={bankName || 'SELECT BANK'}
+                  variant="danger"
+                  onChange={(e) => handleBankChange(e)}
+                >
+                  <option>{bankName || 'select Bank'}</option>
+                  {banks.map((bank) => (
+                    <option key={bank.controlId} value={JSON.stringify(bank)}>
+                      {bank.bankName}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Form.Control
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={bankAmount}
+                  onChange={e => setBankAmount(Number(e.target.value))}
+                />
+              </>
+            )}
+            <InputGroup.Checkbox
+              checked={bank}
+              onChange={(e) => setBank(e.target.checked)}
+            />
+            <InputGroup.Text>Bank</InputGroup.Text>
+          </InputGroup>
+        </td>
+      </tr>
+
+      {/* Card Payment */}
+      <tr>
+        <td colSpan={3}>
+          <InputGroup className="mb-2">
+            {card && (
+              <Form.Control
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={cardAmount}
+                onChange={e => setCardAmount(Number(e.target.value))}
+              />
+            )}
+            <InputGroup.Checkbox
+              checked={card}
+              onChange={(e) => setCard(e.target.checked)}
+            />
+            <InputGroup.Text>Card</InputGroup.Text>
+          </InputGroup>
+        </td>
+      </tr>
+    </>
+  );
+}
 
 export default function DataTable(props) {
     
@@ -571,34 +689,51 @@ export default function DataTable(props) {
             ))}
           </tbody>
           <tfoot>
-        <tr>
-          <th colSpan={3}>Totals summary:</th>
-        </tr>
-        <tr>
-          <td colSpan={3}><strong>Items Total Incl Vat:</strong> AED: {itemsWithVatTotal}</td>
-        </tr>
-        <tr>
-          <td colSpan={3}><strong>Items Total Excl Vat:</strong> AED: {totalWithoutVat}</td>
-        </tr>
-        <tr>
+  {/* Summary Section */}
+  <tr className="summary-row">
+    <th colSpan={3}>Totals Summary:</th>
+  </tr>
+  
+  {/* Amount Breakdown */}
+  <tr>
     <td colSpan={3}>
-      <InputGroup>
+      <div className="amount-row">
+        <span className="label">Items Total Incl VAT:</span>
+        <span className="value">AED: {itemsWithVatTotal}</span>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td colSpan={3}>
+      <div className="amount-row">
+        <span className="label">Items Total Excl VAT:</span>
+        <span className="value">AED: {totalWithoutVat}</span>
+      </div>
+    </td>
+  </tr>
+
+  {/* Discount Input */}
+  <tr>
+    <td colSpan={3}>
+      <InputGroup className="mb-2">
         <InputGroup.Text>Discount</InputGroup.Text>
-        <Form.Control 
-          type='number' 
+        <Form.Control
+          type="number"
           step="0.01"
-          placeholder='Discount Amount' 
+          placeholder="Discount Amount"
           value={discount}
           onChange={e => setDiscount(Number(e.target.value))}
         />
       </InputGroup>
     </td>
   </tr>
+
+  {/* VAT Toggle */}
   <tr>
     <td colSpan={3}>
-      <InputGroup>
+      <InputGroup className="mb-2">
         {vatEnabled && (
-          <Form.Control 
+          <Form.Control
             type="number"
             step="0.01"
             value={vatRate}
@@ -606,153 +741,124 @@ export default function DataTable(props) {
             placeholder="0.00%"
           />
         )}
-        <InputGroup.Checkbox 
+        <InputGroup.Checkbox
           checked={vatEnabled}
           onChange={e => setVatEnabled(e.target.checked)}
         />
-        <InputGroup.Text>Vat Applied: {vatRate || 0}%</InputGroup.Text>
+        <InputGroup.Text>VAT Applied: {vatRate || 0}%</InputGroup.Text>
       </InputGroup>
     </td>
   </tr>
+
+  {/* Calculated Totals */}
   <tr>
     <td colSpan={3}>
-      <strong>Total After Discount:</strong> AED: {totalAfterDiscount}
+      <div className="amount-row">
+        <span className="label">Total After Discount:</span>
+        <span className="value">AED: {totalAfterDiscount}</span>
+      </div>
     </td>
   </tr>
   <tr>
     <td colSpan={3}>
-      <strong>VAT Amount:</strong> AED: {vatAmount}
-    </td>
-  </tr>
-   <tr>
-    <td colSpan={3}>
-      <strong>Grand Total:</strong> AED: {grandTotal}
-    </td>
-  </tr>
-  <tr>
-    <td colSpan={3}>
-      <strong>Paid From Advance</strong>
-      <InputGroup>
-        {advance && (
-          <Form.Control 
-            type="number"
-            step="0.01"
-            placeholder='0.00' 
-            value={advanceAmount}
-            onChange={e => setAdvanceAmount(Number(e.target.value))}
-          />
-        )}
-        <InputGroup.Checkbox 
-          checked={advance} 
-          onChange={e => setAdvance(e.target.checked)}
-        />
-        <InputGroup.Text>Advance Amount</InputGroup.Text>
-      </InputGroup>
+      <div className="amount-row">
+        <span className="label">VAT Amount:</span>
+        <span className="value">AED: {vatAmount}</span>
+      </div>
     </td>
   </tr>
   <tr>
     <td colSpan={3}>
-      <Stack>
-        <InputGroup className='mb-2'>
-          {cash && (
-            <Form.Control 
-              type="number"
-              step="0.01"
-              placeholder='0.00'
-              value={cashAmount}
-              onChange={e => setCashAmount(Number(e.target.value))}
-            />
-          )}
-          <InputGroup.Checkbox 
-            checked={cash} 
-            onChange={(e) => setCash(e.target.checked)}
-          />
-          <InputGroup.Text>Cash</InputGroup.Text>
-        </InputGroup>
-        <InputGroup className='mb-2'>
-          {bank && (
-            <>
-            <Form.Select title={bankName || 'SELECT BANK'} variant='danger' 
-              onChange={(e) => handleBankChange(e)}>
-              <option>{bankName || 'select Bank'}</option>
-              {banks.map((bank)=> (
-                <option key={bank.controlId} value={JSON.stringify(bank)}>
-                {bank.bankName}
-              </option>
-              ))}
-            </Form.Select>
-            <Form.Control 
-              type="number"
-              step="0.01"
-              placeholder='0.00'
-              value={bankAmount}
-              onChange={e => setBankAmount(Number(e.target.value))}
-            />
-            </>
-          )}
-          <InputGroup.Checkbox 
-            checked={bank} 
-            onChange={(e) => setBank(e.target.checked)}
-          />
-          <InputGroup.Text>Bank</InputGroup.Text>
-        </InputGroup>
-        <InputGroup className='mb-2'>
-          {card && (
-            <Form.Control 
-              type="number"
-              step="0.01"
-              placeholder='0.00'
-              value={cardAmount}
-              onChange={e => setCardAmount(Number(e.target.value))}
-            />
-          )}
-          <InputGroup.Checkbox 
-            checked={card} 
-            onChange={(e) => setCard(e.target.checked)}
-          />
-          <InputGroup.Text>Card</InputGroup.Text>
-        </InputGroup>
-      </Stack>
+      <div className="amount-row highlight">
+        <span className="label">Grand Total:</span>
+        <span className="value">AED: {grandTotal}</span>
+      </div>
+    </td>
+  </tr>
+
+  {/* Payment Methods */}
+  <PaymentMethodsSection 
+    advance={advance}
+    advanceAmount={advanceAmount}
+    setAdvance={setAdvance}
+    setAdvanceAmount={setAdvanceAmount}
+    cash={cash}
+    cashAmount={cashAmount}
+    setCash={setCash}
+    setCashAmount={setCashAmount}
+    bank={bank}
+    bankAmount={bankAmount}
+    bankName={bankName}
+    banks={banks}
+    handleBankChange={handleBankChange}
+    setBank={setBank}
+    setBankAmount={setBankAmount}
+    card={card}
+    cardAmount={cardAmount}
+    setCard={setCard}
+    setCardAmount={setCardAmount}
+  />
+
+  {/* Payment Summary */}
+  <tr>
+    <td colSpan={3}>
+      <div className="amount-row">
+        <span className="label">Total Paid Amount:</span>
+        <span className="value">AED: {calculator.paidAmount().toFixed(2)}</span>
+      </div>
     </td>
   </tr>
   <tr>
     <td colSpan={3}>
-      <strong>Total Paid Amount:</strong> AED: {calculator.paidAmount().toFixed(2)}
+      <div className="amount-row">
+        <span className="label">Total Pending Amount:</span>
+        <span className="value">AED: {calculator.pendingAmount().toFixed(2)}</span>
+      </div>
     </td>
   </tr>
+
+  {/* Action Buttons */}
   <tr>
-    <td colSpan={3}>
-      <strong>Total Pending Amount:</strong> AED: {calculator.pendingAmount().toFixed(2)}
+    <td colSpan={12}>
+      <div className="action-buttons d-flex justify-content-between">
+        <ButtonGroup>
+          <Button variant="primary" onClick={() => setNewItem(true)}>
+            New Item
+          </Button>
+          <Button variant="secondary" onClick={() => setNewCategory(true)}>
+            New Category
+          </Button>
+          <Button variant="warning" onClick={handleAddRow}>
+            Add Row ➕
+          </Button>
+        </ButtonGroup>
+
+        <ButtonGroup className="main-actions">
+          <Button
+            variant="secondary"
+            disabled={type === 'return'}
+            onClick={() => items.length > 0 && window.confirm('Save & Print Now?') && handleSave('SAVE_AND_PRINT')}
+          >
+            Save & Print
+          </Button>
+          <Button
+            variant="success"
+            onClick={() => items.length > 0 && window.confirm('Save Actions?') && handleSave('SAVE')}
+          >
+            Save 💾
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => items.length > 0 && window.confirm('Undo all Actions?') && setItems([])}
+          >
+            Cancel
+          </Button>
+        </ButtonGroup>
+      </div>
     </td>
   </tr>
-  <tr>
-    <td colSpan='2'>
-      <Button onClick={() => setNewItem(true)}>New Item</Button>
-      <Button onClick={() => setNewCategory(true)} className='mx-2'>New Category</Button>
-    </td>
-    <td colSpan='6'>
-      <Button disabled={type === 'return'} variant='secondary' onClick={()=>{
-        if(items.length > 0 && window.confirm('Save & Print Now?')){
-          handleSave('SAVE_AND_PRINT')
-        }
-      }}>Save & Print</Button>
-      <Button variant='success' className='mx-2' onClick={()=>{
-        if(items.length > 0 && window.confirm('Save Actions?')){
-          handleSave('SAVE')
-        }
-      }}>Save 💾</Button>
-      <Button variant='danger' onClick={()=>{
-        if(items.length > 0 && window.confirm('Undo all Actions?')){
-          setItems([])
-        }
-      }}>Cancel</Button>
-    </td>
-    <td colSpan="4">
-      <Button onClick={handleAddRow} variant='warning'>Add Row➕</Button>
-    </td>
-    </tr>
-  </tfoot>
-</Table>
+</tfoot>
+  </Table>
     
 
 
