@@ -108,7 +108,7 @@ export default function page() {
         </InputGroup>
         {customers && customers.length > 0 && (
           <ListGroup ref={dropdownRef} as='ul' 
-            className='position-absolute top-100 overflow-y-scroll'>
+            className='z-50 position-absolute top-100 overflow-y-scroll'>
             {customers.map((custm)=>(
               <ListGroup.Item as='li' key={custm.controlId}
                 onClick={(e)=>{
