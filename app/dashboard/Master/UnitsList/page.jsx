@@ -4,18 +4,48 @@ import axios from 'axios'
 //import Calender from '@/app/components/Calender'
 import React, { useEffect, useState } from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
-  ButtonGroup, Table, Button, 
-  Stack} from 'react-bootstrap'
+  ButtonGroup, Table, Button, Stack, Modal} from 'react-bootstrap'
 
 
 const UnitsList =()=> {
 
   const [units, setUnits] = useState([])
+  const [unit, setUnit] = useState({
+    name:''
+  })
+
+  const [showModal, setShowModal] = useState(false)
 
 
   const getUnits =async()=>{
     const {data} = await axios.get(`/api/units`)
     setUnits(data)
+  }
+
+  const addUnit = async(e)=>{
+    e.preventDefault()
+    unit.code ?
+    updateUnit(unit) :
+    console.log('unit', unit.name)
+    const {data} = await axios.post(`/api/units`, unit)
+    setUnits([...units, data])
+    setShowModal(false)
+  }
+  const updateUnit =async(unit)=>{
+    setUnit(unit)
+    setShowModal(true)
+
+
+    const {data} = await axios.put(`/api/units/${unit._id}`, unit)
+    setUnits(units.map(u => u._id === data._id ? data : u))
+    setShowModal(false)
+  }
+
+  const deleteUnit =async(id)=>{
+    if(!window.confirm('Are you sure you want to delete this unit?')) return
+    setUnit({})
+    await axios.delete(`/api/units/${id}`)
+    setUnits(units.filter(u => u._id !== id))
   }
 
   useEffect(()=>{
@@ -38,11 +68,13 @@ const UnitsList =()=> {
         <Button size='md' variant='outline-warning'>SEARCH</Button>
         </ButtonGroup>
         <Col className='mx-3'>
-          <Button variant='danger'>ADD UNIT</Button>
+          <Button variant='danger' onClick={()=> {
+            setUnit({name: ''})
+            setShowModal(true)
+          }}>ADD UNIT</Button>
         </Col>
         </Col>
       </ButtonToolbar>
-  
       </Row>
 
       <Table striped='columns' bordered hover className='m-2' responsive>
@@ -62,8 +94,11 @@ const UnitsList =()=> {
               <td>{unit.name}</td>
               <td>
                 <Stack direction="horizontal" gap={3}>
-                  <Button className='mx-1'>Edit</Button>
-                  <Button variant='danger'>Del</Button>
+                  <Button className='mx-1' onClick={()=> {
+                    setShowModal(true)
+                    setUnit(unit)
+                  }}>Edit</Button>
+                  <Button variant='danger' onClick={()=> deleteUnit(unit._id)}>Del</Button>
                 </Stack>
               </td>
             </tr>
@@ -71,6 +106,25 @@ const UnitsList =()=> {
         </tbody>
       </Table>
     </Container>
+    <Modal show={showModal} onHide={()=> setShowModal(false)} size='lg'>
+      <Modal.Header closeButton>
+        <Modal.Title>Unit Form</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form onSubmit={addUnit}>
+          <Form.Group className='mb-3'>
+            <Form.Label>Unit Name</Form.Label>
+            <Form.Control type='text' onChange={(e)=> setUnit(prevState => ({...prevState, name: e.target.value}))}
+            value={unit.name}
+            required
+            autoFocus
+              placeholder='Enter Unit Name'/>
+          </Form.Group>
+            <Button variant='primary' type='submit'>Save</Button>
+            <Button variant='secondary' onClick={()=> setShowModal(false)} className='mx-2'>Close</Button>
+          </Form>
+      </Modal.Body>
+      </Modal>
     </div>
   )
 }
