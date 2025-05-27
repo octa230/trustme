@@ -11,10 +11,42 @@ import {Container, ButtonToolbar, Col, Row, Form,
 const ItemsList =()=> {
 
   const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
+  const [units, setUnits] = useState([])
+  const [show, setShow] = useState(false)
 
+  const [creatItem, setCreateItem] = useState({
+        name:'',
+        category:"",
+        purchasePrice: '',
+        unit:"",
+        salePrice: '',
+  })
+
+  const handleCreateItem = (e)=>{
+    e.preventDefault()
+    axios.post('/api/items', creatItem)
+      .then(res => {
+        setProducts([...products, res.data])
+        setCreateItem({
+          name: '',   
+          category: "",
+          purchasePrice: '',
+          unit: "",
+          salePrice: '',
+        })
+        setShow(false)
+      })
+  }
   const getItems = async()=>{
-    const {data}= await axios.get('/api/items')
-    setProducts(data)
+    const [itemsRes, categoryRes, unitsRes] = await Promise.all([
+      axios.get('/api/items'),
+      axios.get('/api/category'),
+      axios.get('/api/units'),
+    ])
+    setProducts(itemsRes.data)
+    setCategories(categoryRes.data)
+    setUnits(unitsRes.data)
   }
 
   useEffect(()=>{
@@ -74,7 +106,7 @@ const ItemsList =()=> {
         </InputGroup>
         </Col>
         <Col>
-          <Button variant='danger'>ADD ITEM</Button>
+          <Button variant='danger' onClick={()=> setShow(true)}>ADD ITEM</Button>
         </Col>
       </Row>
       </Row>
@@ -125,9 +157,70 @@ const ItemsList =()=> {
         </tbody>
       </Table>
     </Container>
+    <Modal show={show} onHide={()=>{setShow(false)}} size='lg'>
+        <Modal.Header closeButton>
+          <Modal.Title>Add New Item</Modal.Title>
+        </Modal.Header> 
+        <Modal.Body>
+          <Form onSubmit={handleCreateItem}>
+            <Form.Group className='mb-3'>
+              <Form.Label>Item Name</Form.Label>
+              <Form.Control type='text' placeholder='Item Name' 
+                value={creatItem.name} onChange={(e)=>setCreateItem({...creatItem, name: e.target.value})}/>
+            </Form.Group>
+            <Form.Group className='mb-3'>
+              <Form.Label>Category</Form.Label>
+              <Form.Control type='text' placeholder='Category' disabled
+                value={creatItem.category} onChange={(e)=>setCreateItem({...creatItem, category: e.target.value})}/>
+            </Form.Group>
+            <Form.Select className='mb-3'
+              value={creatItem.category} onChange={(e)=>setCreateItem({...creatItem, category: e.target.value})}>
+              <option>--Select Category--</option>
+              {categories.map((category, index)=>(
+                <option key={index} value={category.name}>{category.name}</option>
+              ))}
+            </Form.Select>  
+            <Row>
+              <Col>
+                <Form.Group className='mb-3'>
+                  <Form.Label>Purchase Price</Form.Label>
+                  <Form.Control type='number' placeholder='Purchase Price' 
+                    value={creatItem.purchasePrice} onChange={(e)=>setCreateItem({...creatItem, purchasePrice: e.target.value})}/>
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group className='mb-3'>
+                  <Form.Label>Unit</Form.Label>
+                  <Form.Control type='text' disabled
+                    placeholder='Unit' 
+                    value={creatItem.unit} onChange={(e)=>setCreateItem({...creatItem, unit: e.target.value})}/>
+                </Form.Group>
+                <Form.Select className='mb-3'
+                  value={creatItem.unit} onChange={(e)=>setCreateItem({...creatItem, unit: e.target.value})}>
+                  <option>--Select Unit--</option>
+                  {units.map((unit, index)=>(
+                    <option key={index} value={unit.name}>{unit.name}</option>
+                  ))}
+                </Form.Select>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Form.Group className='mb-3'>
+                  <Form.Label>Sale Price</Form.Label>
+                  <Form.Control type='number' placeholder='Sale Price' 
+                    value={creatItem.salePrice} onChange={(e)=>setCreateItem({...creatItem, salePrice: e.target.value})}/>
+                </Form.Group>
+              </Col>
+            </Row>
+              <Button variant='secondary' onClick={()=>setShow(false)}>Close</Button>
+              <Button variant='primary' type='submit' className='mx-3'>Save Item</Button>
+          </Form>
+        </Modal.Body>
+    </Modal>
     </div>
-  )
-}
+  )}
+
 
 
 export default ItemsList
