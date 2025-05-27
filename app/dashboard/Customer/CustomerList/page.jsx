@@ -76,8 +76,13 @@ const CustomersPage =()=> {
         </Form.Group>
       </Col>
       <Col>
-        <Button variant='danger'>ADD CUSTOMER</Button>
-        <Button variant='danger' className='mx-1'>ADD CUSTOMER ADVANCE</Button>
+        <Button variant='danger' onClick={(e)=> {
+          window.location.href = '/dashboard/Customer/AddCustomer'
+        }}>ADD CUSTOMER</Button>
+        <Button variant='danger' className='mx-1' onClick={(e)=> {
+          window.location.href = '/dashboard/Customer/CustomerAdvance'
+        }}
+        >ADD CUSTOMER ADVANCE</Button>
       </Col>
     </Row>
     </Row>

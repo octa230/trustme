@@ -1,6 +1,7 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
+import { round2 } from '../../utils'
 import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup, Stack, Badge } from 'react-bootstrap'
 
 import React, { useEffect, useState } from 'react'
@@ -14,9 +15,8 @@ export default function SaleListPage() {
   useEffect(()=>{
     const getSales = async()=>{
       const {data } = await axios.get('/api/sales')
-
-
-      setSales(data)
+      //console.log(data)
+      setSales(data.data)
     }
 
     getSales()
@@ -69,7 +69,11 @@ export default function SaleListPage() {
         </InputGroup>
       </Col>
       <Col>
-        <Button variant='danger'>ADD INVOICE</Button>
+        <Button variant='danger' onClick={(e)=> {
+          if(window.confirm('Are you sure you want to add a new invoice?')) {
+            window.location.href = '/dashboard/Sales'
+          }
+        }}>ADD INVOICE</Button>
       </Col>
     </Row>
     </Row>
@@ -126,13 +130,13 @@ export default function SaleListPage() {
       <tfoot>
           <tr>
             <th colSpan={5}>Totals</th>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
+            <td>{round2(sales.reduce((acc, sale)=> acc + sale.totalWithoutVat, 0))}</td>
+            <td>{round2(sales.reduce((acc, sale)=> acc + sale.totalAfterDiscount, 0))}</td>
+            <td>{round2(sales.reduce((acc, sale)=> acc + sale.cashAmount, 0))}</td>
+            <td>{round2(sales.reduce((acc, sale)=> acc + sale.cardAmount, 0))}</td>
+            <td>{round2(sales.reduce((acc, sale)=> acc + sale.bankAmount, 0))}</td>
+            <td>{round2(sales.reduce((acc, sale)=> acc + sale.paidAmount, 0))}</td>
+            <td>{round2(sales.reduce((acc, sale)=> acc + sale.pendingAmount, 0))}</td>
           </tr>
       </tfoot>
     </Table>

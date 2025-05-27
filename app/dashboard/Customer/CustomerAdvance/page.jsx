@@ -1,19 +1,33 @@
 'use client'
 
-import React, {useState} from 'react'
+import React, {useState, useEffect, use} from 'react'
 import { Button, Form, InputGroup, Container } from 'react-bootstrap'
 import Calender from '@/app/components/Calender'
+import axios from 'axios'
 
 
 export default function page() {
 
    const [selectedPaymentMthd, setSelectedPaymentMthd] = useState('')
-  
+   const [customers, setCustomers] = useState([])
   
     const handlePaymentChange =(e)=>{
       setSelectedPaymentMthd(e.target.value)
-
     }
+
+    useEffect(()=>{
+      const fetchCustomers = async()=>{
+        try{
+          const {data} = await axios.get(`/api/customers/`)
+          setCustomers(data)
+          console.log(data)
+        }catch(error){
+          console.error("Error fetching customers:", error)
+        }
+      }
+      fetchCustomers()
+    }, [])
+    
 
   return (
     <Container fluid className='col-md-5'>
@@ -32,8 +46,8 @@ export default function page() {
             <Form.Label>Customer Name</Form.Label>
             <Form.Select>
               <option>---select---</option>
-              {['padasda', 'ccsds', 'customera'].map((item, index)=>(
-                <option key={index}>{item}</option>
+              {customers.map((item, index)=>(
+                <option key={index}>{item.name}</option>
               ))}
             </Form.Select>
           </Form.Group>

@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 import { Button, Form, Container, ButtonGroup } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 
-export default function page() {
+export default function Page() {
 
   const [customer, setCustomer] = useState({
     name:"",
