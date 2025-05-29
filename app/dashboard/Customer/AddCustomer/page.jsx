@@ -86,6 +86,8 @@ export default function Page() {
         <Form.Group>
           <Form.Label>TRN</Form.Label>
           <Form.Control type='text'
+            maxLength={15}
+            minLength={15}
             placeholder='Tax Registration Number'
             value={customer.trn}
             onChange={(e)=> setCustomer(prevState => ({...prevState, trn: e.target.value}))}

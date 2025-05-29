@@ -107,7 +107,7 @@ export const createCalc = (state) => {
 
     // Calculate pending (remaining) amount
     pendingAmount: function () {
-      return round2(Math.max(0, this.grandTotal() - this.paidAmount()));
+      return (this.grandTotal() - this.paidAmount());
     }
   };
 };

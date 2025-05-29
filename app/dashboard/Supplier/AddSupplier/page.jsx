@@ -84,6 +84,8 @@ export default function AddSupplierPage() {
         <Form.Group>
           <Form.Label>Supplier TRN</Form.Label>
           <Form.Control type='text'
+            maxLength={15}
+            minLength={15}
             value={supplier.trn}
             placeholder='Tax Registration Number'
             onChange={(e)=> setSupplier(prevState => ({...prevState, trn: e.target.value}))}
