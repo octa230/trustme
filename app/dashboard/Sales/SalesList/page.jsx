@@ -6,6 +6,7 @@ import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, In
 
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
 
 export default function SaleListPage() {
@@ -21,6 +22,30 @@ export default function SaleListPage() {
 
     getSales()
   }, [])
+
+  const handlePrintSale = async (invoiceNo, controlId, customerId) => {
+  if (window.confirm(`Print Invoice ${invoiceNo}`)) {
+    toast.promise(
+      axios
+        .post(
+          `/api/print/invoice/${invoiceNo}/${controlId}/${customerId}`,
+          {},
+          { responseType: "blob" }
+        )
+        .then((response) => {
+          const blob = new Blob([response.data], { type: "application/pdf" });
+          const url = window.URL.createObjectURL(blob);
+          window.open(url, "_blank");
+        }),
+      {
+        pending: "...wait",
+        success: "Success",
+        error: "Failed to Print Invoice",
+      }
+    );
+  }
+  };
+
   return (
     <Container fluid>
     <h1>Invoice/Sales List</h1>
@@ -120,7 +145,9 @@ export default function SaleListPage() {
             <td>
               <Stack gap={2}>
                 <Button variant='outline-info btn-sm'>🖊</Button>
-                <Button variant='outline-success btn-sm'>🖨</Button>
+                <Button variant='outline-success btn-sm' onClick={()=>handlePrintSale(sale.invoiceNo, sale.controlId, sale.customerId)}>
+                  🖨
+                </Button>
                 <Button variant='outline-danger btn-sm'>❌</Button>
               </Stack>
             </td>
