@@ -7,6 +7,8 @@ import { Container, Row, Col, Button, Navbar, Offcanvas, ListGroup, Accordion, N
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useStore } from '../Store';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const DashboardLayout = ({children}) => {
 
@@ -27,6 +29,26 @@ const DashboardLayout = ({children}) => {
     localStorage.removeItem('userData')
     router.replace('/')
   }
+
+
+const printLetterHead = async (e) => {
+  // Function to print the letter head
+  e.preventDefault()
+  window.confirm('print Company Letter Head?') &&
+  toast.promise(
+    axios.post(`/api/print/letterhead`, {}, {responseType: "blob"})
+    .then(response => {
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    }),
+    {
+      pending: 'Printing...',
+      success: 'Letter head printed!',
+      error: 'Failed to print letter head'
+    }
+  );
+}
 
   const menu = [
       {
@@ -222,6 +244,9 @@ const DashboardLayout = ({children}) => {
             </Button>
           </Navbar.Brand>
           <ButtonGroup className='border rounded shadow-sm'>
+            <Button variant='light border border-dark' onClick={printLetterHead}>
+              📄 Letter
+            </Button>
             <Button variant='light border border-dark'>
               ✉️ <Badge pill className='bg-info'>9</Badge>
               <span className='visually-hidden'>Notifications</span>
