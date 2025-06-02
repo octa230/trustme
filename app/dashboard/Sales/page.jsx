@@ -26,6 +26,7 @@ export default function SalesPage() {
   })
 
   const [deliveryNoteNumber, setDeliveryNoteNumber] = useState('')
+  const [purchaseOrderNumber, setPurchaseOrderNumber] = useState('')
 
   const [searchKey, setSearchKey] = useState('')
   const [customers, setCustomers] = useState([])
@@ -140,14 +141,14 @@ export default function SalesPage() {
                       </Form.Group>
                       <Form.Group>
                         <Form.Label>Mobile</Form.Label>
-                        <Form.Control type='telephone'
+                        <Form.Control type='text'
                           value={customer.mobile || ''}
                           onChange={(e)=> setCustomer(prevState => ({...prevState, mobile: e.target.value}))}
                         />
                       </Form.Group>
                       <Form.Group>
                         <Form.Label>Phone</Form.Label>
-                        <Form.Control type='phone'
+                        <Form.Control type='text'
                           value={customer.phone || ''}
                           onChange={(e)=> setCustomer(prevState => ({...prevState, phone: e.target.value}))}
                         />
@@ -204,21 +205,34 @@ export default function SalesPage() {
             </Accordion.Header>
             <Accordion.Body>
                 <Form>
-                  <Form.Group>
+{/*                   <Form.Group>
                       <Form.Label>Invoice Number</Form.Label>
-                        <Form.Control type='text' placeholder='101'/>
-                      </Form.Group>
-                    <Form.Group>
-                      <Form.Label>Delivery Note Number</Form.Label>
+                        <Form.Control type='text' placeholder='invoice' disabled/>
+                      </Form.Group> */}
+                    <Form.Group className='mb-3'>
                       <Form.Control 
                           type='text' 
-                          placeholder='#deliveryNote' 
+                          placeholder='deliveryNote' 
                           value={deliveryNoteNumber} 
                           onChange={async (e) => {
                             const newValue = e.target.value; // capture the new input value
                             setDeliveryNoteNumber(newValue); // update the state with the new value
                             if (newValue) {
                               await localStorage.setItem('deliveryNote', JSON.stringify(newValue)); // store it in localStorage
+                            }
+                          }}
+                        />
+                      </Form.Group>
+                      <Form.Group>
+                      <Form.Control 
+                          type='text' 
+                          placeholder='Purchase Order Number' 
+                          value={purchaseOrderNumber} 
+                          onChange={async (e) => {
+                            const newValue = e.target.value; // capture the new input value
+                            setPurchaseOrderNumber(newValue); // update the state with the new value
+                            if (newValue) {
+                              await localStorage.setItem('purchaseOrder', JSON.stringify(newValue)); // store it in localStorage
                             }
                           }}
                         />

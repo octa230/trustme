@@ -5,6 +5,7 @@ import XlsExportButton from '@/app/components/XlsExportButon'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import {Container, Stack, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup, Badge } from 'react-bootstrap'
+import { toast } from 'react-toastify'
 
 const PurchaseList = ()=> {
 
@@ -22,6 +23,25 @@ const PurchaseList = ()=> {
     getData()
   }, [])
 
+  const handlePrintPurchase=async(purchaseNo, controlId, supplierId)=>{
+    if(window.confirm(`print purchase ${purchaseNo}?`)){
+      toast.promise(
+        axios.post(`/api/print/purchase/${purchaseNo}/${controlId}/${supplierId}`, 
+          {}, 
+          { responseType:"blob" }
+        ).then((response)=>{
+          const blob = new Blob([response.data], {type: "application/pdf"});
+          const url = window.URL.createObjectURL(blob)
+          window.open(url, "_blank")
+        }),
+        {
+          pending:"...wait",
+          success: "Done",
+          error: "Oops try again!"
+        }
+      )
+    }
+  }
 
 
   return (
@@ -138,8 +158,9 @@ const PurchaseList = ()=> {
             <td>
               <Stack gap={2}>
                 <Button variant='outline-info btn-sm'>🖊</Button>
-                <Button variant='outline-success btn-sm'>🖨</Button>
-                <Button variant='outline-danger btn-sm'>❌</Button>
+                <Button variant='outline-success btn-sm' onClick={()=> handlePrintPurchase(purchase.purchaseNo, purchase.controlId, purchase.supplierId)}>
+                  🖨
+                </Button>
               </Stack>
             </td>
           </tr>

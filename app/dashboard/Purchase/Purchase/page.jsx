@@ -1,12 +1,7 @@
 'use client'
 
-
-
-
 ///THIS IS SUPPOSED TO BE DEPENDANT ON 
 // PURCHASE ORDER OR ENQUIRIES IN THE DATABASE DESIGN
-
-
 
 import Calender from '@/app/components/Calender'
 import DataTable from '@/app/components/DataTable'

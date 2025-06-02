@@ -40,7 +40,7 @@ const CategoryList=()=> {
               <td>'NO FILES AVAILABLE'</td>
               <td>
                 <Stack gap={2}>
-                  <Button className='btn-sm my-1'>edit</Button>
+                  <Button className='btn-sm my-1'>🖊</Button>
                   <Button className='btn-sm' variant='danger'>Del</Button>
                 </Stack>
               </td>
