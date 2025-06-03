@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
   ButtonGroup, Table, Button, Modal,InputGroup,  
   Stack} from 'react-bootstrap'
+import { toast } from 'react-toastify'
 
 const ItemsList =()=> {
 
@@ -13,6 +14,13 @@ const ItemsList =()=> {
   const [categories, setCategories] = useState([])
   const [units, setUnits] = useState([])
   const [show, setShow] = useState(false)
+  const [selectedItem, setSelectedItem] = useState({
+      name:'',
+      category:"",
+      purchasePrice: '',
+      unit:"",
+      salePrice: '',
+  })
 
   const [creatItem, setCreateItem] = useState({
         name:'',
@@ -22,21 +30,79 @@ const ItemsList =()=> {
         salePrice: '',
   })
 
-  const handleCreateItem = (e)=>{
-    e.preventDefault()
-    axios.post('/api/items', creatItem)
-      .then(res => {
-        setProducts([...products, res.data])
-        setCreateItem({
-          name: '',   
-          category: "",
-          purchasePrice: '',
-          unit: "",
-          salePrice: '',
-        })
-        setShow(false)
-      })
+  const handleCreateItem = (e) => {
+  e.preventDefault();
+
+  // Update existing item
+  if (selectedItem && selectedItem._id) {
+    toast.promise(
+      axios.put(`/api/items/${selectedItem._id}`, creatItem)
+        .then(res => {
+          setProducts(prevProducts =>
+            prevProducts.map(item => item._id === res.data._id ? res.data : item)
+          );
+          setCreateItem({
+            name: '',
+            category: '',
+            purchasePrice: '',
+            unit: '',
+            salePrice: ''
+          });
+          setShow(false);
+        }),
+      {
+        pending: "...Loading",
+        success: "Done",
+        error: "Oops! Try Again"
+      }
+    );
+  } else {
+    // Create new item
+    toast.promise(
+      axios.post('/api/items', creatItem)
+        .then(res => {
+          setProducts([...products, res.data]);
+          setCreateItem({
+            name: '',
+            category: '',
+            purchasePrice: '',
+            unit: '',
+            salePrice: ''
+          });
+          setShow(false);
+        }),
+      {
+        pending: "..Wait",
+        success: "Done",
+        error: "Oops! Try Again"
+      }
+    );
   }
+};
+
+const handleDeleteItem = (Item) => {
+  if (window.confirm('Delete Item?')) {
+    toast.promise(
+      axios.delete(`/api/items/${Item._id}`)
+        .then(res => {
+          setProducts(prevProducts => prevProducts.filter(item => item._id !== Item._id));
+        }),
+      {
+        pending: "..waiting",
+        success: 'Done!',
+        error: 'Oops! Try Again'
+      }
+    );
+  }
+};
+
+const handleEditItem = async (item) => {
+  setSelectedItem(item);
+  setCreateItem({ ...item });
+  setShow(true);
+};
+
+
   const getItems = async()=>{
     const [itemsRes, categoryRes, unitsRes] = await Promise.all([
       axios.get('/api/items'),
@@ -105,7 +171,9 @@ const ItemsList =()=> {
         </InputGroup>
         </Col>
         <Col>
-          <Button variant='danger' onClick={()=> setShow(true)}>ADD ITEM</Button>
+          <Button variant='danger' onClick={()=> setShow(true)}>
+            ADD ITEM
+          </Button>
         </Col>
       </Row>
       </Row>
@@ -147,8 +215,12 @@ const ItemsList =()=> {
               <td>{product.files || 'NO FIILES'}</td>
               <td>
                 <Stack direction='horizontal' gap={2}>
-                  <Button>Edit</Button>
-                  <Button variant='danger'>Del</Button>
+                  <Button onClick={()=> handleEditItem(product)}>
+                    Edit
+                  </Button>
+                  <Button variant='danger' onClick={()=> handleDeleteItem(product)}>
+                    Delete
+                  </Button>
                 </Stack>
               </td>
             </tr>
