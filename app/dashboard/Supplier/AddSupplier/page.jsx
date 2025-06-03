@@ -30,7 +30,15 @@ export default function AddSupplierPage() {
     {
       autoClose: 3000,
     })
-    setSupplier({})
+    setSupplier({
+      name:"",
+      mobile:"",
+      phone:"",
+      email:"",
+      region:"",
+      address:"",
+      trn:"",
+    })
   }
   return (
     <div>
@@ -93,7 +101,7 @@ export default function AddSupplierPage() {
         </Form.Group>
         <ButtonGroup className='mt-2 shadow-sm border'>
           <Button type='submit' variant='success'>SAVE</Button>
-          <Button type='submit' variant='danger' onClick={(e)=>{
+          <Button variant='danger' onClick={(e)=>{
             e.preventDefault()
             setSupplier({})
           }}>CANCEL</Button>

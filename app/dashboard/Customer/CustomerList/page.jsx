@@ -1,9 +1,10 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
-import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Card, Dropdown, Button, Table } from 'react-bootstrap'
+import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Modal, Button, Table } from 'react-bootstrap'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 import XlsExportButon from '@/app/components/XlsExportButon'
 
 
@@ -11,6 +12,92 @@ import XlsExportButon from '@/app/components/XlsExportButon'
 const CustomersPage =()=> {
 
   const [customers, setCustomers] = useState([])
+  const [openModal, setOpenModal] = useState(false)
+  const [customer, setCustomer] = useState({
+    _id:"",
+    name:"",
+    mobile:"",
+    phone:"",
+    email:"",
+    region:"",
+    address:"",
+    trn:""
+  })
+
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const updatePromise = axios.put(`/api/customers/${customer?._id}`, customer);
+
+    // Show toast while waiting for the promise
+    toast.promise(updatePromise, {
+      pending: '...wait',
+      success: 'Done',
+      error: 'Oops try again',
+    }, {
+      autoClose: 3000,
+    });
+
+    const response = await updatePromise; // ✅ Await the response
+    const updatedCustomer = response.data;
+
+    // ✅ Reset form and modal
+    setCustomer({
+      name: "",
+      mobile: "",
+      phone: "",
+      email: "",
+      region: "",
+      address: "",
+      trn: "",
+    });
+    setOpenModal(false);
+
+    // ✅ Update the suppliers list with the updated data
+    setCustomers((prevCustomers) =>
+      prevCustomers.map((s) => s._id === updatedCustomer._id ? updatedCustomer : s)
+    );
+
+  } catch (error) {
+    console.error('Update failed:', error);
+  }
+  };
+
+
+
+  const handleEditCustomer=(selectedCustomer)=>{
+    setCustomer({...selectedCustomer})
+    setOpenModal(true)
+  }
+
+  const handleDeleteCustomer = async (selectedCustomer) => {
+  if (window.confirm('Delete Supplier?')) {
+    const deletePromise = axios.delete(`/api/customers/${selectedCustomer?._id}`);
+
+    toast.promise(deletePromise, {
+      pending: "...wait",
+      success: "Done",
+      error: "Error deleting supplier",
+    }, {
+      autoClose: 3000, // use 3000ms (3s) for visibility
+    });
+
+    try {
+      await deletePromise;
+
+      // ✅ Only update state if deletion was successful
+      setCustomers(prevCustomers => 
+        prevCustomers.filter(customer => customer._id !== selectedCustomer._id)
+      );
+    } catch (error) {
+      console.error("Failed to delete supplier:", error);
+    }
+  }
+};
+
+
 
   useEffect(()=>{
     const getCustomers = async()=>{
@@ -117,11 +204,84 @@ const CustomersPage =()=> {
             <td>{customer.email}</td>
             <td>{customer.trn}</td>
             <td>{customer.pendingAmount || 0}</td>
-            <td></td>
+            <td>
+              <Button onClick={()=> handleEditCustomer(customer)}>Edit</Button>
+              <Button className='m-1' variant='outline-danger' onClick={()=> handleDeleteCustomer(customer)}>Delete</Button>
+            </td>
           </tr>
         ))}
       </tbody>
     </Table>
+    <Modal show={openModal} onHide={()=> setOpenModal(false)}>
+      <Modal.Header closeButton>
+        Edit Customer
+      </Modal.Header>
+          <Modal.Body>
+            <Form className='border p-2 rounded shadow-sm' onSubmit={handleSubmit}>
+                <Form.Group>
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control type='text'
+                    value={customer.name}
+                    onChange={(e)=> setCustomer(prevState=> ({...prevState, name: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Mobile</Form.Label>
+                  <Form.Control type='text'
+                    value={customer.mobile}
+                    onChange={(e)=> setCustomer(prevState => ({...prevState, mobile: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Phone</Form.Label>
+                  <Form.Control type='text'
+                    value={customer.phone}
+                    onChange={(e)=> setCustomer(prevState => ({...prevState, phone: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control type='text'
+                    value={customer.email}
+                    onChange={(e)=> setCustomer(prevState=> ({...prevState, email: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Emirate Region</Form.Label>
+                  <Form.Control type='text'
+                    value={customer.region}
+                    onChange={(e)=> setCustomer(prevState => ({...prevState, region: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Supplier Address</Form.Label>
+                  <Form.Control type='text'
+                    value={customer.address}
+                    placeholder='location/ address'
+                    onChange={(e)=> setCustomer(prevState => ({...prevState, address: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Customer TRN</Form.Label>
+                  <Form.Control type='text'
+                    maxLength={15}
+                    minLength={15}
+                    value={customer.trn}
+                    placeholder='Tax Registration Number'
+                    onChange={(e)=> setCustomer(prevState => ({...prevState, trn: e.target.value}))}
+                  />
+                </Form.Group>
+                <ButtonGroup className='mt-2 shadow-sm border'>
+                  <Button type='submit' variant='success'>SAVE</Button>
+                  <Button type='submit' variant='danger' onClick={(e)=>{
+                    e.preventDefault()
+                    setOpenModal(false)
+                    setCustomer({})
+                  }}>CANCEL</Button>
+            </ButtonGroup>
+          </Form>
+      </Modal.Body>
+    </Modal>
   </Container>
   )
 }

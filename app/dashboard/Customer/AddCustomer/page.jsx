@@ -15,7 +15,6 @@ export default function Page() {
     region:"",
     address:"",
     trn:""
-
   })
 
   const handleSubmit = async(e)=>{
@@ -32,7 +31,15 @@ export default function Page() {
       }
     )
 
-    setCustomer({})
+    setCustomer({
+      name:"",
+      mobile:"",
+      phone:"",
+      email:"",
+      region:"",
+      address:"",
+      trn:"",
+    })
     
   }
   return (
@@ -63,7 +70,7 @@ export default function Page() {
         </Form.Group>
         <Form.Group>
           <Form.Label>Email</Form.Label>
-          <Form.Control type='email'
+          <Form.Control type='text'
             value={customer.email}
             onChange={(e)=> setCustomer(prevState => ({...prevState, email: e.target.value}))}
           />

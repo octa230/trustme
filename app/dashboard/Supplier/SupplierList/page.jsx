@@ -1,14 +1,68 @@
 'use client'
 
 import Calender from '@/app/components/Calender'
-import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table } from 'react-bootstrap'
+import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, Modal } from 'react-bootstrap'
 import React, { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 import axios from 'axios'
 
 
 export default function SupplierListPage() {
 
-  const [suppliers, setSuppliers] = useState([])
+  const [openModal, setOpenModal] = useState(false)
+   const [suppliers, setSuppliers] = useState([])
+  const [supplier, setSupplier] = useState({
+    _id:"",
+    name:"",
+    mobile:"",
+    phone:"",
+    email:"",
+    region:"",
+    address:"",
+    trn:""
+  })
+
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const updatePromise = axios.put(`/api/supplier/${supplier?._id}`, supplier);
+
+    // Show toast while waiting for the promise
+    toast.promise(updatePromise, {
+      pending: '...wait',
+      success: 'Done',
+      error: 'Oops try again',
+    }, {
+      autoClose: 3000,
+    });
+
+    const response = await updatePromise; // ✅ Await the response
+    const updatedSupplier = response.data;
+
+    // ✅ Reset form and modal
+    setSupplier({
+      name: "",
+      mobile: "",
+      phone: "",
+      email: "",
+      region: "",
+      address: "",
+      trn: "",
+    });
+    setOpenModal(false);
+
+    // ✅ Update the suppliers list with the updated data
+    setSuppliers((prevSuppliers) =>
+      prevSuppliers.map((s) => s._id === updatedSupplier._id ? updatedSupplier : s)
+    );
+
+  } catch (error) {
+    console.error('Update failed:', error);
+  }
+  };
+
 
   useEffect(()=>{
     const getData=async()=>{
@@ -18,6 +72,35 @@ export default function SupplierListPage() {
     getData()
   },[])
 
+  const handleEditSupplier=(selectedSupplier)=>{
+    setSupplier({...selectedSupplier})
+    setOpenModal(true)
+  }
+
+  const handleDeleteSupplier = async (selectedSupplier) => {
+  if (window.confirm('Delete Supplier?')) {
+    const deletePromise = axios.delete(`/api/supplier/${selectedSupplier?._id}`);
+
+    toast.promise(deletePromise, {
+      pending: "...wait",
+      success: "Done",
+      error: "Error deleting supplier",
+    }, {
+      autoClose: 3000, // use 3000ms (3s) for visibility
+    });
+
+    try {
+      await deletePromise;
+
+      // ✅ Only update state if deletion was successful
+      setSuppliers(prevSuppliers => 
+        prevSuppliers.filter(supplier => supplier._id !== selectedSupplier._id)
+      );
+    } catch (error) {
+      console.error("Failed to delete supplier:", error);
+    }
+  }
+};
 
 
 
@@ -73,7 +156,11 @@ export default function SupplierListPage() {
         </Form.Group>
       </Col>
       <Col>
-        <Button variant='danger'>ADD SUPPLIER</Button>
+        <Button variant='danger' onClick={()=>{
+          window.location.href = '/dashboard/Supplier/AddSupplier'
+        }}>
+          ADD SUPPLIER
+        </Button>
         <Button variant='danger' className='mx-1'>ADD SUPPLIER ADVANCE</Button>
       </Col>
     </Row>
@@ -111,11 +198,90 @@ export default function SupplierListPage() {
             <td>{supplier.address}</td>
             <td>{supplier.trn}</td>
             <td>{supplier.pendingAmount || 0}</td>
-            <td></td>
+            <td>
+              <Button onClick={()=> handleEditSupplier(supplier)}>
+                Edit
+              </Button>
+              <Button className='m-1' onClick={()=> handleDeleteSupplier(supplier)}
+                variant='outline-danger'>
+                Delete
+              </Button>
+            </td>
           </tr>
         ))}
       </tbody>
     </Table>
+
+    <Modal show={openModal} onHide={()=> setOpenModal(false)}>
+      <Modal.Header closeButton>
+        Edit Supplier
+      </Modal.Header>
+      <Modal.Body>
+              <Form className='border p-2 rounded shadow-sm' onSubmit={handleSubmit}>
+                <Form.Group>
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control type='text'
+                    value={supplier.name}
+                    onChange={(e)=> setSupplier(prevState=> ({...prevState, name: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Mobile</Form.Label>
+                  <Form.Control type='text'
+                    value={supplier.mobile}
+                    onChange={(e)=> setSupplier(prevState => ({...prevState, mobile: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Phone</Form.Label>
+                  <Form.Control type='text'
+                    value={supplier.phone}
+                    onChange={(e)=> setSupplier(prevState => ({...prevState, phone: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control type='text'
+                    value={supplier.email}
+                    onChange={(e)=> setSupplier(prevState=> ({...prevState, email: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Emirate Region</Form.Label>
+                  <Form.Control type='text'
+                    value={supplier.region}
+                    onChange={(e)=> setSupplier(prevState => ({...prevState, region: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Supplier Address</Form.Label>
+                  <Form.Control type='text'
+                    value={supplier.address}
+                    placeholder='location/ address'
+                    onChange={(e)=> setSupplier(prevState => ({...prevState, address: e.target.value}))}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Supplier TRN</Form.Label>
+                  <Form.Control type='text'
+                    maxLength={15}
+                    minLength={15}
+                    value={supplier.trn}
+                    placeholder='Tax Registration Number'
+                    onChange={(e)=> setSupplier(prevState => ({...prevState, trn: e.target.value}))}
+                  />
+                </Form.Group>
+                <ButtonGroup className='mt-2 shadow-sm border'>
+                  <Button type='submit' variant='success'>SAVE</Button>
+                  <Button type='submit' variant='danger' onClick={(e)=>{
+                    e.preventDefault()
+                    setOpenModal(false)
+                    setSupplier({})
+                  }}>CANCEL</Button>
+              </ButtonGroup>
+            </Form>
+      </Modal.Body>
+    </Modal>
   </Container>
   )
 }
