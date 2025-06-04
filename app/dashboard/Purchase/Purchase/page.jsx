@@ -35,6 +35,8 @@ export default function PurchasePage() {
   const [file, setFile] = useState('')
   const [searchKey, setSearchKey] = useState('')
   const [suppliers, setSuppliers ] = useState([])
+  const [purchaseInvNo, setPurchaseInvNo] = useState('')
+  const [purchaseOrderNo, setPurchaseOrderNo] = useState('')
 
 
   const {state, dispatch: ctxDispatch} = useContext(useStore)
@@ -224,7 +226,7 @@ export default function PurchasePage() {
             <Accordion.Body>
                 <Form>
                   <Form.Group>
-                      <Form.Label>Supplier TRN</Form.Label>
+                    <Form.Label>Supplier TRN</Form.Label>
                         <Form.Control type='text' placeholder={supplier?.trn}/>
                       </Form.Group>
                       <Form.Group>
@@ -238,30 +240,32 @@ export default function PurchasePage() {
                         <Form.Control type='text' 
                           placeholder={userData?.username} disabled/>
                       </Form.Group>
-                      <Form.Group>
-                        <Form.Label>Purchase Order Number</Form.Label>
+                      <Form.Group className='my-1'>
                         <Form.Control type='text'
-                          value={purchase.purchaseNo}
-                          onChange={(e)=>{
-                            setPurchase((prevState)=> ({...prevState, purchaseNo: e.target.value}))
+                          placeholder='purchase Order Number'
+                          value={purchaseOrderNo}
+                          onChange={async(e)=>{
+                            const text = e.target.value;
+                            setPurchaseOrderNo(text)
+                            if(text){
+                              await localStorage.setItem('purchaseOrderNo', JSON.stringify(text))
+                            }
                           }}
                         />
                       </Form.Group> 
                       <Form.Group>
-                        <Form.Label>Invoice Number</Form.Label>
                         <Form.Control type='text'
-                          value={purchase.invoiceNo}
-                          onChange={(e)=>{
-                            setPurchase((prevState)=> ({...prevState, invoiceNo: e.target.value}))
+                          placeholder='purchase Invoice Number'
+                          value={purchaseInvNo}
+                          onChange={async(e)=>{
+                            const text = e.target.value
+                            setPurchaseInvNo(text)
+                            if(text){
+                              await localStorage.setItem('purchaseInvNo', JSON.stringify(text))
+                            }
                           }}
                         />
                       </Form.Group>
-                      {/* <Form.Group>
-                      <Form.Label>Purchase Number</Form.Label>
-                        <Form.Control type='text' 
-                          placeholder='101' value={purchase.purchaseNo}
-                          />
-                      </Form.Group> */}
                       <Form.Group>
                       <Form.Label>Upload file</Form.Label>
                         <Form.Control type='file' placeholder='supporting Documents'/>

@@ -14,6 +14,10 @@ const ItemsList =()=> {
   const [categories, setCategories] = useState([])
   const [units, setUnits] = useState([])
   const [show, setShow] = useState(false)
+  const [ItemId, setItemId] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [openStockModal, setOpenStockModal] = useState(false)
+  const [newStock, setNewStock] = useState(0)
   const [selectedItem, setSelectedItem] = useState({
       name:'',
       category:"",
@@ -29,6 +33,7 @@ const ItemsList =()=> {
         unit:"",
         salePrice: '',
   })
+
 
   const handleCreateItem = (e) => {
   e.preventDefault();
@@ -103,6 +108,38 @@ const handleEditItem = async (item) => {
 };
 
 
+const handleAddStock = async (e) => {
+  e.preventDefault()
+  try {
+    await toast.promise(
+      axios.patch(`/api/stock/patch/${ItemId}`, { newStock })
+        .then(res => {
+          setProducts(prevProducts =>
+            prevProducts.map(item =>
+              item._id === res.data._id ? res.data : item
+            )
+          );
+        }),
+      {
+        pending: "...Wait",
+        success: "Done",
+        error: "Something went wrong"
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setOpenStockModal(false);
+  }
+};
+
+
+
+const filteredProducts = products.filter(product => 
+  product.name.toLowerCase()
+  .includes(searchTerm.toLowerCase())
+)
+
   const getItems = async()=>{
     const [itemsRes, categoryRes, unitsRes] = await Promise.all([
       axios.get('/api/items'),
@@ -164,10 +201,10 @@ const handleEditItem = async (item) => {
         </Col>
         <Col className='col-md-8'>
         <InputGroup>
-          <Form.Control type='text' placeholder='search' aria-describedby='addon1'/>
-            <Button id='addon1' variant='outline-dark'>
-              🔍
-            </Button>
+          <Form.Control type='text' placeholder='search'
+            onChange={(e)=>setSearchTerm(e.target.value)}
+            aria-describedby='addon1'/>
+            <Button onClick={()=> setProducts()}>x</Button>
         </InputGroup>
         </Col>
         <Col>
@@ -198,7 +235,7 @@ const handleEditItem = async (item) => {
           </tr>
         </thead>
         <tbody>
-          {products.map((product, index)=> (
+          {filteredProducts.map ((product, index)=> (
             <tr key={product.code}>
               <td>{index +1}</td>
               <td>{product.code}</td>
@@ -213,13 +250,19 @@ const handleEditItem = async (item) => {
               <td>{product.model || 'NA'}</td>
               <td>{product.note || 'NA'}</td>
               <td>{product.files || 'NO FIILES'}</td>
-              <td>
+              <td className='d-flex align-self-send'>
                 <Stack direction='horizontal' gap={2}>
-                  <Button onClick={()=> handleEditItem(product)}>
+                  <Button className='btn-sm' onClick={()=> handleEditItem(product)}>
                     Edit
                   </Button>
-                  <Button variant='danger' onClick={()=> handleDeleteItem(product)}>
+                  <Button className='btn-sm' variant='danger' onClick={()=> handleDeleteItem(product)}>
                     Delete
+                  </Button>
+                  <Button className='btn-sm' variant='outline-primary' onClick={()=> {
+                    setItemId(product._id)
+                    setOpenStockModal(true)}
+                    }>
+                    Stock +
                   </Button>
                 </Stack>
               </td>
@@ -288,6 +331,33 @@ const handleEditItem = async (item) => {
               <Button variant='primary' type='submit' className='mx-3'>Save Item</Button>
           </Form>
         </Modal.Body>
+    </Modal>
+    
+
+
+    {/**STOCK MODAL */}
+    <Modal show={openStockModal} onHide={()=> setOpenStockModal(false)}>
+      <Modal.Header closeButton>
+        Add Stock
+      </Modal.Header>
+      <Modal.Body>
+        <Form onSubmit={handleAddStock}>
+          <Form.Control
+            type='number'
+            value={newStock}
+            placeholder='add stock number'
+            onChange={(e)=> setNewStock(e.target.value)}
+          />
+          <ButtonGroup className='my-1'>
+            <Button type='submit' variant='success'>Save</Button>
+            <Button variant='danger'
+            onClick={()=>{
+              setOpenStockModal(false)
+              setNewStock(0)
+            }}>cancel</Button>
+          </ButtonGroup>
+        </Form>
+      </Modal.Body>
     </Modal>
     </div>
   )}

@@ -461,12 +461,16 @@ export default function DataTable(props) {
 
         switch (type) {
           case 'purchase':
+            const purchaseOrderNo = localStorage.getItem('purchaseOrderNo')
+            const purchaseInvNo = localStorage.getItem('purchaseInvNo')
             preparedData = { 
               ...preparedData, 
               supplier: supplierData,
               employee: userData,
               paymentMethod,
               bankName,
+              purchaseOrderNo: JSON.parse(purchaseOrderNo),
+              purchaseInvNo: JSON.parse(purchaseInvNo)
             };
             break;
       
