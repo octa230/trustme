@@ -21,8 +21,8 @@ const Calender = ({value, onChange, title}) => {
         <InputGroup className='p-2'>
         <FormControl aria-describedby='addon1' placeholder={value ? value?.toLocaleDateString() : 'SELECT DATE'}/>
         <Button id='addon1' onClick={()=> setShow(true)} >
-                {title}
-            </Button>
+            {title}
+          </Button>
         </InputGroup>
       <Modal show={show} onHide={()=> setShow(false)} className='d-flex justify-content-center p-2'>
         <Modal.Header closeButton className='text-danger'>

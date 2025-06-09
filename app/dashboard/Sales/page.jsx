@@ -1,6 +1,5 @@
 'use client'
-
-import Calender from '@/app/components/Calender'
+import Calendar from 'react-calendar'
 import DataTable from '@/app/components/DataTable'
 import { useStore } from '@/app/Store'
 import axios from 'axios'
@@ -27,6 +26,7 @@ export default function SalesPage() {
 
   const [deliveryNoteNumber, setDeliveryNoteNumber] = useState('')
   const [purchaseOrderNumber, setPurchaseOrderNumber] = useState('')
+  const [invDate, setInvDate] = useState(new Date())
 
   const [searchKey, setSearchKey] = useState('')
   const [customers, setCustomers] = useState([])
@@ -57,6 +57,11 @@ export default function SalesPage() {
 
   }
 
+  const handleDateChange = (e) => {
+    const dateStr = e.target.value; // 'YYYY-MM-DD'
+    setInvDate(dateStr);
+    localStorage.setItem('invDate', JSON.stringify(dateStr));
+  };
 
   //SEARCH CUSTOMER
 
@@ -237,9 +242,9 @@ export default function SalesPage() {
                           }}
                         />
                       </Form.Group>
-                      <Form.Group>
-                        <Calender title='Invoice Date'/>
-                      </Form.Group>
+                        <div className='border p-3 my-2 rounded'>
+                          <Form.Control type='date' onChange={handleDateChange} value={invDate}/>
+                        </div>
                       <Form.Group>
                         <Form.Label>Logged In User</Form.Label>
                         <Form.Control type='text' placeholder='example-user' disabled/>

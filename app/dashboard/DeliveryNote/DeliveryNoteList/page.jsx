@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
   ButtonGroup, Table, Button, InputGroup, 
   Stack} from 'react-bootstrap'
+import { toast } from 'react-toastify'
 
 const QuotationList =  () => {
 
@@ -17,6 +18,46 @@ const QuotationList =  () => {
     setNotes(data)
   } 
 
+  const handlePrint = async(noteNo, controlId, customerId)=>{
+    window.confirm(`Print Delivery Note: ${noteNo}?`)
+    try{
+      toast.promise(
+        axios.post(`/api/print/delivery-note/${noteNo}/${controlId}/${customerId}`,
+          {},
+          {responseType: "blob"}
+        )
+        .then(res => {
+          const blob = new Blob([res.data], {type: 'application/pdf'})
+          const url = window.URL.createObjectURL(blob)
+          window.open(url, "_blank")
+        }),
+        {
+          pending:"..wait",
+          success:"Done",
+          error:"Oops! Try Again"
+        }
+      )
+    }catch(error){
+      console.log(error)
+    }
+  }
+
+  const handleDeleteNote =async(noteId)=>{
+    if(!window.confirm(`Delete Delivery Note?`)) return
+    try{
+      toast.promise(
+        axios.delete(`/api/deliveryNote/${noteId}`),
+        {
+          pending: "..wait",
+          success:"deleted",
+          error:"Oops! Try Again"
+        }
+      )
+      setNotes(prevNotes => prevNotes.filter(note => note._id !== noteId));
+    }catch(error){
+      console.log(error)
+    }
+  }
 
   useEffect(()=>{
     getData()
@@ -44,7 +85,9 @@ const QuotationList =  () => {
         <Button size='md' variant='outline-danger'>RESET</Button>
         <Button size='md' variant='outline-warning'>SEARCH</Button>
         <XlsExportButton data={notes}/>
-        <Button size='md'>PRINT</Button>
+        <Button size='md'>
+          PRINT
+        </Button>
         </ButtonGroup>
         </Col>
         </Col>
@@ -108,8 +151,12 @@ const QuotationList =  () => {
               <td>
                 <Stack gap={2}>
                     <Button variant='outline-info btn-sm'>🖊</Button>
-                    <Button variant='outline-success btn-sm'>🖨</Button>
-                    <Button variant='outline-danger btn-sm'>❌</Button>
+                    <Button variant='outline-success btn-sm'  onClick={()=>handlePrint(note.noteNo, note.controlId, note.customerId)}>
+                      🖨
+                    </Button>
+                    <Button variant='outline-danger btn-sm' onClick={()=> handleDeleteNote(note._id)}>
+                      ❌
+                    </Button>
                   </Stack>
               </td>
             </tr>

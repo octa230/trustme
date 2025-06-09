@@ -476,13 +476,16 @@ export default function DataTable(props) {
       
           case 'sales':
             const dataNo = localStorage.getItem('deliveryNote') 
-            const purchaseNo = localStorage.getItem('purchaseOrder') 
+            const purchaseNo = localStorage.getItem('purchaseOrder')
+            const savedDate = localStorage.getItem('invDate')
+
             preparedData = { 
               ...preparedData, 
               customer: customerData,
               employee: userData,
               paymentMethod,
               bankName,
+              date: JSON.parse(savedDate),
               deliveryNote: JSON.parse(dataNo),
               purchaseOrderNumber: JSON.parse(purchaseNo)
             };
@@ -518,7 +521,8 @@ export default function DataTable(props) {
               ...preparedData, 
               companyInfo: companyData,
               paymentMethod,
-              bankName
+              bankName,
+              date: JSON.parse(savedDate)
             };
             break;
       
