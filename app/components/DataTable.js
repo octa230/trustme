@@ -545,6 +545,14 @@ export default function DataTable(props) {
             const blob = new Blob([response.data], { type: "application/pdf" });
             const url = window.URL.createObjectURL(blob);
             window.open(url, "_blank");
+
+            
+            localStorage.removeItem('invDate')
+            localStorage.removeItem('deliveryNote') 
+            localStorage.removeItem('purchaseOrder')
+            localStorage.removeItem('invDate')
+            localStorage.removeItem('purchaseOrderNo')
+            localStorage.removeItem('purchaseInvNo')
           } catch (error) {
             console.error("Error rendering PDF", error);
           }
