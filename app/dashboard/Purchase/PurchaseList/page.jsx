@@ -6,22 +6,30 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import {Container, Stack, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup, Badge } from 'react-bootstrap'
 import { toast } from 'react-toastify'
+import { round2 } from '../../utils'
 
 const PurchaseList = ()=> {
 
 
   const [purchases, setPurchases] = useState([])
+  const [limit, setLimit] = useState(null)
+  const [date, setDate] = useState({
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
+  })
   
+  //const startDateStr = date.startDate? // YYYY-MM-DD format
+  //const endDateStr = date.endDate?
   
   
   useEffect(()=>{
     const getData = async()=>{
-      const {data} = await axios.get(`/api/purchase`)
+      const {data} = await axios.get(`/api/purchase?startDate=${date.startDate}&endDate=${date.endDate}&limit=${limit}`)
       setPurchases(data)
     }
 
     getData()
-  }, [])
+  }, [date.startDate, date.endDate, limit])
 
   const handlePrintPurchase=async(purchaseNo, controlId, supplierId)=>{
     if(window.confirm(`print purchase ${purchaseNo}?`)){
@@ -50,10 +58,16 @@ const PurchaseList = ()=> {
     <Row className='bg-light p-3 border'>
     <ButtonToolbar className='mb-2'>
       <Col className='col-md-2'>
-      <Calender title='FromDate'/>
+        <Form.Control type='date' 
+          value={date.startDate}
+          onChange={(e)=> setDate(prevDate => ({...prevDate, startDate: e.target.value}))}
+        />
       </Col>
       <Col className='mx-1 col-md-2'>
-      <Calender title='EndDate'/>
+        <Form.Control type='date' 
+          value={date.endDate}
+          onChange={(e)=> setDate(prevDate => ({...prevDate, endDate: e.target.value}))}
+        />
       </Col>
       <Col className='m-1 col-xs-12'>
       <Form.Control type='text' placeholder='Purchase Nō'/>
@@ -86,10 +100,10 @@ const PurchaseList = ()=> {
     <Row>
       <Col className='col-md-2'>
         <Form.Group>
-          <Form.Select>
+          <Form.Select onChange={(e)=> setLimit(e.target.value)}>
             <option>--entries--</option>
-            {[100, 150, 200, 250].map((x, index)=>(
-              <option key={index}>{x}</option>
+            {[5, 10, 100, 150, 200, 250, 500].map((x, index)=>(
+              <option key={index} value={x}>{x}</option>
             ))}
       </Form.Select>
       </Form.Group>
@@ -114,7 +128,7 @@ const PurchaseList = ()=> {
           <th>#</th>
           <th>CtrID</th>
           <th>Puchase No</th>
-          <th>InvoiceDate</th>
+          <th>Date</th>
           <th>SUPPLIER</th>
           <th>TOTAL EXCL.VAT</th>
           <th>VAT AMOUNT</th>
@@ -169,15 +183,16 @@ const PurchaseList = ()=> {
       <tfoot>
           <tr>
             <th colSpan={5}>Totals</th>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
-            <td>0.00</td>
+            <td>{round2(purchases.reduce((acc, purchase)=> acc + purchase.totalWithoutVat, 0))}</td>
+            <td>{round2(purchases.reduce((acc, purchase)=> acc + purchase.vatAmount, 0))}</td>
+            <td>{round2(purchases.reduce((acc, purchase) => acc + purchase.totalWithVat, 0))}</td>
+            <td>{round2(purchases.reduce((acc, purchase)=> acc + purchase.discountAmount, 0))}</td>
+            <td>{round2(purchases.reduce((acc, purchase)=> acc + purchase.totalAfterDiscount, 0))}</td>
+            <td>{round2(purchases.reduce((acc, purchase)=> acc + purchase.cashAmount, 0))}</td>
+            <td>{round2(purchases.reduce((acc, purchase)=> acc + purchase.cardAmount, 0))}</td>
+            <td>{round2(purchases.reduce((acc, purchase)=> acc + purchase.bankAmount, 0))}</td>
+            <td>{round2(purchases.reduce((acc, purchase)=> acc + purchase.paidAmount, 0))}</td>
+            <td>{round2(purchases.reduce((acc, purchase)=> acc + purchase.pendingAmount, 0))}</td>
           </tr>
       </tfoot>
     </Table>

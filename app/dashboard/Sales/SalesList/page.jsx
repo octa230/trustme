@@ -1,9 +1,7 @@
 'use client'
 
-import Calender from '@/app/components/Calender'
 import { round2 } from '../../utils'
 import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, InputGroup, Stack, Badge } from 'react-bootstrap'
-import Calendar from 'react-calendar'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -12,16 +10,21 @@ import { toast } from 'react-toastify'
 export default function SaleListPage() {
 
   const [sales, setSales] = useState([])
+  const [limit, setLimit] = useState(null)
+  const [date, setDate]= useState({
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
+  })
 
   useEffect(()=>{
     const getSales = async()=>{
-      const {data } = await axios.get('/api/sales')
+      const {data} = await axios.get(`/api/sales?startDate=${date.startDate}&endDate=${date.endDate}&limit=${limit}`)
       //console.log(data)
-      setSales(data.data)
+      setSales(data)
     }
 
     getSales()
-  }, [])
+  }, [date.startDate, date.endDate, limit])
 
   const handlePrintSale = async (invoiceNo, controlId, customerId) => {
   if (window.confirm(`Print Invoice ${invoiceNo}`)) {
@@ -52,10 +55,16 @@ export default function SaleListPage() {
     <Row className='bg-light p-3 border'>
     <ButtonToolbar className='mb-2'>
       <Col className='col-md-2'>
-      <Calender title='FromDate'/>
+        <Form.Control type='date' 
+          value={date.startDate}
+          onChange={(e)=> setDate(prevDate => ({...prevDate, startDate: e.target.value}))}
+        />
       </Col>
       <Col className='mx-1 col-md-2'>
-      <Calender title='EndDate'/>
+        <Form.Control type='date' 
+          value={date.endDate}
+          onChange={(e)=> setDate(prevDate => ({...prevDate, endDate: e.target.value}))}
+        />
       </Col>
       <Col className='m-1 col-xs-12'>
       <Form.Control type='text' placeholder='customer Mobile'/>
@@ -77,10 +86,10 @@ export default function SaleListPage() {
     <Row>
       <Col className='col-md-2'>
         <Form.Group>
-          <Form.Select>
+          <Form.Select onChange={(e)=> setLimit(e.target.value)}>
             <option>--entries--</option>
-            {[100, 150, 200, 250].map((x, index)=>(
-              <option key={index}>{x}</option>
+            {[5, 10, 100, 150, 200, 250, 500].map((x, index)=>(
+              <option key={index} value={x}>{x}</option>
             ))}
       </Form.Select>
       </Form.Group>
