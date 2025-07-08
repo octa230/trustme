@@ -1,10 +1,8 @@
 'use client'
-import Calendar from 'react-calendar'
 import DataTable from '@/app/components/DataTable'
-import { useStore } from '@/app/Store'
 import axios from 'axios'
 import debounce from 'lodash.debounce'
-import React,{useCallback, useContext, useEffect, useState} from 'react'
+import React,{useCallback, useEffect, useState} from 'react'
 import { useRef } from 'react'
 import { InputGroup, Form, Row, Card, Button, Accordion, ListGroup } from 'react-bootstrap'
 import { toast } from 'react-toastify'
@@ -31,9 +29,6 @@ export default function SalesPage() {
   const [searchKey, setSearchKey] = useState('')
   const [customers, setCustomers] = useState([])
 
-
-  const {state, dispatch: ctxDispatch} = useContext(useStore)
-  const {customerData, userData} = state
 
 
   const dropDownRef = useRef(null)

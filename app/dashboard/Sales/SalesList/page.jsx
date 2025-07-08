@@ -77,7 +77,7 @@ export default function SaleListPage() {
     setShowModal(true);
   };
 
-  const debounceSearch = useRef(
+  const debouncedSearch = useRef(
     debounce((query) => {
       getSales(query);
     }, 500 ),
@@ -92,7 +92,7 @@ export default function SaleListPage() {
 
   useEffect(() => {
     return () => {
-      debouncedGetSales.cancel();
+      debouncedSearch.cancel();
     };
   }, []);
 
