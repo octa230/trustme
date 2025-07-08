@@ -18,7 +18,6 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Select from "react-select";
 import debounce from "lodash.debounce";
 
 export default function SaleListPage() {
