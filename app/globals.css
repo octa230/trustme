@@ -1,54 +1,202 @@
 @import "~bootstrap/dist/css/bootstrap.min.css";
 
-
-
-
-/* :root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.company-info {
+  flex: 1;
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+.company-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 3px;
+  text-transform: capitalize;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.company-details {
+  color: var(--secondary-color);
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+.logo-container {
+  width: 100px;
+  text-align: right;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.logo {
+  max-width: 100%;
+  height: auto;
 }
 
-.btn {
-  margin: 1rem
+/* Document Title */
+.document-title {
+  text-align: center;
+  margin: 10px 0;
 }
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+
+.document-title h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary-color);
 }
- */
-.table-footer-group tr td, th{
-  border: 2px solid tomato
+
+.document-title .trn {
+  color: var(--secondary-color);
+}
+
+/* Client and Invoice Info */
+.info-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+
+.client-info,
+.invoice-info {
+  flex: 1;
+  padding: 8px;
+  background-color: #f9f9f9;
+}
+
+.client-info {
+  margin-right: 10px;
+}
+
+.client-info strong {
+  text-transform: capitalize;
+}
+
+.section-title {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 5px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Table Styles */
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+
+.invoice-table thead th {
+  background-color: #191970;
+  color: white;
+  padding: 5px;
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid black
+}
+
+.invoice-table tbody td {
+  padding: 5px;
+  border: 1px solid black;
+}
+
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
+.text-center {
+  text-align: center;
+}
+
+.item-description {
+  font-size: 11px;
+  color: black;
+}
+
+/* Totals Section */
+.totals-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.totals-table {
+  width: 250px;
+  border-collapse: collapse;
+  font-size: 11px;
+  align: right
+}
+
+.totals-table td {
+  padding: 3px 5px;
+  border: 1px solid black
+}
+
+.totals-table tr:last-child td {
+  font-weight: 600;
+  border-top: 1px solid black;
+}
+
+.amount-in-words {
+  padding: 5px;
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  //justify-content: space-between;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+  font-size: 10px;
+}
+
+.terms {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+}
+
+.signature {
+  width: 150px;
+  text-align: center;
+}
+
+.footer-title {
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: var(--primary-color);
+}
+
+.footer-verification {
+  padding-top: 22px;
+}
+
+.item-description {
+  font-size: 11px;
+  color: var(--secondary-color);
+}
+.signature-line {
+  margin-top: 20px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 5px;
+}
+.verification-text {
+  text-transform: uppercase;
+}
+.footnote {
+  position: absolute;
+  bottom: 0;
+  padding: 12px;
+  text-align: center;
+  font-family: "Courier New", Courier, monospace;
+  font-size: x-small;
 }

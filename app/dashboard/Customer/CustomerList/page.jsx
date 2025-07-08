@@ -6,6 +6,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import XlsExportButon from '@/app/components/XlsExportButon'
+import { round2 } from '../../utils'
 
 
 
@@ -203,7 +204,7 @@ const CustomersPage =()=> {
             <td>{customer.phone}</td>
             <td>{customer.email}</td>
             <td>{customer.trn}</td>
-            <td>{customer.pendingAmount || 0}</td>
+            <td>{round2(customer.pendingAmount || 0)}</td>
             <td>
               <Button onClick={()=> handleEditCustomer(customer)}>Edit</Button>
               <Button className='m-1' variant='outline-danger' onClick={()=> handleDeleteCustomer(customer)}>Delete</Button>

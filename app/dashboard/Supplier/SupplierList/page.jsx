@@ -5,6 +5,7 @@ import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Button, Table, Mo
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import axios from 'axios'
+import { round2 } from '../../utils'
 
 
 export default function SupplierListPage() {
@@ -197,7 +198,7 @@ export default function SupplierListPage() {
             <td>{supplier.email}</td>
             <td>{supplier.address}</td>
             <td>{supplier.trn}</td>
-            <td>{supplier.pendingAmount || 0}</td>
+            <td>{round2(supplier.pendingAmount || 0)}</td>
             <td>
               <Button onClick={()=> handleEditSupplier(supplier)}>
                 Edit

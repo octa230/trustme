@@ -4,8 +4,8 @@ import Calender from '@/app/components/Calender'
 import XlsExportButton from '@/app/components/XlsExportButon'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import {Container, ButtonToolbar, Col, Row, Form, 
-  ButtonGroup, Table, Button } from 'react-bootstrap'
+import {Container, ButtonToolbar, Col, Row, Form, ButtonGroup, Table, Button } from 'react-bootstrap'
+import { round2 } from '../../utils'
   
 
 const SupplierLedger= ()=> {
@@ -85,9 +85,9 @@ const SupplierLedger= ()=> {
               <td>{new Date(ledger.date).toDateString()}</td>
               <td>{ledger.particulars}</td>
               <td>{ledger.docVoucherType}</td>
-              <td>{ledger.debit}</td>
-              <td>{ledger.credit}</td>
-              <td>{ledger.balance}</td>
+              <td>{round2(ledger.debit)}</td>
+              <td>{round2(ledger.credit)}</td>
+              <td>{round2(ledger.balance)}</td>
             </tr>
           ))
         ))}
@@ -96,9 +96,9 @@ const SupplierLedger= ()=> {
       {ledgerData.map((entry, index) => (
           <tr key={`total-${index}`} className='border text-danger'>
             <th colSpan={4}>Totals</th>
-            <td className='text-danger'>{entry.totalDebit}</td>
-            <td className='text-danger'>{entry.totalCredit}</td>
-            <td className='text-danger'>{entry.balance}</td>
+            <td className='text-danger'>{round2(entry.totalDebit)}</td>
+            <td className='text-danger'>{round2(entry.totalCredit)}</td>
+            <td className='text-danger'>{round2(entry.balance)}</td>
           </tr>
         ))}
           <tr>
