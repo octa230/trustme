@@ -1,8 +1,9 @@
 'use client'
 import DataTable from '@/app/components/DataTable'
+import { useStore } from '@/app/Store'
 import axios from 'axios'
 import debounce from 'lodash.debounce'
-import React,{useCallback, useEffect, useState} from 'react'
+import React,{useCallback, useContext, useEffect, useState} from 'react'
 import { useRef } from 'react'
 import { InputGroup, Form, Row, Card, Button, Accordion, ListGroup } from 'react-bootstrap'
 import { toast } from 'react-toastify'
@@ -10,6 +11,7 @@ import { toast } from 'react-toastify'
 
 export default function SalesPage() {
 
+  const {state, dispatch: ctxDispatch} = useContext(useStore)
   const [customer, setCustomer] = useState({
     name:"",
     mobile:"",
