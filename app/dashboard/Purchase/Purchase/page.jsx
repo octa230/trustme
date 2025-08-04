@@ -37,6 +37,8 @@ export default function PurchasePage() {
   const [suppliers, setSuppliers ] = useState([])
   const [purchaseInvNo, setPurchaseInvNo] = useState('')
   const [purchaseOrderNo, setPurchaseOrderNo] = useState('')
+  const [invDate, setInvDate] = useState(new Date())
+  
 
 
   const {state, dispatch: ctxDispatch} = useContext(useStore)
@@ -86,6 +88,12 @@ export default function PurchasePage() {
   const debounceSearch = useCallback(debounce((searchKey)=>{
     searchSupplier(searchKey)
   }, 500), [])
+
+  const handleDateChange=(e)=>{
+    const dateStr = e.target.value;
+    setInvDate(dateStr)
+    localStorage.setItem('purchaseInvDate', JSON.stringify(dateStr))
+  }
 
   useEffect(()=>{
     if(searchKey){
@@ -224,22 +232,16 @@ export default function PurchasePage() {
               Purchase Details
             </Accordion.Header>
             <Accordion.Body>
-                <Form>
+                <Form className='gap-5'>
                   <Form.Group>
-                    <Form.Label>Supplier TRN</Form.Label>
-                        <Form.Control type='text' placeholder={supplier?.trn}/>
+                        <Form.Control type='text' placeholder={supplier?.trn || 'supplier-trn'}/>
                       </Form.Group>
-                      <Form.Group>
-                        <Calender title='PO Date'/>
+
+                      <Form.Group className='py-3'>
+                        <Form.Label>Purchase Date</Form.Label>
+                        <Form.Control type='date' onChange={handleDateChange} value={invDate}/>
                       </Form.Group>
-                      <Form.Group>
-                        <Calender title='Invoice Date'/>
-                      </Form.Group>
-                      <Form.Group>
-                        <Form.Label>Logged In User</Form.Label>
-                        <Form.Control type='text' 
-                          placeholder={userData?.username} disabled/>
-                      </Form.Group>
+                      
                       <Form.Group className='my-1'>
                         <Form.Control type='text'
                           placeholder='purchase Order Number'
@@ -253,7 +255,7 @@ export default function PurchasePage() {
                           }}
                         />
                       </Form.Group> 
-                      <Form.Group>
+                      <Form.Group className='my-3'>
                         <Form.Control type='text'
                           placeholder='purchase Invoice Number'
                           value={purchaseInvNo}
@@ -266,19 +268,11 @@ export default function PurchasePage() {
                           }}
                         />
                       </Form.Group>
-                      <Form.Group>
-                      <Form.Label>Upload file</Form.Label>
-                        <Form.Control type='file' placeholder='supporting Documents'/>
+                        <Form.Group>
+                        <Form.Label>Logged In User</Form.Label>
+                        <Form.Control type='text' 
+                          placeholder={userData?.username} disabled/>
                       </Form.Group>
-{/* 
-                      <Form.Group>
-                        <Form.Label>Description</Form.Label>
-                        <Form.Control as='textarea' rows={5}
-                          value={}
-                          placeholder='Write something here'
-                        />
-                      </Form.Group> */}
-                    <Button type='submit' className='mt-3'>SAVE</Button>
                   </Form>
             </Accordion.Body>
           </Accordion.Item>

@@ -253,7 +253,6 @@ export default function SalesPage() {
                           placeholder='Write something here'
                         />
                       </Form.Group>
-                    <Button type='submit' className='mt-3'>SAVE</Button>
                   </Form>
             </Accordion.Body>
           </Accordion.Item>
