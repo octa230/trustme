@@ -28,7 +28,7 @@ import debounce from "lodash.debounce";
 
 export default function SaleListPage() {
   const [sales, setSales] = useState([]);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSale, setSelectedSale] = useState({});
   const [selectedCustomer, setSelectedCustomer] = useState({});
@@ -242,7 +242,7 @@ export default function SaleListPage() {
                 <td>{sale?.pendingAmount}</td>
                 <td>{sale?.status}</td>
                 <td>
-                  <Stack gap={2}>
+                  <Stack gap={2} direction="horizontal">
                     <Button
                       onClick={() =>
                         handlePreview(
