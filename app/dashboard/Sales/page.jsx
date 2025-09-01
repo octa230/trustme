@@ -3,7 +3,7 @@ import DataTable from '@/app/components/DataTable'
 import { useStore } from '@/app/Store'
 import axios from 'axios'
 import debounce from 'lodash.debounce'
-import React,{useCallback, useContext, useEffect, useMemo, useState} from 'react'
+import React,{useCallback, useContext, useEffect, useState} from 'react'
 import { useRef } from 'react'
 import { InputGroup, Form, Row, Card, Button, Accordion, ListGroup } from 'react-bootstrap'
 import { toast } from 'react-toastify'
@@ -28,7 +28,7 @@ export default function SalesPage() {
   const [purchaseOrderNumber, setPurchaseOrderNumber] = useState('')
   const [invDate, setInvDate] = useState(new Date())
 
-  const [searchKey, setSearchKey] = useState(null)
+  const [searchKey, setSearchKey] = useState('')
   const [customers, setCustomers] = useState([])
 
 
@@ -73,9 +73,9 @@ export default function SalesPage() {
     }
   }
 
-  const debounceSearch = useMemo(debounce((key)=>{
-    searchCustomer(key);
-  }, 500), [searchCustomer])
+  const debounceSearch = useCallback(debounce((searchKey)=>{
+    searchCustomer(searchKey);
+  }, 500), [])
 
 
   useEffect(()=>{

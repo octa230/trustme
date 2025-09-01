@@ -15,8 +15,14 @@ import {
   Badge,
   Modal,
 } from "react-bootstrap";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import axios from "axios";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import axios, { get } from "axios";
 import { toast } from "react-toastify";
 import debounce from "lodash.debounce";
 
@@ -34,16 +40,15 @@ export default function SaleListPage() {
     endDate: new Date().toISOString().split("T")[0],
   });
 
-  const getSales = useCallback (async (query) => {
-    const { data } = await axios.get(
-      `/api/sales?startDate=${date.startDate}&endDate=${date.endDate}&limit=${limit}&searchQuery=${searchQuery}`
-    );
-    setSales(data);
-  });
-
-  useEffect(() => {
-    getSales();
-  }, [date.startDate, date.endDate, limit, searchQuery]);
+  const getSales = useCallback(
+    async (query) => {
+      const { data } = await axios.get(
+        `/api/sales?startDate=${date.startDate}&endDate=${date.endDate}&limit=${limit}&searchQuery=${query}`
+      );
+      setSales(data);
+    },
+    [date.startDate, date.endDate, limit]
+  );
 
   const handlePrintSale = async (invoiceNo, controlId, customerId) => {
     if (window.confirm(`Print Invoice ${invoiceNo}`)) {
@@ -77,35 +82,42 @@ export default function SaleListPage() {
     setShowModal(true);
   };
 
-  const debouncedSearch = useMemo(
-    debounce((query) => {
-      getSales(query);
-    }, 500),
-    []
-  )
-
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    debouncedSearch(value);
   };
 
+  // Handle search with debouncing
   useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, []);
+    if (!searchQuery) {
+      getSales(""); // Immediate call for empty search
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      getSales(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, getSales]);
+
+  // Handle filter changes (immediate call)
+  useEffect(() => {
+    getSales(searchQuery);
+  }, [date.startDate, date.endDate, limit, getSales, searchQuery]);
 
   const cancelInvoice = async (invoiceNo, controlId, customerId, status) => {
-    const newStatus = status === "Cancelled" ? "pending" : "Cancelled"
-    if(window.confirm(`Change invoice ${invoiceNo} status?`) ){
+    const newStatus = status === "Cancelled" ? "pending" : "Cancelled";
+    if (window.confirm(`Change invoice ${invoiceNo} status?`)) {
       const { data } = await axios.patch(
-      `/api/sales/status/${invoiceNo}/${controlId}/${customerId}`,
-      {status: newStatus}
-    );
-    setSales((prev)=> prev.map(sale => sale._id === data._id ? data : sale))
+        `/api/sales/status/${invoiceNo}/${controlId}/${customerId}`,
+        { status: newStatus }
+      );
+      setSales((prev) =>
+        prev.map((sale) => (sale._id === data._id ? data : sale))
+      );
+    }
   };
-  }
 
   return (
     <Container fluid>
@@ -148,13 +160,13 @@ export default function SaleListPage() {
           />
         </Col>
         <Col className="col-md-3">
-            <Form.Control
-              type="text"
-              placeholder="customer, invoiceNo, controlNo "
-              aria-describedby="addon1"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
+          <Form.Control
+            type="text"
+            placeholder="customer, invoiceNo, controlNo "
+            aria-describedby="addon1"
+            value={searchQuery}
+            onChange={handleSearch}
+          />
         </Col>
         <Col className="col-xs-12">
           <ButtonGroup>
@@ -208,7 +220,12 @@ export default function SaleListPage() {
         <tbody>
           {sales &&
             sales?.map((sale, index) => (
-              <tr key={sale.controlId} className={sale.status === 'Cancelled' ? "table-danger" : undefined}>
+              <tr
+                key={sale.controlId}
+                className={
+                  sale.status === "Cancelled" ? "table-danger" : undefined
+                }
+              >
                 <td>{index}</td>
                 <td>{sale.controlId}</td>
                 <td>
@@ -252,12 +269,14 @@ export default function SaleListPage() {
                     </Button>
                     <Button
                       variant="outline-danger btn-sm"
-                      onClick={() => cancelInvoice(
-                        sale.invoiceNo,
-                        sale.controlId,
-                        sale.customerId,
-                        sale.status
-                      )}
+                      onClick={() =>
+                        cancelInvoice(
+                          sale.invoiceNo,
+                          sale.controlId,
+                          sale.customerId,
+                          sale.status
+                        )
+                      }
                     >
                       ❌
                     </Button>
