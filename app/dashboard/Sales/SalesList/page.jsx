@@ -15,7 +15,7 @@ import {
   Badge,
   Modal,
 } from "react-bootstrap";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import debounce from "lodash.debounce";
@@ -34,13 +34,13 @@ export default function SaleListPage() {
     endDate: new Date().toISOString().split("T")[0],
   });
 
-  const getSales = async (query) => {
+  const getSales = useCallback (async (query) => {
     const { data } = await axios.get(
       `/api/sales?startDate=${date.startDate}&endDate=${date.endDate}&limit=${limit}&searchQuery=${searchQuery}`
     );
     setSales(data);
-  };
-  
+  });
+
   useEffect(() => {
     getSales();
   }, [date.startDate, date.endDate, limit, searchQuery]);
@@ -77,18 +77,18 @@ export default function SaleListPage() {
     setShowModal(true);
   };
 
-  const debouncedSearch = useRef(
+  const debouncedSearch = useMemo(
     debounce((query) => {
       getSales(query);
-    }, 500 ),
+    }, 500),
     []
-  ).current;
+  )
 
-  const handleSearch=(e)=>{
-    const value = e.target.value
-    setSearchQuery(value)
-    debounceSearch(value)
-  }
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    debouncedSearch(value);
+  };
 
   useEffect(() => {
     return () => {
@@ -96,8 +96,16 @@ export default function SaleListPage() {
     };
   }, []);
 
-
-
+  const cancelInvoice = async (invoiceNo, controlId, customerId, status) => {
+    const newStatus = status === "Cancelled" ? "pending" : "Cancelled"
+    if(window.confirm(`Change invoice ${invoiceNo} status?`) ){
+      const { data } = await axios.patch(
+      `/api/sales/status/${invoiceNo}/${controlId}/${customerId}`,
+      {status: newStatus}
+    );
+    setSales((prev)=> prev.map(sale => sale._id === data._id ? data : sale))
+  };
+  }
 
   return (
     <Container fluid>
@@ -140,7 +148,6 @@ export default function SaleListPage() {
           />
         </Col>
         <Col className="col-md-3">
-          <InputGroup>
             <Form.Control
               type="text"
               placeholder="customer, invoiceNo, controlNo "
@@ -148,10 +155,6 @@ export default function SaleListPage() {
               value={searchQuery}
               onChange={handleSearch}
             />
-            <Button id="addon1" variant="outline-dark">
-              x
-            </Button>
-          </InputGroup>
         </Col>
         <Col className="col-xs-12">
           <ButtonGroup>
@@ -199,14 +202,13 @@ export default function SaleListPage() {
             <th>Paid Amt</th>
             <th>Pending Amt</th>
             <th>Status</th>
-            <th>Files</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {sales &&
             sales?.map((sale, index) => (
-              <tr key={sale.controlId}>
+              <tr key={sale.controlId} className={sale.status === 'Cancelled' ? "table-danger" : undefined}>
                 <td>{index}</td>
                 <td>{sale.controlId}</td>
                 <td>
@@ -222,7 +224,6 @@ export default function SaleListPage() {
                 <td>{sale?.paidAmount}</td>
                 <td>{sale?.pendingAmount}</td>
                 <td>{sale?.status}</td>
-                <td>x days</td>
                 <td>
                   <Stack gap={2}>
                     <Button
@@ -249,7 +250,17 @@ export default function SaleListPage() {
                     >
                       🖨
                     </Button>
-                    <Button variant="outline-danger btn-sm">❌</Button>
+                    <Button
+                      variant="outline-danger btn-sm"
+                      onClick={() => cancelInvoice(
+                        sale.invoiceNo,
+                        sale.controlId,
+                        sale.customerId,
+                        sale.status
+                      )}
+                    >
+                      ❌
+                    </Button>
                   </Stack>
                 </td>
               </tr>
