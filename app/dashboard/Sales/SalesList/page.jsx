@@ -31,9 +31,6 @@ export default function SaleListPage() {
   const [limit, setLimit] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSale, setSelectedSale] = useState({});
-  const [selectedCustomer, setSelectedCustomer] = useState({});
-  const [status, setStatus] = useState("");
-  const [customers, setCustomers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [date, setDate] = useState({
     startDate: new Date().toISOString().split("T")[0],
