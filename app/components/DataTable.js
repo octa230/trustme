@@ -1,10 +1,11 @@
 import axios from 'axios'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useCallback } from 'react'
 import { Table, Stack, Button, Form, Modal, InputGroup, ListGroup, ButtonGroup } from 'react-bootstrap'
 import { createCalc, round2 } from '../dashboard/utils'
 import { useStore } from '../Store'
 import { toast } from 'react-toastify'
 
+// Extracted PaymentMethodsSection component
 function PaymentMethodsSection({
   advance, advanceAmount, setAdvance, setAdvanceAmount,
   cash, cashAmount, setCash, setCashAmount,
@@ -125,17 +126,15 @@ function PaymentMethodsSection({
 }
 
 export default function DataTable(props) {
-
   const { type } = props
   const { state } = useContext(useStore)
   const { userData, supplierData, customerData, companyData, saleData, purchaseData } = state
 
-
-  const [items, setItems] = useState([])
-  const [item, setItem] = useState({
+  // Initial item template
+  const initialItem = {
     code: '',
     name: '',
-    catgeory: "",
+    category: "",
     unit: "",
     description: '',
     image: '',
@@ -144,43 +143,47 @@ export default function DataTable(props) {
     salePrice: 0,
     purchasePrice: 0,
     inStock: 0,
-  })
+  }
 
+  // Main state
+  const [items, setItems] = useState([])
+  const [item, setItem] = useState(initialItem)
 
-  ///TABLE CALC STATE FUNCTIONS
-  const [discount, setDiscount] = useState(0);
-  const [cash, setCash] = useState(false);
-  const [bank, setBank] = useState(false);
-  const [card, setCard] = useState(false);
+  // Payment state
+  const [discount, setDiscount] = useState(0)
+  const [cash, setCash] = useState(false)
+  const [bank, setBank] = useState(false)
+  const [card, setCard] = useState(false)
+  const [advance, setAdvance] = useState(false)
+  const [cashAmount, setCashAmount] = useState(0)
+  const [bankAmount, setBankAmount] = useState(0)
+  const [cardAmount, setCardAmount] = useState(0)
+  const [advanceAmount, setAdvanceAmount] = useState(0)
   const [selectedBank, setSelectedBank] = useState(null)
   const [paymentMethod, setPaymentMethod] = useState(null)
-  const [advance, setAdvance] = useState(false);
-  const [cashAmount, setCashAmount] = useState(0);
-  const [bankAmount, setBankAmount] = useState(0);
-  const [cardAmount, setCardAmount] = useState(0);
+  const [bankName, setBankName] = useState('')
+
+  // VAT state
   const [vatRate, setVatRate] = useState(0.05)
   const [vatEnabled, setVatEnabled] = useState(true)
-  const [bankName, setBankName] = useState('')
-  const [deliveryNoteNumber, setDeliveryNoteNumber] = useState('')
-  const [advanceAmount, setAdvanceAmount] = useState(0);
 
-
-  ////TABLE SEARCH & SELECT FILTER STATE FUNCTIONS
+  // Search and filter state
   const [filterItems, setFilterItems] = useState([])
-  const [searchTerm, setSearchTerm] = useState({});
+  const [searchTerm, setSearchTerm] = useState({})
+  const [activeRow, setActiveRow] = useState(null)
 
-
-  //Modal State
+  // Modal state
   const [newCategory, setNewCategory] = useState(false)
   const [newItem, setNewItem] = useState(false)
+
+  // Data state
   const [categories, setCategories] = useState([])
   const [products, setProducts] = useState([])
   const [banks, setBanks] = useState([])
   const [units, setUnits] = useState([])
 
-
-  //CREATE ITEM MODAL STATE OBJECT
-  const [creatItem, setCreateItem] = useState({
+  // Create item modal state
+  const [createItem, setCreateItem] = useState({
     name: '',
     category: "",
     purchasePrice: '',
@@ -188,55 +191,66 @@ export default function DataTable(props) {
     salePrice: '',
   })
 
-  //CREATE ITEM MODAL STATE OBJECT
   const [category, setCategory] = useState('')
 
+  // Add new item row
+  const handleAddRow = useCallback(() => {
+    setItems(prev => [...prev, { ...initialItem }])
+  }, [])
 
-  ///ACTIVE DROPDOWN STATE
-  const [activeRow, setActiveRow] = useState(null)
+  // Handle key press for adding rows
+  const handleKeyPress = useCallback((e, isLastRow = false) => {
+    if (e.key === 'Enter' || (e.key === 'Tab' && isLastRow)) {
+      e.preventDefault()
+      handleAddRow()
+    }
+  }, [handleAddRow])
 
+  // Remove row
+  const handleRemoveRow = useCallback((index) => {
+    setItems(prevItems => prevItems.filter((_, i) => i !== index))
+  }, [])
 
-  ////FUNCTION TO ADD NEW ITEM ROW
-  const handleAddRow = () => {
-    setItems([...items, { ...item }]);
-  };
-
-  ///HELPER FUNCTION TO REMOVE ROW
-  const handleRemoveRow = (index) => {
-    setItems((prevItems) => prevItems.filter((_, i) => i !== index));
-  };
-
-
-
-  ///SAVE NEW PRODUCT FROM MODAL
+  // Save new product
   const saveNewItem = async () => {
-    //console.log(creatItem)
-    toast.promise(
-      axios.post('/api/items', {
-        name: creatItem.name,
-        purchasePrice: creatItem.purchasePrice,
-        salePrice: creatItem.salePrice,
-        category: creatItem.category,
-        unit: creatItem.unit
-      }),
+    try {
+      const { data } = await toast.promise(
+        axios.post('/api/items', {
+          name: createItem.name,
+          purchasePrice: createItem.purchasePrice,
+          salePrice: createItem.salePrice,
+          category: createItem.category,
+          unit: createItem.unit
+        }),
+        {
+          pending: "Saving item...",
+          success: "Item saved successfully!",
+          error: "Failed to save item. Try again!"
+        }
+      )
 
-      {
-        pending: "...wait",
-        success: "Done",
-        error: "Oops, try again!"
+      if (data) {
+        setProducts(prev => [...prev, data])
+        setNewItem(false)
+        setCreateItem({
+          name: '',
+          category: "",
+          purchasePrice: '',
+          unit: "",
+          salePrice: '',
+        })
       }
-    )
-
-    if (data) {
-      setProducts([...products, { ...data }])
+    } catch (error) {
+      console.error('Error saving item:', error)
     }
   }
 
-
-  //UPLOAD IMAGE  
+  // Upload image
   const uploadImage = async (index, file) => {
-    const formData = new FormData();
-    formData.append('file', file);
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append('file', file)
 
     try {
       const response = await toast.promise(
@@ -249,37 +263,166 @@ export default function DataTable(props) {
           success: 'Image uploaded successfully!',
           error: 'Failed to upload image. Try again.',
         }
-      );
+      )
 
-      if (response && response.data.secure_url) {
-        handleRowChange(index, 'image', response.data.secure_url);
+      if (response?.data?.secure_url) {
+        handleRowChange(index, 'image', response.data.secure_url)
       } else {
-        toast.error('Failed to get valid response from server');
+        toast.error('Failed to get valid response from server')
       }
     } catch (error) {
-      console.error('Error during image upload:', error);
-      toast.error('Error uploading image. Please try again.');
-    }
-  };
-
-
-
-  ///SAVE NEW CATEGORY FROM MODAL
-  const saveNewCategory = async () => {
-    //console.log(creatItem)
-    const { data } = await axios.post('/api/category', {
-      name: category
-    })
-
-    if (data) {
-      setCategories([...categories, { ...data }])
+      console.error('Error during image upload:', error)
+      toast.error('Error uploading image. Please try again.')
     }
   }
 
-  ///FETCH INITIAL DATA USE EFFECT
+  // Save new category
+  const saveNewCategory = async () => {
+    try {
+      const { data } = await axios.post('/api/category', {
+        name: category
+      })
+
+      if (data) {
+        setCategories(prev => [...prev, data])
+        setNewCategory(false)
+        setCategory('')
+      }
+    } catch (error) {
+      console.error('Error saving category:', error)
+      toast.error('Failed to save category')
+    }
+  }
+
+  // Fetch initial data
+  const tableData = async () => {
+    try {
+      const [categoriesRes, productsRes, banksRes, unitsRes] = await Promise.all([
+        axios.get('/api/category'),
+        axios.get('/api/items'),
+        axios.get('/api/banks'),
+        axios.get('/api/units')
+      ])
+
+      setCategories(categoriesRes.data)
+      setProducts(productsRes.data)
+      setBanks(banksRes.data)
+      setUnits(unitsRes.data)
+    } catch (error) {
+      console.error('Error fetching table data:', error)
+      toast.error('Failed to load data')
+    }
+  }
+
+  // Edit row function
+  const handleRowChange = useCallback((index, field, value) => {
+    const isEditableField = type !== 'purchase' 
+      ? ['qty', 'salePrice', 'description', 'image'].includes(field)
+      : ['qty', 'purchasePrice', 'description', 'image'].includes(field)
+
+    if (!isEditableField && !['category', 'unit'].includes(field)) return
+
+    setItems(prevItems =>
+      prevItems.map((itm, i) => {
+        if (i !== index) return itm
+
+        const updatedItem = { ...itm, [field]: value }
+
+        // Recalculate totals if qty or price changes
+        if (['qty', 'salePrice', 'purchasePrice'].includes(field)) {
+          const price = type === 'purchase' ? updatedItem.purchasePrice : updatedItem.salePrice
+          const unitCost = round2(updatedItem.qty * price)
+          const vat = round2(unitCost * vatRate)
+          const total = unitCost + vat
+
+          return {
+            ...updatedItem,
+            unitCost,
+            vat,
+            total
+          }
+        }
+
+        return updatedItem
+      })
+    )
+  }, [type, vatRate])
+
+  // Search product on input
+  const handleSearchChange = useCallback((index, e) => {
+    const value = e.target.value
+    setSearchTerm(prev => ({ ...prev, [index]: value }))
+    setActiveRow(index)
+
+    if (value) {
+      const filtered = products.filter(itm => 
+        itm.name.toLowerCase().includes(value.toLowerCase())
+      )
+      setFilterItems(filtered)
+    } else {
+      setFilterItems([])
+      setActiveRow(null)
+    }
+  }, [products])
+
+  // Select product from search
+  const handleSelectItem = useCallback((index, selectedItem) => {
+    setItems(prevItems =>
+      prevItems.map((itm, i) => {
+        if (i !== index) return itm
+
+        const updatedItem = {
+          ...itm,
+          code: selectedItem.code || itm.code,
+          name: selectedItem.name,
+          description: selectedItem.description || '',
+          image: selectedItem.image || '',
+          purchasePrice: selectedItem.purchasePrice || 0,
+          salePrice: selectedItem.salePrice || 0,
+          qty: 1, // Default to 1 when selecting item
+          inStock: selectedItem.inStock || 0,
+          category: selectedItem.category || itm.category,
+          unit: selectedItem.unit || itm.unit,
+        }
+
+        // Calculate totals
+        const price = type === 'purchase' ? updatedItem.purchasePrice : updatedItem.salePrice
+        const unitCost = round2(updatedItem.qty * price)
+        const vat = round2(unitCost * vatRate)
+        const total = unitCost + vat
+
+        return {
+          ...updatedItem,
+          unitCost,
+          vat,
+          total
+        }
+      })
+    )
+
+    setSearchTerm(prev => ({ ...prev, [index]: selectedItem.name }))
+    setFilterItems([])
+    setActiveRow(null)
+  }, [type, vatRate])
+
+  // Handle category change
+  const handleCategoryChange = useCallback((index, value) => {
+    handleRowChange(index, 'category', value)
+  }, [handleRowChange])
+
+  // Handle bank change
+  const handleBankChange = useCallback((e) => {
+    const selectedBank = JSON.parse(e.target.value)
+    setSelectedBank(selectedBank)
+    setBankName(selectedBank.bankName)
+  }, [])
+
+  // Effects
   useEffect(() => {
     tableData()
+  }, [])
 
+  useEffect(() => {
     if (bank) {
       setPaymentMethod("bank")
     } else if (cash) {
@@ -287,181 +430,9 @@ export default function DataTable(props) {
     } else if (card) {
       setPaymentMethod("card")
     }
-
   }, [cash, card, bank])
 
-
-  //FETCH CATEGORIES, UNITS, BANKS & PRODUCTS
-  const tableData = async () => {
-
-    const [categoriesRes, productsRes, banksRes, unitsRes] = await Promise.all([
-      axios.get('/api/category'),
-      axios.get('/api/items'),
-      axios.get('/api/banks'),
-      axios.get('/api/units')
-    ])
-
-    setCategories(categoriesRes.data)
-    setProducts(productsRes.data)
-    setBanks(banksRes.data)
-    setUnits(unitsRes.data)
-  }
-
-
-  ///EDIT ROW FUNCTION
-  const handleRowChange = (index, field, value) => {
-    if (type !== 'purchase' && (field === 'qty' || field === 'salePrice' || field === 'description' || field === 'image')) {
-      // Handle non-purchase logic
-      setItems((prevItems) =>
-        prevItems.map((itm, i) =>
-          i === index ? { ...itm, [field]: value } : itm
-        )
-      );
-
-      // Recalculate total if qty or salePrice changes
-      setItems((prevItems) =>
-        prevItems.map((itm, i) => {
-          if (i === index) {
-            const unitCost = round2(itm.qty * itm.salePrice); // Unit cost
-            const vat = round2(unitCost * vatRate); // VAT
-            const total = unitCost + vat; // Total value
-            const description = itm.description
-            const image = itm.image
-
-            return {
-              ...itm,
-              description: description,
-              vat: vat,
-              image: image,
-              unitCost: unitCost,
-              total: total
-            };
-          }
-          return itm;
-        })
-      );
-    } else if (type === 'purchase' && (field === 'qty' || field === 'purchasePrice' || 'description')) {
-      // Handle purchase logic
-      setItems((prevItems) =>
-        prevItems.map((itm, i) =>
-          i === index ? { ...itm, [field]: value } : itm
-        )
-      );
-
-      // Recalculate total if qty or purchasePrice changes
-      setItems((prevItems) =>
-        prevItems.map((itm, i) => {
-          if (i === index) {
-            const unitCost = round2(itm.qty * itm.purchasePrice); // Unit cost
-            const vat = round2(unitCost * vatRate); // VAT
-            const total = unitCost + vat; // Total value
-            const description = itm.description
-
-            return {
-              ...itm,
-              vat: vat,
-              unitCost: unitCost,
-              total: total,
-              description: description
-            };
-          }
-          return itm;
-        })
-      );
-    }
-  };
-
-
-
-
-
-  //SEARCH PRODUCT ON INPUT
-  const handleSearchChange = (index, e) => {
-    const value = e.target.value;
-    setSearchTerm((prevState) => ({ ...prevState, [index]: value }));
-
-    setActiveRow(index)
-
-    if (value) {
-      const filtered = products.filter((itm) => itm.name.toLowerCase().includes(value.toLowerCase()));
-      setFilterItems(filtered);
-    } else {
-      setFilterItems([]);
-      setActiveRow(null)
-    }
-  };
-
-
-  ///SELECT PRODUCT FROM SEARCH
-  const handleSelectItem = (index, selectedItem) => {
-    setItems((prevItems) =>
-      prevItems.map((itm, i) =>
-        i === index
-          ? {
-            ...itm,
-            code: selectedItem.code || itm.code,
-            name: selectedItem.name,
-            description: selectedItem.description || '',
-            image: selectedItem.image || '',
-            purchasePrice: selectedItem.purchasePrice || 0,
-            salePrice: selectedItem.salePrice || 0,
-            qty: selectedItem.qty || 1, // Default to 1 when selecting item
-            inStock: selectedItem.inStock || 0,
-            category: selectedItem.category || itm.category,
-            unit: selectedItem.unit || itm.unit,
-          }
-          : itm
-      )
-    );
-
-    // Recalculate unitCost, vat, and total after the item details have been updated
-    setItems((prevItems) =>
-      prevItems.map((itm, i) => {
-        if (i === index) {
-          const unitCost = round2(itm.qty * itm.salePrice); // Unit cost
-          const vat = round2(unitCost * vatRate); // VAT
-          const total = unitCost + vat; // Total value
-          const description = itm.description
-          const image = itm.image
-
-          return {
-            ...itm,
-            unitCost: unitCost,
-            image: image,
-            vat: vat,
-            total: total,
-            description: description
-          };
-        }
-        return itm;
-      })
-    );
-
-    setSearchTerm((prev) => ({ ...prev, [index]: selectedItem.name }));
-    setFilterItems([]);
-    setActiveRow(null);
-  };
-
-
-  // Handle category change
-  const handleCategoryChange = (index, value) => {
-    setItems((prevItems) =>
-      prevItems.map((itm, i) =>
-        i === index ? { ...itm, category: value } : itm.category
-      )
-    );
-  };
-
-
-  const handleBankChange = (e) => {
-    const selectedBank = JSON.parse(e.target.value);
-    setSelectedBank(selectedBank);
-    console.log(selectedBank)
-  };
-
-
-
-  //STATE OBJECT VALUES FOR CALCULATOR
+  // Calculator
   const calculator = createCalc({
     vatEnabled, vatRate, discount,
     cash, bank, card, cashAmount,
@@ -469,167 +440,113 @@ export default function DataTable(props) {
     advanceAmount, items
   })
 
-  const pendingAmount = calculator.pendingAmount().toFixed(2)
-  const vatAmount = calculator.vatAmount().toFixed(2)
-  const totalWithoutVat = calculator.totalWithoutVat().toFixed(2)
-  const totalAfterDiscount = calculator.totalAfterDiscount().toFixed(2)
-  const itemsWithVatTotal = calculator.itemsGrossTotal().toFixed(2)
-  const discountAmount = calculator.discountAmount().toFixed(2)
-  const advanceTotal = calculator.advanceAmount().toFixed(2)
-  const paidAmount = calculator.paidAmount().toFixed(2)
-  const grandTotal = calculator.grandTotal().toFixed(2)
-
-
-  const data = {
-    vatRate, discount,
-    cashAmount, bankAmount,
-    vatEnabled, bankName,
-    cardAmount, advanceAmount,
-    items, pendingAmount, vatAmount,
-    totalAfterDiscount, totalWithoutVat,
-    itemsWithVatTotal, discountAmount,
-    advanceTotal, paidAmount, advanceAmount
+  const calculatedValues = {
+    pendingAmount: calculator.pendingAmount().toFixed(2),
+    vatAmount: calculator.vatAmount().toFixed(2),
+    totalWithoutVat: calculator.totalWithoutVat().toFixed(2),
+    totalAfterDiscount: calculator.totalAfterDiscount().toFixed(2),
+    itemsWithVatTotal: calculator.itemsGrossTotal().toFixed(2),
+    discountAmount: calculator.discountAmount().toFixed(2),
+    advanceTotal: calculator.advanceAmount().toFixed(2),
+    paidAmount: calculator.paidAmount().toFixed(2),
+    grandTotal: calculator.grandTotal().toFixed(2)
   }
 
-
-  ///SWITCH STATEMENT THAT ADJUSTS DATA FORMAT ACCORDING TO TYPE PASSED TO THE TABLE
-  const getDataForType = (type) => {
-    let preparedData = { ...data };
-
-
-    switch (type) {
-      case 'purchase':
-        const purchaseOrderNo = localStorage.getItem('purchaseOrderNo')
-        const purchaseInvNo = localStorage.getItem('purchaseInvNo')
-        const purchaseInvDate = localStorage.getItem('purchaseInvDate')
-        preparedData = {
-          ...preparedData,
-          supplier: supplierData,
-          employee: userData,
-          paymentMethod,
-          bankName,
-          purchaseInvDate: JSON.parse(purchaseInvDate),
-          purchaseOrderNo: JSON.parse(purchaseOrderNo),
-          purchaseInvNo: JSON.parse(purchaseInvNo),
-        };
-        break;
-
-      case 'sales':
-        const dataNo = localStorage.getItem('deliveryNote')
-        const purchaseNo = localStorage.getItem('purchaseOrder')
-        const savedDate = localStorage.getItem('invDate')
-
-        preparedData = {
-          ...preparedData,
-          customer: customerData,
-          employee: userData,
-          paymentMethod,
-          bankName,
-          date: JSON.parse(savedDate),
-          deliveryNote: JSON.parse(dataNo),
-          purchaseOrderNumber: JSON.parse(purchaseNo)
-        };
-        break;
-
-      case 'quotation':
-        preparedData = {
-          ...preparedData,
-          customer: customerData,
-          employee: userData,
-        };
-        break;
-
-      case 'return':
-        preparedData = {
-          ...preparedData,
-          sale: saleData,
-          purchase: purchaseData,
-          employee: userData,
-        };
-        break;
-
-      case 'deliveryNote':
-        preparedData = {
-          ...preparedData,
-          customer: customerData,
-          employee: userData
-        };
-        break;
-
-      case 'invoice':
-        preparedData = {
-          ...preparedData,
-          companyInfo: companyData,
-          paymentMethod,
-          bankName,
-          date: JSON.parse(savedDate)
-        };
-        break;
-
-      default:
-        console.error('Unknown type:', type);
-        break;
+  // Prepare data based on type
+  const getDataForType = useCallback((type) => {
+    const baseData = {
+      vatRate, discount, cashAmount, bankAmount,
+      vatEnabled, bankName, cardAmount, advanceAmount,
+      items, ...calculatedValues
     }
 
-    return preparedData;
-  };
+    const typeSpecificData = {
+      purchase: {
+        supplier: supplierData,
+        employee: userData,
+        paymentMethod,
+        bankName,
+        purchaseInvDate: JSON.parse(localStorage.getItem('purchaseInvDate') || 'null'),
+        purchaseOrderNo: JSON.parse(localStorage.getItem('purchaseOrderNo') || 'null'),
+        purchaseInvNo: JSON.parse(localStorage.getItem('purchaseInvNo') || 'null'),
+      },
+      sales: {
+        customer: customerData,
+        employee: userData,
+        paymentMethod,
+        bankName,
+        date: JSON.parse(localStorage.getItem('invDate') || 'null'),
+        deliveryNote: JSON.parse(localStorage.getItem('deliveryNote') || 'null'),
+        purchaseOrderNumber: JSON.parse(localStorage.getItem('purchaseOrder') || 'null')
+      },
+      quotation: {
+        customer: customerData,
+        employee: userData,
+      },
+      return: {
+        sale: saleData,
+        purchase: purchaseData,
+        employee: userData,
+      },
+      deliveryNote: {
+        customer: customerData,
+        employee: userData
+      },
+      invoice: {
+        companyInfo: companyData,
+        paymentMethod,
+        bankName,
+        date: JSON.parse(localStorage.getItem('invDate') || 'null')
+      }
+    }
 
-  //PRINT & SAVE HANDLER
+    return { ...baseData, ...(typeSpecificData[type] || {}) }
+  }, [vatRate, discount, cashAmount, bankAmount, vatEnabled, bankName, cardAmount, advanceAmount, items, calculatedValues, supplierData, userData, paymentMethod, customerData, saleData, purchaseData, companyData])
+
+  // Save and print handlers
   const saveData = async (type, data) => {
-    await axios.post(`/api/${type}/save`, { data });
-  };
+    await axios.post(`/api/${type}/save`, { data })
+  }
 
   const saveAndPrint = async (type, data) => {
     try {
-      const response = await axios.post(`/api/${type}`, { data }, { responseType: "blob" });
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, "_blank");
+      const response = await axios.post(`/api/${type}`, { data }, { responseType: "blob" })
+      const blob = new Blob([response.data], { type: "application/pdf" })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, "_blank")
 
-
-      localStorage.removeItem('invDate')
-      localStorage.removeItem('deliveryNote')
-      localStorage.removeItem('purchaseOrder')
-      localStorage.removeItem('invDate')
-      localStorage.removeItem('purchaseOrderNo')
-      localStorage.removeItem('purchaseInvNo')
+      // Clear localStorage
+      const keysToRemove = ['invDate', 'deliveryNote', 'purchaseOrder', 'purchaseOrderNo', 'purchaseInvNo']
+      keysToRemove.forEach(key => localStorage.removeItem(key))
     } catch (error) {
-      console.error("Error rendering PDF", error);
+      console.error("Error rendering PDF", error)
     }
-  };
+  }
 
   const handleSave = async (action) => {
-    const preparedData = getDataForType(type);
-
-    if (["SAVE", "SAVE_AND_PRINT"].includes(action)) {
-      toast.promise(
-        (async () => {
-          switch (action) {
-            case "SAVE":
-              console.log("Save only");
-              await saveData(type, preparedData);
-              break;
-            case "SAVE_AND_PRINT":
-              console.log("Save and print");
-              await saveAndPrint(type, preparedData);
-              break;
-          }
-        })(),
-        {
-          pending: "...wait",
-          success: "Done",
-          error: "Oops, try again!",
-        },
-        {
-          autoClose: 3000,
-        }
-      );
-    } else {
-      console.log("Unknown action");
+    if (items.length === 0) {
+      toast.error('Please add at least one item')
+      return
     }
-  };
 
+    const preparedData = getDataForType(type)
 
+    const actions = {
+      SAVE: () => saveData(type, preparedData),
+      SAVE_AND_PRINT: () => saveAndPrint(type, preparedData)
+    }
+
+    if (actions[action]) {
+      toast.promise(
+        actions[action](),
+        {
+          pending: "Processing...",
+          success: "Operation completed successfully!",
+          error: "Operation failed. Please try again!",
+        }
+      )
+    }
+  }
 
   return (
     <>
@@ -641,151 +558,175 @@ export default function DataTable(props) {
             <th>Item</th>
             <th>Unit</th>
             <th>Qty</th>
-            <th>image</th>
-            <th>Pprice</th>
-            <th>Sprice</th>
+            <th>Image</th>
+            <th>P.Price</th>
+            <th>S.Price</th>
             <th>Cost</th>
-            <th>Vat</th>
-            <th>Total Incl.Vat</th>
+            <th>VAT</th>
+            <th>Total Incl.VAT</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {items?.map((itm, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              <td>
-                {itm.category ? (
-                  <Form.Control type='text' value={itm?.category} readOnly />
-                ) : (
-                  <Form.Select name='category'
-                    onChange={(e) => handleCategoryChange(index, e.target.value)}>
-                    <option>{itm.category || 'select'}</option>
-                    {categories?.map((cat, catIndex) => (
-                      <option key={catIndex}>{cat.name}</option>
-                    ))}
-                  </Form.Select>
-                )}
-              </td>
-              <td>
-                {/* Editable fields for name and description */}
-                <Stack gap={2}>
-                  <Form.Control className='sm'
-                    type="text"
-                    value={searchTerm[index] || ""}
-                    onChange={(e) => handleSearchChange(index, e)}
-                    placeholder="Item Name"
-                  />
-                  {activeRow === index && filterItems?.length > 0 && (
-                    <ListGroup
-                      style={{ zIndex: 1, maxHeight: '250px', height: '250px', overflowY: "auto", background: "white" }}>
-                      {filterItems?.map((filteredItem) => (
-                        <ListGroup.Item
-                          key={filteredItem.code}
-                          onClick={() => handleSelectItem(index, filteredItem)}
-                        >
-                          {filteredItem.name}
-                        </ListGroup.Item>
+          {items.map((itm, index) => {
+            const isLastRow = index === items.length - 1
+            
+            return (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>
+                  {itm.category ? (
+                    <Form.Control type='text' value={itm.category} readOnly />
+                  ) : (
+                    <Form.Select 
+                      name='category'
+                      onChange={(e) => handleCategoryChange(index, e.target.value)}
+                      onKeyDown={(e) => handleKeyPress(e, isLastRow)}
+                    >
+                      <option>{itm.category || 'Select Category'}</option>
+                      {categories.map((cat, catIndex) => (
+                        <option key={catIndex} value={cat.name}>{cat.name}</option>
                       ))}
-                    </ListGroup>
+                    </Form.Select>
                   )}
-                  <Form.Control as='textarea'
+                </td>
+                <td>
+                  <Stack gap={2}>
+                    <Form.Control
+                      type="text"
+                      value={searchTerm[index] || ""}
+                      onChange={(e) => handleSearchChange(index, e)}
+                      onKeyDown={(e) => handleKeyPress(e, isLastRow)}
+                      placeholder="Item Name"
+                    />
+                    {activeRow === index && filterItems.length > 0 && (
+                      <ListGroup
+                        style={{ 
+                          zIndex: 1000, 
+                          maxHeight: '200px', 
+                          overflowY: "auto", 
+                          background: "white",
+                          position: 'absolute',
+                          width: '100%'
+                        }}
+                      >
+                        {filterItems.map((filteredItem) => (
+                          <ListGroup.Item
+                            key={filteredItem.code}
+                            onClick={() => handleSelectItem(index, filteredItem)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            {filteredItem.name}
+                          </ListGroup.Item>
+                        ))}
+                      </ListGroup>
+                    )}
+                    <Form.Control
+                      as='textarea'
+                      value={itm.description || ''}
+                      onChange={(e) => handleRowChange(index, 'description', e.target.value)}
+                      onKeyDown={(e) => handleKeyPress(e, isLastRow)}
+                      placeholder="Description"
+                      rows={2}
+                    />
+                  </Stack>
+                </td>
+                <td>
+                  <Form.Control
                     type="text"
-                    value={itm.description || ''}
-                    onChange={(e) =>
-                      handleRowChange(index, 'description', e.target.value)
-                    }
-                    placeholder="Description"
-                    rows={3}
+                    readOnly
+                    value={itm.unit || ''}
                   />
-                </Stack>
-              </td>
-              <td>
-                <Form.Control
-                  type="text" readOnly
-                  value={itm.unit || ''}
-                  onChange={(e) =>
-                    handleRowChange(index, 'unit', e.target.value)
-                  }
-                />
-              </td>
-              <td>
-                <Form.Control
-                  type="number"
-                  value={itm.qty || 0}
-                  onChange={(e) =>
-                    handleRowChange(index, 'qty', Number(e.target.value))
-                  }
-                />
-              </td>
-              <td>
-                <Form.Control
-                  type="file"
-                  onChange={(e) =>
-                    uploadImage(index, e.target.files[0])
-                  }
-                />
-                {itm.image && (
-                  <img src={itm.image} height={100} width={100} alt="Uploaded thumbnail" className='img img-thumbnail align-center' />
-                )}
-              </td>
-              <td>
-                <Form.Control
-                  type="number"
-                  value={itm.purchasePrice || 0}
-                  onChange={(e) =>
-                    handleRowChange(index, 'purchasePrice', Number(e.target.value))
-                  }
-                />
-              </td>
-              <td>
-                <Form.Control
-                  type="number"
-                  value={itm.salePrice || 0}
-                  onChange={(e) =>
-                    handleRowChange(index, 'salePrice', Number(e.target.value))
-                  }
-                />
-              </td>
-              <td>{itm.unitCost}</td>
-              <td>{round2(itm.vat)}</td>
-              <td>{itm.total}</td>
-              <td>
-                <Stack>
-                  <Button variant='light' onClick={() => handleRemoveRow(index)}>❌</Button>
-                </Stack>
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td>
+                  <Form.Control
+                    type="number"
+                    value={itm.qty || 0}
+                    onChange={(e) => handleRowChange(index, 'qty', Number(e.target.value))}
+                    onKeyDown={(e) => handleKeyPress(e, isLastRow)}
+                  />
+                </td>
+                <td>
+                  <Form.Control
+                    type="file"
+                    onChange={(e) => uploadImage(index, e.target.files[0])}
+                    accept="image/*"
+                  />
+                  {itm.image && (
+                    <img 
+                      src={itm.image} 
+                      height={60} 
+                      width={60} 
+                      alt="Item" 
+                      className='img-thumbnail mt-1' 
+                    />
+                  )}
+                </td>
+                <td>
+                  <Form.Control
+                    type="number"
+                    step="0.01"
+                    value={itm.purchasePrice || 0}
+                    onChange={(e) => handleRowChange(index, 'purchasePrice', Number(e.target.value))}
+                    onKeyDown={(e) => handleKeyPress(e, isLastRow)}
+                  />
+                </td>
+                <td>
+                  <Form.Control
+                    type="number"
+                    step="0.01"
+                    value={itm.salePrice || 0}
+                    onChange={(e) => handleRowChange(index, 'salePrice', Number(e.target.value))}
+                    onKeyDown={(e) => handleKeyPress(e, isLastRow)}
+                  />
+                </td>
+                <td>{itm.unitCost?.toFixed(2) || '0.00'}</td>
+                <td>{round2(itm.vat || 0)}</td>
+                <td>{itm.total?.toFixed(2) || '0.00'}</td>
+                <td>
+                  <Button 
+                    variant='outline-danger' 
+                    size="sm"
+                    onClick={() => handleRemoveRow(index)}
+                    title="Remove row"
+                  >
+                    ✕
+                  </Button>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
         <tfoot>
           {/* Summary Section */}
-          <tr className="summary-row">
-            <th colSpan={3}>Totals Summary:</th>
+          <tr className="table-secondary">
+            <th colSpan={12} className="text-center">
+              <strong>Totals Summary</strong>
+            </th>
           </tr>
 
           {/* Amount Breakdown */}
           <tr>
-            <td colSpan={3}>
-              <div className="amount-row">
-                <span className="label">Items Total Incl VAT:</span>
-                <span className="value">AED: {itemsWithVatTotal}</span>
+            <td colSpan={12}>
+              <div className="d-flex justify-content-between">
+                <span>Items Total Incl VAT:</span>
+                <strong>AED {calculatedValues.itemsWithVatTotal}</strong>
               </div>
             </td>
           </tr>
           <tr>
-            <td colSpan={3}>
-              <div className="amount-row">
-                <span className="label">Items Total Excl VAT:</span>
-                <span className="value">AED: {totalWithoutVat}</span>
+            <td colSpan={12}>
+              <div className="d-flex justify-content-between">
+                <span>Items Total Excl VAT:</span>
+                <strong>AED {calculatedValues.totalWithoutVat}</strong>
               </div>
             </td>
           </tr>
 
           {/* Discount Input */}
           <tr>
-            <td colSpan={3}>
-              <InputGroup className="mb-2">
+            <td colSpan={12}>
+              <InputGroup>
                 <InputGroup.Text>Discount</InputGroup.Text>
                 <Form.Control
                   type="number"
@@ -800,48 +741,48 @@ export default function DataTable(props) {
 
           {/* VAT Toggle */}
           <tr>
-            <td colSpan={3}>
-              <InputGroup className="mb-2">
+            <td colSpan={12}>
+              <InputGroup>
                 {vatEnabled && (
                   <Form.Control
                     type="number"
                     step="0.01"
                     value={vatRate}
                     onChange={e => setVatRate(Number(e.target.value))}
-                    placeholder="0.00%"
+                    placeholder="VAT Rate"
                   />
                 )}
                 <InputGroup.Checkbox
                   checked={vatEnabled}
                   onChange={e => setVatEnabled(e.target.checked)}
                 />
-                <InputGroup.Text>VAT Applied: {vatRate || 0}%</InputGroup.Text>
+                <InputGroup.Text>VAT Applied: {(vatRate * 100).toFixed(1)}%</InputGroup.Text>
               </InputGroup>
             </td>
           </tr>
 
           {/* Calculated Totals */}
           <tr>
-            <td colSpan={3}>
-              <div className="amount-row">
-                <span className="label">Total After Discount:</span>
-                <span className="value">AED: {totalAfterDiscount}</span>
+            <td colSpan={12}>
+              <div className="d-flex justify-content-between">
+                <span>Total After Discount:</span>
+                <strong>AED {calculatedValues.totalAfterDiscount}</strong>
               </div>
             </td>
           </tr>
           <tr>
-            <td colSpan={3}>
-              <div className="amount-row">
-                <span className="label">VAT Amount:</span>
-                <span className="value">AED: {vatAmount}</span>
+            <td colSpan={12}>
+              <div className="d-flex justify-content-between">
+                <span>VAT Amount:</span>
+                <strong>AED {calculatedValues.vatAmount}</strong>
               </div>
             </td>
           </tr>
-          <tr>
-            <td colSpan={3}>
-              <div className="amount-row highlight">
-                <span className="label">Grand Total:</span>
-                <span className="value">AED: {grandTotal}</span>
+          <tr className="table-warning">
+            <td colSpan={12}>
+              <div className="d-flex justify-content-between">
+                <span><strong>Grand Total:</strong></span>
+                <strong>AED {calculatedValues.grandTotal}</strong>
               </div>
             </td>
           </tr>
@@ -871,18 +812,18 @@ export default function DataTable(props) {
 
           {/* Payment Summary */}
           <tr>
-            <td colSpan={3}>
-              <div className="amount-row">
-                <span className="label">Total Paid Amount:</span>
-                <span className="value">AED: {calculator.paidAmount().toFixed(2)}</span>
+            <td colSpan={12}>
+              <div className="d-flex justify-content-between">
+                <span>Total Paid Amount:</span>
+                <strong className="text-success">AED {calculatedValues.paidAmount}</strong>
               </div>
             </td>
           </tr>
           <tr>
-            <td colSpan={3}>
-              <div className="amount-row">
-                <span className="label">Total Pending Amount:</span>
-                <span className="value">AED: {calculator.pendingAmount().toFixed(2)}</span>
+            <td colSpan={12}>
+              <div className="d-flex justify-content-between">
+                <span>Total Pending Amount:</span>
+                <strong className="text-danger">AED {calculatedValues.pendingAmount}</strong>
               </div>
             </td>
           </tr>
@@ -890,9 +831,9 @@ export default function DataTable(props) {
           {/* Action Buttons */}
           <tr>
             <td colSpan={12}>
-              <div className="action-buttons d-flex justify-content-between">
+              <div className="d-flex justify-content-between align-items-center">
                 <ButtonGroup>
-                  <Button variant="primary" onClick={() => setNewItem(true)}>
+                  <Button variant="info" onClick={() => setNewItem(true)}>
                     New Item
                   </Button>
                   <Button variant="secondary" onClick={() => setNewCategory(true)}>
@@ -903,25 +844,27 @@ export default function DataTable(props) {
                   </Button>
                 </ButtonGroup>
 
-                <ButtonGroup className="main-actions">
+                <ButtonGroup>
                   <Button
-                    variant="secondary"
-                    disabled={type === 'return'}
-                    onClick={() => items.length > 0 && window.confirm('Save & Print Now?') && handleSave('SAVE_AND_PRINT')}
+                    variant="primary"
+                    disabled={type === 'return' || items.length === 0}
+                    onClick={() => window.confirm('Save & Print Now?') && handleSave('SAVE_AND_PRINT')}
                   >
-                    Save & Print
+                    Save & Print 🖨️
                   </Button>
                   <Button
                     variant="success"
-                    onClick={() => items.length > 0 && window.confirm('Save Actions?') && handleSave('SAVE')}
+                    disabled={items.length === 0}
+                    onClick={() => window.confirm('Save data?') && handleSave('SAVE')}
                   >
                     Save 💾
                   </Button>
                   <Button
                     variant="danger"
-                    onClick={() => items.length > 0 && window.confirm('Undo all Actions?') && setItems([])}
+                    disabled={items.length === 0}
+                    onClick={() => window.confirm('Clear all data?') && setItems([])}
                   >
-                    Cancel
+                    Clear All
                   </Button>
                 </ButtonGroup>
               </div>
@@ -930,82 +873,96 @@ export default function DataTable(props) {
         </tfoot>
       </Table>
 
-
-
-      {/**NEW CATEGORY MODAL */}
+      {/* New Category Modal */}
       <Modal show={newCategory} onHide={() => setNewCategory(false)}>
         <Modal.Header closeButton>
           <Modal.Title>New Category</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Control type='text' className='mb-2'
-            placeholder='category name'
+          <Form.Control 
+            type='text' 
+            placeholder='Category name'
             value={category}
-            onChange={(e) => setCategory(e.target.value)} />
+            onChange={(e) => setCategory(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && saveNewCategory()}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setNewCategory(false)}>
-            CANCEL
+            Cancel
           </Button>
-          <Button variant="primary" onClick={() => saveNewCategory()}>SAVE</Button>
+          <Button 
+            variant="primary" 
+            onClick={saveNewCategory}
+            disabled={!category.trim()}
+          >
+            Save
+          </Button>
         </Modal.Footer>
       </Modal>
 
-      {/**NEW PRODUCT MODAL */}
+      {/* New Product Modal */}
       <Modal show={newItem} onHide={() => setNewItem(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>New Item(Product)</Modal.Title>
+          <Modal.Title>New Item (Product)</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Control className='mb-2'
-            placeholder='name'
-            value={creatItem.name}
-            type='text' onChange={(e) => {
-              setCreateItem((prevState) => ({ ...prevState, name: e.target.value }))
-            }} />
-          <Form.Control className='mb-2'
-            placeholder='purchasePrice'
-            value={creatItem.purchasePrice}
-            type='text' onChange={(e) => {
-              setCreateItem((prevState) => ({ ...prevState, purchasePrice: e.target.value }))
-            }} />
-          <Form.Control className='mb-2'
-            placeholder='salePrice'
-            value={creatItem.salePrice}
-            type='text' onChange={(e) => {
-              setCreateItem((prevState) => ({ ...prevState, salePrice: e.target.value }))
-            }} />
-          <Form.Select className='mb-2'
-            value={creatItem.category || ''}
-            onChange={(e) => {
-              setCreateItem((prevState) => ({ ...prevState, category: e.target.value }))
-            }}
-          >
-            <option>--category--</option>
-            {categories.map((unit) => (
-              <option key={unit.code} value={unit.name}>
-                {unit.name}
-              </option>
-            ))}
-          </Form.Select>
-          <Form.Select value={creatItem.unit || ''}
-            onChange={(e) => {
-              setCreateItem((prevState) => ({ ...prevState, unit: e.target.value }))
-            }}
-          >
-            <option>--Unit--</option>
-            {units.map((unit) => (
-              <option key={unit.code} value={unit.name}>
-                {unit.name}
-              </option>
-            ))}
-          </Form.Select>
+          <Stack gap={3}>
+            <Form.Control
+              placeholder='Product name'
+              value={createItem.name}
+              type='text' 
+              onChange={(e) => setCreateItem(prev => ({ ...prev, name: e.target.value }))}
+            />
+            <Form.Control
+              placeholder='Purchase price'
+              value={createItem.purchasePrice}
+              type='number'
+              step='0.01'
+              onChange={(e) => setCreateItem(prev => ({ ...prev, purchasePrice: e.target.value }))}
+            />
+            <Form.Control
+              placeholder='Sale price'
+              value={createItem.salePrice}
+              type='number'
+              step='0.01'
+              onChange={(e) => setCreateItem(prev => ({ ...prev, salePrice: e.target.value }))}
+            />
+            <Form.Select
+              value={createItem.category || ''}
+              onChange={(e) => setCreateItem(prev => ({ ...prev, category: e.target.value }))}
+            >
+              <option value="">Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat.code || cat.name} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
+            </Form.Select>
+            <Form.Select 
+              value={createItem.unit || ''}
+              onChange={(e) => setCreateItem(prev => ({ ...prev, unit: e.target.value }))}
+            >
+              <option value="">Select Unit</option>
+              {units.map((unit) => (
+                <option key={unit.code || unit.name} value={unit.name}>
+                  {unit.name}
+                </option>
+              ))}
+            </Form.Select>
+          </Stack>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setNewItem(false)}>
-            CANCEL
+            Cancel
           </Button>
-          <Button variant="primary" onClick={() => saveNewItem()}>SAVE</Button>
+          <Button 
+            variant="primary" 
+            onClick={saveNewItem}
+            disabled={!createItem.name.trim() || !createItem.category || !createItem.unit}
+          >
+            Save
+          </Button>
         </Modal.Footer>
       </Modal>
     </>
