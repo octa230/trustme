@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import {Container, ButtonToolbar, Col, Row, Form, 
   ButtonGroup, Table, Button, InputGroup, 
   Stack} from 'react-bootstrap'
+import { toast } from 'react-toastify'
 
 const QuotationList =  () => {
 
@@ -21,6 +22,28 @@ const QuotationList =  () => {
   useEffect(()=>{
     getData()
   }, [])
+
+
+  const handlePrint = async({customerId, controlId, quotationNo})=>{
+    
+    if(window.confirm (`Print Quotation ${quotationNo}`)){
+      toast.promise(
+        axios.post(`/api/quotation/print/${quotationNo}/${controlId}/${customerId}`,
+          {},
+          {responseType:"blob"}
+        ).then((response)=>{
+        const blob = new Blob([response.data], {type:"application/pdf"})
+        const url = window.URL.createObjectURL(blob)
+        window.open(url, "_blank")
+      }),
+      {
+        pending:"...wait",
+        success:"Done!",
+        error:"Oops try again!"
+      }
+      )
+    }
+  } 
   return (
     <Container fluid>
       <h1>Quotations List</h1>
@@ -108,7 +131,7 @@ const QuotationList =  () => {
               <td>
                 <Stack gap={2}>
                     <Button variant='outline-info btn-sm'>🖊</Button>
-                    <Button variant='outline-success btn-sm'>🖨</Button>
+                    <Button variant='outline-success btn-sm' onClick={()=> handlePrint(quotation)}>🖨</Button>
                     <Button variant='outline-danger btn-sm'>❌</Button>
                   </Stack>
               </td>
