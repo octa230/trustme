@@ -33,39 +33,50 @@ export default function Home() {
     redirectUser()
   }, [userData])
 
+  
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Use toast.promise with the proper structure
-    toast.promise(
-      // First argument should be a promise
-      axios.post('/api/auth/login', {
-        username: user.username,
-        password: user.password
-      }),
-      // Second argument is the toast options
-      {
-        pending: "...wait",
-        success: 'Success',
-        error: `...check username or password`
-      }
-    )
-    .then((response) => {
-      // Access data properly from the response
-      const data  = response.data;
+  e.preventDefault();
+  
+  // Use toast.promise with proper rejection handling
+  toast.promise(
+    // First argument should be a promise
+    axios.post('/api/auth/login', {
+      username: user.username,
+      password: user.password
+    }),
+    {
+      pending: "...wait",
+      success: 'Success',
+      error: `...check username or password`
+    }
+  )
+  .then((response) => {
+    // Access data properly from the response
+    const data = response.data;
+    console.log(data);
 
-      console.log(data)
+    if (data && data._id) {
+      ctxDispatch({ type: "SET_USER", payload: data });
+      router.push('/dashboard');
+    }
+  })
+  .catch((error) => {
+    // This catch will now properly handle the axios error response
+    if (error.response) {
+      // Handle server errors (non-2xx status code)
+      console.error('Server responded with:', error.response.data);
+    } else if (error.request) {
+      // Handle network errors (request was made but no response received)
+      console.error('No response received:', error.request);
+    } else {
+      // Handle errors during request setup
+      console.error('Error during request setup:', error.message);
+    }
+  });
+};
 
-      if (data && data._id) {
-        ctxDispatch({type: "SET_USER", payload: data});
-        router.push('/dashboard');
-      }
-    })
-    .catch((error) => {
-      // Handle any error that might occur
-      console.error(error);
-    });
-  };
+
   
 
   return (

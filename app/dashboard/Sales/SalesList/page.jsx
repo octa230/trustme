@@ -3,14 +3,12 @@
 import { round2 } from "../../utils";
 import {
   Container,
-  ButtonToolbar,
   Col,
   Row,
   Form,
   ButtonGroup,
   Button,
   Table,
-  InputGroup,
   Stack,
   Badge,
   Modal,
@@ -18,13 +16,11 @@ import {
 import React, {
   useCallback,
   useEffect,
-  useMemo,
-  useRef,
   useState,
 } from "react";
 import axios, { get } from "axios";
 import { toast } from "react-toastify";
-import debounce from "lodash.debounce";
+
 
 export default function SaleListPage() {
   const [sales, setSales] = useState([]);
