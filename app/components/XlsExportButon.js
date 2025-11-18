@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { Button } from 'react-bootstrap'
+import { LuFileSpreadsheet } from 'react-icons/lu';
 import * as xls from 'xlsx'
 
 const XlsExportButton = ({title = 'export', worksheetName='Sheet1', data=[], keysToInclude = null}) => {
@@ -53,7 +54,7 @@ const XlsExportButton = ({title = 'export', worksheetName='Sheet1', data=[], key
       onClick={handleExport} 
       disabled={loading}
     >
-      {loading ? 'EXPORTING...' : 'EXPORT XLS'}
+      {loading ? 'EXPORTING...' : <LuFileSpreadsheet/>}
     </Button>
   );
 };
