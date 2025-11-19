@@ -501,7 +501,7 @@ const ItemsList = () => {
             <Spinner animation="border" role="status"/>
           ) : (
             <ListGroup>
-              {selectedItem.images.map((img, i) => (
+              {selectedItem.images.length && selectedItem.images?.map((img, i) => (
                 <img src={img} key={i} className="img img-thumbnail rounded" height={50} width={50}/>
               ))}
             </ListGroup>

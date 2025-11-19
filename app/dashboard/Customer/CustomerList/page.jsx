@@ -13,6 +13,7 @@ import { round2 } from '../../utils'
 const CustomersPage =()=> {
 
   const [customers, setCustomers] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [openModal, setOpenModal] = useState(false)
   const [customer, setCustomer] = useState({
     _id:"",
@@ -103,15 +104,22 @@ const CustomersPage =()=> {
   useEffect(()=>{
     const getCustomers = async()=>{
       try{
-        const {data} = await axios.get('/api/customers')
-        setCustomers(data)
-        console.log(data)
+        if(searchQuery){
+          const {data} = await axios.get(`/api/customers/search`, {
+            params: searchQuery
+          })
+          setCustomers(data)
+        }else{
+          const {data} = await axios.get('/api/customers')
+          setCustomers(data)
+          console.log(data)
+        }
       }catch(error){
         console.log(error)
       }
     }
     getCustomers()
-  }, [])
+  }, [searchQuery])
 
   return (
     <Container fluid>

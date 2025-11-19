@@ -253,7 +253,7 @@ export default function DataTable(props) {
     formData.append('file', file)
 
     try {
-      const response = await toast.promise(
+      const {data} = await toast.promise(
         fetch('/api/uploads', {
           method: 'POST',
           body: formData,
@@ -265,8 +265,8 @@ export default function DataTable(props) {
         }
       )
 
-      if (response?.data?.secure_url) {
-        handleRowChange(index, 'image', response.data.secure_url)
+      if (data) {
+        handleRowChange(index, 'image', data[0])
       } else {
         toast.error('Failed to get valid response from server')
       }
