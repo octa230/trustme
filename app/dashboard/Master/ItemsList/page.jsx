@@ -19,6 +19,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import {
+  LuGlobe,
   LuImage,
   LuInfo,
   LuLoaderCircle,
@@ -218,6 +219,22 @@ const ItemsList = () => {
     setUnits(unitsRes.data);
   };
 
+  const handleWebItem = async (product) => {
+    if (window.confirm("change item webstore visibility?")) {
+      try {
+        const status = !product?.web;
+        const { data } = await axios.put(`/api/items/${product._id}`, { web: status });
+        if (data) {
+          setProducts((prev) =>
+            prev.map((item) => (item._id === data._id ? { ...item, ...data } : item))
+          );
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
   useEffect(() => {
     getItems();
   }, []);
@@ -310,7 +327,7 @@ const ItemsList = () => {
                 >
                   <LuImage color={product.images.length ? "green" : "tomato"} />
                 </td>
-                <td className="d-flex justify-items-end align-items-center gap-4">
+                <td className="d-flex justify-content-center gap-4">
                   <LuPenTool
                     className="btn-sm"
                     onClick={() => handleEditItem(product)}
@@ -327,6 +344,10 @@ const ItemsList = () => {
                       setItemId(product._id);
                       setOpenStockModal(true);
                     }}
+                  />
+                  <LuGlobe 
+                    onClick={()=> handleWebItem(product)}
+                    color={product.web == true ? 'green': 'gray'}
                   />
                 </td>
               </tr>
