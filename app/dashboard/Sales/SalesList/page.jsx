@@ -155,7 +155,7 @@ export default function SaleListPage() {
         <Col className="col-md-3">
           <Form.Control
             type="text"
-            placeholder="customer, invoiceNo, controlNo "
+            placeholder="customer, invoiceNo, controlNo, PoNo"
             aria-describedby="addon1"
             value={searchQuery}
             onChange={handleSearch}
@@ -219,7 +219,7 @@ export default function SaleListPage() {
                   sale.status === "Cancelled" ? "table-danger" : undefined
                 }
               >
-                <td>{index}</td>
+                <td>{index +1}</td>
                 <td>{sale.controlId}</td>
                 <td>
                   <Badge pill>{sale.invoiceNo}</Badge>
