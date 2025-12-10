@@ -1,4 +1,4 @@
-@import "~bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap/dist/css/bootstrap.min.css";
 
 /* Header Styles */
 .header {
@@ -150,7 +150,6 @@
 /* Footer */
 .footer {
   display: flex;
-  //justify-content: space-between;
   flex-direction: column;
   width: 100%;
   margin-top: 10px;
